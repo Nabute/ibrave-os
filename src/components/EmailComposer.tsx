@@ -34,7 +34,13 @@ interface EmailComposerProps {
   /** Entity links — the send is logged into these timelines automatically. */
   related?: Pick<
     SendEmailPayload,
-    "client_id" | "lead_id" | "prospect_id" | "candidate_id" | "invoice_id" | "event_id"
+    | "client_id"
+    | "lead_id"
+    | "prospect_id"
+    | "candidate_id"
+    | "invoice_id"
+    | "attach_invoice_pdf"
+    | "event_id"
   >;
   onSent?: () => void;
 }
@@ -169,6 +175,16 @@ export function EmailComposer({
               onChange={(e) => setForm({ ...form, body: e.target.value })}
             />
           </div>
+          {related?.attach_invoice_pdf && (
+            <p className="rounded-md bg-accent px-3 py-2 text-xs text-accent-foreground">
+              The invoice PDF is generated server-side and attached automatically.
+            </p>
+          )}
+          {related?.event_id && (
+            <p className="rounded-md bg-accent px-3 py-2 text-xs text-accent-foreground">
+              A calendar invite (.ics) is attached automatically.
+            </p>
+          )}
           {error && <p className="text-sm text-destructive">{error}</p>}
         </div>
         <DialogFooter>

@@ -526,7 +526,25 @@ export interface SendEmailPayload {
   prospect_id?: string;
   candidate_id?: string;
   invoice_id?: string;
+  attach_invoice_pdf?: boolean;
   event_id?: string;
+}
+
+export interface AccountingRow {
+  entry_date: string;
+  doc_number: string;
+  party: string;
+  account: string;
+  account_name: string;
+  debit_minor: number;
+  credit_minor: number;
+  currency: string;
+}
+
+export interface ClientDigest {
+  month: string;
+  total_hours: number;
+  rows: { project: string; person: string; task: string; hours: number }[];
 }
 
 export interface EmailLogRow {

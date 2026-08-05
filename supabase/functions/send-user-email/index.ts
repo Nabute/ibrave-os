@@ -5,6 +5,7 @@
 // attendees get a real invite without anyone leaving the app.
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { adminClient, sendEmailRaw } from "../_shared/admin.ts";
+import { buildInvoicePdf } from "../_shared/invoicePdf.ts";
 
 interface SendPayload {
   to: string[];
@@ -20,6 +21,8 @@ interface SendPayload {
   prospect_id?: string;
   candidate_id?: string;
   invoice_id?: string;
+  /** When true (and invoice_id set), a server-generated PDF is attached. */
+  attach_invoice_pdf?: boolean;
   event_id?: string;
 }
 
@@ -71,8 +74,27 @@ Deno.serve(async (req) => {
     fromName = ident?.display_name ?? fromName;
   }
 
-  // ICS attachment for calendar invites.
+  // Attachments: server-generated invoice PDF and/or calendar invite.
   let attachments: { filename: string; content: string }[] | undefined;
+  if (payload.attach_invoice_pdf && payload.invoice_id) {
+    const { data: inv } = await db
+      .from("invoices")
+      .select(
+        "number, kind, issued_at, due_date, currency, subtotal_minor, tax_total_minor, total_minor, clients ( name, billing_address ), invoice_lines ( description, quantity, unit_price_minor, amount_minor, position )"
+      )
+      .eq("id", payload.invoice_id)
+      .single();
+    const { data: company } = await db
+      .from("company_settings")
+      .select("company_name, legal_name, address, bank_details")
+      .single();
+    if (inv?.number && company) {
+      const pdf = await buildInvoicePdf(inv as never, company);
+      let bin = "";
+      pdf.forEach((b) => (bin += String.fromCharCode(b)));
+      attachments = [{ filename: `${inv.number}.pdf`, content: btoa(bin) }];
+    }
+  }
   if (payload.event_id) {
     const { data: event } = await db
       .from("calendar_events")
@@ -81,7 +103,10 @@ Deno.serve(async (req) => {
       .single();
     if (event) {
       const ics = buildIcs(event, profile?.email ?? "noreply@ibrave.dev");
-      attachments = [{ filename: "invite.ics", content: btoa(ics) }];
+      attachments = [
+        ...(attachments ?? []),
+        { filename: "invite.ics", content: btoa(ics) },
+      ];
     }
   }
 

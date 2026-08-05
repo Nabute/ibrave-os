@@ -1,5 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
 import { Download } from "lucide-react";
+import { useState } from "react";
+
+import { Input } from "@/components/ui/input";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -60,6 +64,7 @@ export function ReportsScreen() {
           <TabsTrigger value="utilization">Utilization</TabsTrigger>
           <TabsTrigger value="burn">Project burn</TabsTrigger>
           <TabsTrigger value="margin">Margin</TabsTrigger>
+          <TabsTrigger value="accounting">Accounting</TabsTrigger>
         </TabsList>
 
         <TabsContent value="unbilled">
@@ -293,7 +298,102 @@ export function ReportsScreen() {
             </CardContent>
           </Card>
         </TabsContent>
+        <TabsContent value="accounting">
+          <AccountingTab />
+        </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+/** D-5: the monthly journal for your accountant — map account codes once in
+ *  Admin → Company settings, reuse forever. */
+function AccountingTab() {
+  const api = useApi();
+  const [month, setMonth] = useState(format(new Date(), "yyyy-MM"));
+  const monthStart = `${month}-01`;
+  const monthEnd = format(
+    new Date(new Date(`${month}-01T00:00:00`).getFullYear(), new Date(`${month}-01T00:00:00`).getMonth() + 1, 0),
+    "yyyy-MM-dd"
+  );
+
+  const { data: rows } = useQuery({
+    queryKey: ["r-accounting", month],
+    queryFn: () => api.reports.accounting(monthStart, monthEnd),
+  });
+
+  const totalDebit = (rows ?? []).reduce((s, r) => s + r.debit_minor, 0);
+  const totalCredit = (rows ?? []).reduce((s, r) => s + r.credit_minor, 0);
+
+  return (
+    <Card>
+      <CardContent className="pt-4">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <Input
+            type="month"
+            className="w-44"
+            value={month}
+            onChange={(e) => setMonth(e.target.value)}
+          />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              downloadCsv(
+                `journal-${month}.csv`,
+                (rows ?? []).map((r) => ({
+                  date: r.entry_date,
+                  document: r.doc_number,
+                  party: r.party,
+                  account: r.account,
+                  account_name: r.account_name,
+                  debit: (r.debit_minor / 100).toFixed(2),
+                  credit: (r.credit_minor / 100).toFixed(2),
+                  currency: r.currency,
+                }))
+              )
+            }
+          >
+            <Download className="h-4 w-4" /> CSV for accountant
+          </Button>
+        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Date</TableHead>
+              <TableHead>Document</TableHead>
+              <TableHead>Party</TableHead>
+              <TableHead>Account</TableHead>
+              <TableHead className="text-right">Debit</TableHead>
+              <TableHead className="text-right">Credit</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {(rows ?? []).map((r, i) => (
+              <TableRow key={i}>
+                <TableCell>{r.entry_date}</TableCell>
+                <TableCell className="font-medium">{r.doc_number}</TableCell>
+                <TableCell className="text-muted-foreground">{r.party}</TableCell>
+                <TableCell>
+                  {r.account} · {r.account_name}
+                </TableCell>
+                <TableCell className="text-right tabular-nums">
+                  {r.debit_minor !== 0 ? formatMinor(r.debit_minor, r.currency) : ""}
+                </TableCell>
+                <TableCell className="text-right tabular-nums">
+                  {r.credit_minor !== 0 ? formatMinor(r.credit_minor, r.currency) : ""}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+        <p className="mt-3 text-right text-sm tabular-nums">
+          <span className={totalDebit === totalCredit ? "text-muted-foreground" : "font-semibold text-destructive"}>
+            Debits {formatMinor(totalDebit, "USD")} · Credits {formatMinor(totalCredit, "USD")}
+            {totalDebit === totalCredit ? " · balanced ✓" : " · NOT BALANCED"}
+          </span>
+        </p>
+      </CardContent>
+    </Card>
   );
 }

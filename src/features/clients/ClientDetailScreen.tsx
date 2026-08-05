@@ -298,6 +298,18 @@ function TimelineTab({ clientId }: { clientId: string }) {
   const [note, setNote] = useState("");
   const [kind, setKind] = useState("note");
   const [emailing, setEmailing] = useState(false);
+  const [digesting, setDigesting] = useState(false);
+
+  // C-3: last month's hours summary, auto-drafted for review-and-send.
+  const prev = new Date();
+  prev.setDate(1);
+  prev.setMonth(prev.getMonth() - 1);
+  const digestMonth = `${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, "0")}-01`;
+  const digestQuery = useQuery({
+    queryKey: ["digest", clientId, digestMonth],
+    queryFn: () => api.accounts.digest(clientId, digestMonth),
+    enabled: digesting,
+  });
 
   const { data: activities } = useQuery({
     queryKey: ["account-activities", clientId],
@@ -351,6 +363,13 @@ function TimelineTab({ clientId }: { clientId: string }) {
           <Button variant="outline" onClick={() => setEmailing(true)}>
             Email client
           </Button>
+          <Button
+            variant="outline"
+            disabled={digestQuery.isFetching}
+            onClick={() => setDigesting(true)}
+          >
+            Draft digest
+          </Button>
         </div>
         <EmailComposer
           open={emailing}
@@ -363,6 +382,24 @@ function TimelineTab({ clientId }: { clientId: string }) {
             void qc.invalidateQueries({ queryKey: ["account-activities", clientId] });
           }}
         />
+        {digesting && digestQuery.data && (
+          <EmailComposer
+            open
+            onClose={() => setDigesting(false)}
+            to={(contacts ?? [])
+              .filter((c) => c.email && !c.opted_out)
+              .map((c) => c.email!)}
+            subject={`Delivery summary — ${digestQuery.data.month}`}
+            body={`Hello,\n\nHere is the delivery summary for ${digestQuery.data.month}:\n\n${digestQuery.data.rows
+              .map((r) => `• ${r.project} — ${r.person} (${r.task}): ${r.hours} h`)
+              .join("\n")}\n\nTotal approved hours: ${digestQuery.data.total_hours} h\n\nAll hours are backed by approved timesheets — happy to share the detail.\n\nBest regards,`}
+            related={{ client_id: clientId }}
+            onSent={() => {
+              setDigesting(false);
+              void qc.invalidateQueries({ queryKey: ["account-activities", clientId] });
+            }}
+          />
+        )}
         <ul className="space-y-2.5 text-sm">
           {(activities ?? []).map((a) => (
             <li key={a.id} className="flex gap-3">

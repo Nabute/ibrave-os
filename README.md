@@ -1,6 +1,6 @@
 # iBrave OS — Outsourcing Business Automation Platform
 
-Internal platform for a 10–50 person outsourcing company. **All nine phases of
+Internal platform for a 10–50 person outsourcing company. **All ten phases of
 the [blueprint](docs/outsourcing-automation-blueprint.md) are implemented:**
 **core + time tracking** (weekly grid, submit → approve → reject workflow),
 **billing** (versioned rate cards, draft invoice generation, issue/void/credit
@@ -23,7 +23,14 @@ checklist, Talent 360 with automatic engagement history and client-ready
 profile export), and the **Owner Command Center** (live company-pulse tiles
 that each drill down to their source records, realtime activity feed,
 risk-scored engagement board, the two-sided demand-vs-supply pipeline, and
-configurable owner alert rules), plus the My Day workspace and reports.
+configurable owner alert rules), plus **hardening** (server-generated invoice
+PDFs attached to in-app email, bank-CSV payment matching, a balanced
+double-entry accounting export mapped to configurable account codes, Slack
+mirroring of activity-feed events, and monthly client digests drafted for
+review-and-send), plus the My Day workspace and reports.
+
+To mirror activity events to Slack, store an incoming-webhook URL in Vault:
+`select vault.create_secret('https://hooks.slack.com/services/…', 'slack_webhook_url');`
 
 **All communication stays in-app**: every email (invoices, outreach, candidate
 correspondence, event invites) is composed in the app and sent through the

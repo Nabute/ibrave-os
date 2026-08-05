@@ -3,6 +3,7 @@ import type {
   Account360,
   AccountActivity,
   AccountHealth,
+  ClientDigest,
   Escalation,
   FeedbackPulse,
   Opportunity,
@@ -12,6 +13,11 @@ import type {
 export class AccountsRepository extends BaseRepository {
   account360(clientId: string): Promise<Account360> {
     return this.rpc("account_360", { p_client_id: clientId });
+  }
+
+  /** Monthly hours digest (C-3) for review-and-send via the composer. */
+  digest(clientId: string, month: string): Promise<ClientDigest> {
+    return this.rpc("client_digest", { p_client_id: clientId, p_month: month });
   }
 
   health(): Promise<AccountHealth[]> {

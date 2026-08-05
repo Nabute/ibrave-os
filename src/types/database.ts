@@ -772,6 +772,10 @@ export type Database = {
       }
       company_settings: {
         Row: {
+          acct_ar: string
+          acct_bank: string
+          acct_revenue: string
+          acct_tax: string
           address: string | null
           approval_nudge_days: number
           bank_details: string | null
@@ -790,6 +794,10 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          acct_ar?: string
+          acct_bank?: string
+          acct_revenue?: string
+          acct_tax?: string
           address?: string | null
           approval_nudge_days?: number
           bank_details?: string | null
@@ -808,6 +816,10 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          acct_ar?: string
+          acct_bank?: string
+          acct_revenue?: string
+          acct_tax?: string
           address?: string | null
           approval_nudge_days?: number
           bank_details?: string | null
@@ -3648,6 +3660,19 @@ export type Database = {
       }
     }
     Views: {
+      v_accounting_export: {
+        Row: {
+          account: string | null
+          account_name: string | null
+          credit_minor: number | null
+          currency: string | null
+          debit_minor: number | null
+          doc_number: string | null
+          entry_date: string | null
+          party: string | null
+        }
+        Relationships: []
+      }
       v_approval_queue: {
         Row: {
           billable: boolean | null
@@ -4160,6 +4185,10 @@ export type Database = {
           utilization_pct: number
         }[]
       }
+      client_digest: {
+        Args: { p_client_id: string; p_month: string }
+        Returns: Json
+      }
       client_has_open_escalation: {
         Args: { p_client_id: string }
         Returns: boolean
@@ -4614,6 +4643,7 @@ export type Database = {
           kind: string
         }[]
       }
+      notify_slack: { Args: { p_text: string }; Returns: undefined }
       notify_user: {
         Args: {
           p_body?: string

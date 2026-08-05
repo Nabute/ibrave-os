@@ -36,6 +36,7 @@ import {
 import { toDisplayMessage } from "@/lib/api";
 import { formatMinor } from "@/lib/money";
 import { useApi } from "@/lib/session";
+import { BankImportDialog } from "./BankImportDialog";
 import { INVOICE_BADGE } from "./status";
 
 export function InvoicesScreen() {
@@ -82,7 +83,9 @@ export function InvoicesScreen() {
             The system prepares drafts; you review and issue the ones that move money.
           </p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <div className="flex gap-2">
+          <BankImportDialog />
+          <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button>
               <FilePlus2 className="h-4 w-4" /> Generate draft
@@ -144,7 +147,8 @@ export function InvoicesScreen() {
               </Button>
             </DialogFooter>
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        </div>
       </div>
 
       <Card>

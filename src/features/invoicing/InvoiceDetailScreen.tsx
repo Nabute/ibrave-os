@@ -430,7 +430,11 @@ export function InvoiceDetailScreen() {
         body={`Dear ${invoice.clients?.name},\n\nPlease find invoice ${invoice.number} for ${formatMinor(invoice.total_minor, invoice.currency)}, due ${invoice.due_date}.\n\n${(invoice.invoice_lines ?? [])
           .map((l) => `• ${l.description}: ${formatMinor(l.amount_minor, invoice.currency)}`)
           .join("\n")}\n\nThank you for your business.`}
-        related={{ invoice_id: invoice.id, client_id: invoice.client_id }}
+        related={{
+          invoice_id: invoice.id,
+          client_id: invoice.client_id,
+          attach_invoice_pdf: true,
+        }}
       />
 
       {/* Manual line dialog */}
