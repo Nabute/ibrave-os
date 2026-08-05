@@ -321,6 +321,78 @@ export interface BurnRow {
   burn_pct: number | null;
 }
 
+export interface Prospect {
+  id: string;
+  company: string;
+  industry: string | null;
+  size: string | null;
+  region: string | null;
+  source: string;
+  fit_score: number;
+  contact_name: string | null;
+  email: string | null;
+  linkedin: string | null;
+  status: "active" | "converted" | "disqualified" | "dnc";
+  owner_id: string | null;
+  converted_lead_id: string | null;
+  notes: string | null;
+}
+
+export interface ProspectActivity {
+  id: number;
+  prospect_id: string;
+  kind: string;
+  body: string;
+  at: string;
+}
+
+export interface CadenceStep {
+  day_offset: number;
+  kind: string;
+  note?: string;
+}
+
+export interface Cadence {
+  id: string;
+  name: string;
+  steps: CadenceStep[];
+  active: boolean;
+}
+
+export interface CadenceRun {
+  id: string;
+  cadence_id: string;
+  prospect_id: string;
+  current_step: number;
+  status: "active" | "completed" | "stopped";
+  started_at: string;
+  cadences?: { name: string; steps: CadenceStep[] };
+  prospects?: { company: string };
+}
+
+export interface SalesTask {
+  id: string;
+  owner_id: string;
+  prospect_id: string | null;
+  client_id: string | null;
+  cadence_run_id: string | null;
+  kind: "touch" | "followup" | "checkin" | "meeting";
+  description: string;
+  due_date: string;
+  done_at: string | null;
+  prospects?: { company: string };
+  clients?: { name: string };
+}
+
+export interface ProspectFunnelRow {
+  source: string;
+  prospects: number;
+  contacted: number;
+  converted: number;
+  won: number;
+  dnc: number;
+}
+
 export type LeadStage =
   | "lead"
   | "qualified"
@@ -572,6 +644,11 @@ export interface MyDay {
     submitted_hours: number;
     approved_hours: number;
     rejected_count: number;
+  };
+  tasks?: {
+    due_today: number;
+    overdue: number;
+    upcoming: number;
   };
   approvals?: {
     pending_count: number;

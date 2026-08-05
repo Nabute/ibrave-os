@@ -312,6 +312,69 @@ export type Database = {
         }
         Relationships: []
       }
+      cadence_runs: {
+        Row: {
+          cadence_id: string
+          current_step: number
+          id: string
+          prospect_id: string
+          started_at: string
+          status: string
+        }
+        Insert: {
+          cadence_id: string
+          current_step?: number
+          id?: string
+          prospect_id: string
+          started_at?: string
+          status?: string
+        }
+        Update: {
+          cadence_id?: string
+          current_step?: number
+          id?: string
+          prospect_id?: string
+          started_at?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cadence_runs_cadence_id_fkey"
+            columns: ["cadence_id"]
+            isOneToOne: false
+            referencedRelation: "cadences"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cadence_runs_prospect_id_fkey"
+            columns: ["prospect_id"]
+            isOneToOne: false
+            referencedRelation: "prospects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cadences: {
+        Row: {
+          active: boolean
+          id: string
+          name: string
+          steps: Json
+        }
+        Insert: {
+          active?: boolean
+          id?: string
+          name: string
+          steps: Json
+        }
+        Update: {
+          active?: boolean
+          id?: string
+          name?: string
+          steps?: Json
+        }
+        Relationships: []
+      }
       clients: {
         Row: {
           account_owner_id: string | null
@@ -1768,6 +1831,134 @@ export type Database = {
           },
         ]
       }
+      prospect_activities: {
+        Row: {
+          actor_id: string | null
+          at: string
+          body: string
+          id: number
+          kind: string
+          prospect_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          at?: string
+          body: string
+          id?: never
+          kind?: string
+          prospect_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          at?: string
+          body?: string
+          id?: never
+          kind?: string
+          prospect_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prospect_activities_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prospect_activities_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "prospect_activities_prospect_id_fkey"
+            columns: ["prospect_id"]
+            isOneToOne: false
+            referencedRelation: "prospects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prospects: {
+        Row: {
+          company: string
+          contact_name: string | null
+          converted_lead_id: string | null
+          created_at: string
+          email: string | null
+          fit_score: number
+          id: string
+          industry: string | null
+          linkedin: string | null
+          notes: string | null
+          owner_id: string | null
+          region: string | null
+          size: string | null
+          source: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          company: string
+          contact_name?: string | null
+          converted_lead_id?: string | null
+          created_at?: string
+          email?: string | null
+          fit_score?: number
+          id?: string
+          industry?: string | null
+          linkedin?: string | null
+          notes?: string | null
+          owner_id?: string | null
+          region?: string | null
+          size?: string | null
+          source?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          company?: string
+          contact_name?: string | null
+          converted_lead_id?: string | null
+          created_at?: string
+          email?: string | null
+          fit_score?: number
+          id?: string
+          industry?: string | null
+          linkedin?: string | null
+          notes?: string | null
+          owner_id?: string | null
+          region?: string | null
+          size?: string | null
+          source?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prospects_converted_lead_id_fkey"
+            columns: ["converted_lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prospects_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prospects_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       quote_lines: {
         Row: {
           amount_minor: number
@@ -2002,6 +2193,98 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "v_unbilled_work"
             referencedColumns: ["project_id"]
+          },
+        ]
+      }
+      sales_tasks: {
+        Row: {
+          cadence_run_id: string | null
+          client_id: string | null
+          created_at: string
+          description: string
+          done_at: string | null
+          done_note: string | null
+          due_date: string
+          id: string
+          kind: string
+          owner_id: string
+          prospect_id: string | null
+        }
+        Insert: {
+          cadence_run_id?: string | null
+          client_id?: string | null
+          created_at?: string
+          description: string
+          done_at?: string | null
+          done_note?: string | null
+          due_date?: string
+          id?: string
+          kind?: string
+          owner_id: string
+          prospect_id?: string | null
+        }
+        Update: {
+          cadence_run_id?: string | null
+          client_id?: string | null
+          created_at?: string
+          description?: string
+          done_at?: string | null
+          done_note?: string | null
+          due_date?: string
+          id?: string
+          kind?: string
+          owner_id?: string
+          prospect_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_tasks_cadence_run_id_fkey"
+            columns: ["cadence_run_id"]
+            isOneToOne: false
+            referencedRelation: "cadence_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_tasks_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_tasks_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "v_margin_by_project"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "sales_tasks_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "v_unbilled_work"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "sales_tasks_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_tasks_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "sales_tasks_prospect_id_fkey"
+            columns: ["prospect_id"]
+            isOneToOne: false
+            referencedRelation: "prospects"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -2666,6 +2949,17 @@ export type Database = {
           },
         ]
       }
+      v_prospect_funnel: {
+        Row: {
+          contacted: number | null
+          converted: number | null
+          dnc: number | null
+          prospects: number | null
+          source: string | null
+          won: number | null
+        }
+        Relationships: []
+      }
       v_unbilled_work: {
         Row: {
           client_id: string | null
@@ -2819,6 +3113,28 @@ export type Database = {
         Args: { p_client_id: string }
         Returns: boolean
       }
+      complete_sales_task: {
+        Args: { p_note?: string; p_task_id: string }
+        Returns: {
+          cadence_run_id: string | null
+          client_id: string | null
+          created_at: string
+          description: string
+          done_at: string | null
+          done_note: string | null
+          due_date: string
+          id: string
+          kind: string
+          owner_id: string
+          prospect_id: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "sales_tasks"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       compute_account_health: {
         Args: { p_client_id: string }
         Returns: {
@@ -2855,6 +3171,34 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "payout_statements"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      convert_prospect: {
+        Args: { p_prospect_id: string }
+        Returns: {
+          client_id: string | null
+          company: string
+          contact_name: string | null
+          created_at: string
+          currency: string
+          email: string | null
+          expected_start: string | null
+          expected_value_minor: number | null
+          id: string
+          lost_reason: string | null
+          notes: string | null
+          owner_id: string | null
+          phone: string | null
+          probability_pct: number
+          source: string
+          stage: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "leads"
           isOneToOne: true
           isSetofReturn: false
         }
@@ -3158,6 +3502,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      job_account_checkins: { Args: never; Returns: number }
       job_account_health: { Args: never; Returns: number }
       job_approval_nudges: { Args: never; Returns: number }
       job_dunning_scan: { Args: never; Returns: number }
@@ -3205,6 +3550,34 @@ export type Database = {
         Args: { p_statement_id: string }
         Returns: Json
       }
+      prospect_action: {
+        Args: { p_action: string; p_comment?: string; p_prospect_id: string }
+        Returns: {
+          company: string
+          contact_name: string | null
+          converted_lead_id: string | null
+          created_at: string
+          email: string | null
+          fit_score: number
+          id: string
+          industry: string | null
+          linkedin: string | null
+          notes: string | null
+          owner_id: string | null
+          region: string | null
+          size: string | null
+          source: string
+          status: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "prospects"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      prospect_actions: { Args: { p_prospect_id: string }; Returns: Json }
       quote_action: {
         Args: { p_action: string; p_comment?: string; p_quote_id: string }
         Returns: {
@@ -3307,6 +3680,27 @@ export type Database = {
       staffing_request_actions: {
         Args: { p_request_id: string }
         Returns: Json
+      }
+      start_cadence: {
+        Args: { p_cadence_id: string; p_prospect_id: string }
+        Returns: {
+          cadence_id: string
+          current_step: number
+          id: string
+          prospect_id: string
+          started_at: string
+          status: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "cadence_runs"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      stop_cadence: {
+        Args: { p_reason?: string; p_run_id: string }
+        Returns: undefined
       }
       submit_week: {
         Args: { p_week_start: string }

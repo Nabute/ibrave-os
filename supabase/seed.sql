@@ -251,6 +251,34 @@ insert into public.feedback_pulses (client_id, project_id, score_1_5, comment, a
    'Sprint delivery consistently on time', '11111111-1111-1111-1111-111111111111');
 
 -- ----------------------------------------------------------------------------
+-- Sales development (Phase 7): cadences + prospects
+-- ----------------------------------------------------------------------------
+insert into public.cadences (id, name, steps) values
+  ('ffff8888-0000-0000-0000-000000000001', 'Standard outbound', '[
+    {"day_offset": 0,  "kind": "email",    "note": "Intro + relevant case study"},
+    {"day_offset": 3,  "kind": "linkedin", "note": "Connect with a short note"},
+    {"day_offset": 7,  "kind": "call",     "note": "Call — reference the case study"},
+    {"day_offset": 14, "kind": "email",    "note": "Break-up email"}
+  ]'::jsonb),
+  ('ffff8888-0000-0000-0000-000000000002', 'Event follow-up', '[
+    {"day_offset": 0, "kind": "email", "note": "Great meeting you at the event"},
+    {"day_offset": 4, "kind": "call",  "note": "Follow-up call — propose intro meeting"}
+  ]'::jsonb);
+
+insert into public.prospects
+  (id, company, industry, size, region, source, fit_score, contact_name, email, owner_id, notes)
+values
+  ('ffff9999-0000-0000-0000-000000000001', 'Wayne Enterprises', 'Aerospace', '500+', 'US',
+   'research', 5, 'Lucius Fox', 'lfox@wayne.example',
+   '11111111-1111-1111-1111-111111111111', 'R&D outsourcing potential'),
+  ('ffff9999-0000-0000-0000-000000000002', 'Stark Industries', 'Energy', '200-500', 'US',
+   'event', 4, 'Pepper Potts', 'pepper@stark.example',
+   '11111111-1111-1111-1111-111111111111', 'Met at DevCon booth'),
+  ('ffff9999-0000-0000-0000-000000000003', 'Tyrell Corp', 'Biotech', '50-200', 'EU',
+   'outbound', 2, null, null,
+   '11111111-1111-1111-1111-111111111111', 'Cold list — low fit');
+
+-- ----------------------------------------------------------------------------
 -- Cost rates (E-1): hourly for the devs, monthly for the salaried PM
 -- ----------------------------------------------------------------------------
 insert into public.cost_rates (user_id, effective_from, hourly_cost_minor, monthly_cost_minor, currency, note) values

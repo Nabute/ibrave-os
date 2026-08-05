@@ -7,6 +7,7 @@ import {
   Clock,
   HandCoins,
   Handshake,
+  Target,
   Users,
   LayoutDashboard,
   LineChart,
@@ -54,7 +55,10 @@ const NAV: NavSection[] = [
   },
   {
     title: "Growth",
-    items: [{ to: "/sales", label: "Sales", icon: Handshake, roles: ["sales", "finance"] }],
+    items: [
+      { to: "/prospecting", label: "Prospecting", icon: Target, roles: ["sales"] },
+      { to: "/sales", label: "Sales", icon: Handshake, roles: ["sales", "finance"] },
+    ],
   },
   {
     title: "Money",

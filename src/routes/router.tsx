@@ -18,6 +18,7 @@ import { PayoutDetailScreen } from "@/features/payouts/PayoutDetailScreen";
 import { PayoutsScreen } from "@/features/payouts/PayoutsScreen";
 import { ProjectDetailScreen } from "@/features/projects/ProjectDetailScreen";
 import { ProjectsScreen } from "@/features/projects/ProjectsScreen";
+import { ProspectingScreen } from "@/features/prospecting/ProspectingScreen";
 import { ReportsScreen } from "@/features/reports/ReportsScreen";
 import { SalesScreen } from "@/features/sales/SalesScreen";
 import { StaffingScreen } from "@/features/staffing/StaffingScreen";
@@ -74,6 +75,11 @@ const routes = [
   }),
   createRoute({ getParentRoute: () => appRoute, path: "/staffing", component: StaffingScreen }),
   createRoute({ getParentRoute: () => appRoute, path: "/sales", component: SalesScreen }),
+  createRoute({
+    getParentRoute: () => appRoute,
+    path: "/prospecting",
+    component: ProspectingScreen,
+  }),
   createRoute({ getParentRoute: () => appRoute, path: "/payouts", component: PayoutsScreen }),
   createRoute({
     getParentRoute: () => appRoute,

@@ -80,6 +80,28 @@ export function MyDayScreen() {
           </MCard>
         )}
 
+        {day?.tasks && day.tasks.due_today > 0 && (
+          <MCard variants={fadeUp}>
+            <CardHeader className="pb-2">
+              <CardDescription>Task queue</CardDescription>
+              <CardTitle className="text-xl">
+                {day.tasks.due_today} due today
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <p className="text-sm text-muted-foreground">
+                {day.tasks.overdue > 0 && `${day.tasks.overdue} overdue · `}
+                {day.tasks.upcoming} upcoming
+              </p>
+              <Button asChild variant="outline" size="sm">
+                <Link to="/prospecting">
+                  Open today view <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </CardContent>
+          </MCard>
+        )}
+
         {day?.approvals && day.approvals.pending_count > 0 && (
           <MCard variants={fadeUp}>
             <CardHeader className="pb-2">
