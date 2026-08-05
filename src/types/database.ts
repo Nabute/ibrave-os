@@ -34,6 +34,118 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_activities: {
+        Row: {
+          actor_id: string | null
+          at: string
+          body: string
+          client_id: string
+          id: number
+          kind: string
+          source: string
+        }
+        Insert: {
+          actor_id?: string | null
+          at?: string
+          body: string
+          client_id: string
+          id?: never
+          kind?: string
+          source?: string
+        }
+        Update: {
+          actor_id?: string | null
+          at?: string
+          body?: string
+          client_id?: string
+          id?: never
+          kind?: string
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_activities_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "account_activities_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "account_activities_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "account_activities_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "v_margin_by_project"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "account_activities_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "v_unbilled_work"
+            referencedColumns: ["client_id"]
+          },
+        ]
+      }
+      account_health: {
+        Row: {
+          client_id: string
+          computed_at: string
+          factors: Json
+          light: string
+          score: number
+        }
+        Insert: {
+          client_id: string
+          computed_at?: string
+          factors: Json
+          light: string
+          score: number
+        }
+        Update: {
+          client_id?: string
+          computed_at?: string
+          factors?: Json
+          light?: string
+          score?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_health_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: true
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "account_health_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: true
+            referencedRelation: "v_margin_by_project"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "account_health_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: true
+            referencedRelation: "v_unbilled_work"
+            referencedColumns: ["client_id"]
+          },
+        ]
+      }
       activity_feed: {
         Row: {
           actor_id: string | null
@@ -202,6 +314,7 @@ export type Database = {
       }
       clients: {
         Row: {
+          account_owner_id: string | null
           active: boolean
           billing_address: string | null
           contact_email: string | null
@@ -214,10 +327,12 @@ export type Database = {
           notes: string | null
           payment_terms_days: number
           tax_rate_pct: number
+          tier: string
           timesheet_appendix: boolean
           updated_at: string
         }
         Insert: {
+          account_owner_id?: string | null
           active?: boolean
           billing_address?: string | null
           contact_email?: string | null
@@ -230,10 +345,12 @@ export type Database = {
           notes?: string | null
           payment_terms_days?: number
           tax_rate_pct?: number
+          tier?: string
           timesheet_appendix?: boolean
           updated_at?: string
         }
         Update: {
+          account_owner_id?: string | null
           active?: boolean
           billing_address?: string | null
           contact_email?: string | null
@@ -246,10 +363,26 @@ export type Database = {
           notes?: string | null
           payment_terms_days?: number
           tax_rate_pct?: number
+          tier?: string
           timesheet_appendix?: boolean
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "clients_account_owner_id_fkey"
+            columns: ["account_owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clients_account_owner_id_fkey"
+            columns: ["account_owner_id"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       company_settings: {
         Row: {
@@ -504,6 +637,169 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "v_payout_reconciliation"
             referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      escalations: {
+        Row: {
+          client_id: string
+          id: string
+          opened_at: string
+          owner_id: string | null
+          resolution: string | null
+          resolved_at: string | null
+          severity: string
+          summary: string
+        }
+        Insert: {
+          client_id: string
+          id?: string
+          opened_at?: string
+          owner_id?: string | null
+          resolution?: string | null
+          resolved_at?: string | null
+          severity?: string
+          summary: string
+        }
+        Update: {
+          client_id?: string
+          id?: string
+          opened_at?: string
+          owner_id?: string | null
+          resolution?: string | null
+          resolved_at?: string | null
+          severity?: string
+          summary?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "escalations_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "escalations_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "v_margin_by_project"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "escalations_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "v_unbilled_work"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "escalations_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "escalations_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      feedback_pulses: {
+        Row: {
+          actor_id: string | null
+          at: string
+          client_id: string
+          comment: string | null
+          id: number
+          project_id: string | null
+          score_1_5: number
+        }
+        Insert: {
+          actor_id?: string | null
+          at?: string
+          client_id: string
+          comment?: string | null
+          id?: never
+          project_id?: string | null
+          score_1_5: number
+        }
+        Update: {
+          actor_id?: string | null
+          at?: string
+          client_id?: string
+          comment?: string | null
+          id?: never
+          project_id?: string | null
+          score_1_5?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_pulses_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_pulses_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "feedback_pulses_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_pulses_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "v_margin_by_project"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "feedback_pulses_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "v_unbilled_work"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "feedback_pulses_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_pulses_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_margin_by_project"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "feedback_pulses_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_project_burn"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "feedback_pulses_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_unbilled_work"
+            referencedColumns: ["project_id"]
           },
         ]
       }
@@ -991,6 +1287,81 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      opportunities: {
+        Row: {
+          client_id: string
+          created_at: string
+          currency: string
+          description: string
+          expected_start: string | null
+          id: string
+          owner_id: string | null
+          stage: string
+          updated_at: string
+          value_minor: number | null
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          currency?: string
+          description: string
+          expected_start?: string | null
+          id?: string
+          owner_id?: string | null
+          stage?: string
+          updated_at?: string
+          value_minor?: number | null
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          currency?: string
+          description?: string
+          expected_start?: string | null
+          id?: string
+          owner_id?: string | null
+          stage?: string
+          updated_at?: string
+          value_minor?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunities_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "opportunities_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "v_margin_by_project"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "opportunities_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "v_unbilled_work"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "opportunities_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "opportunities_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       payments: {
         Row: {
@@ -2336,6 +2707,7 @@ export type Database = {
       }
     }
     Functions: {
+      account_360: { Args: { p_client_id: string }; Returns: Json }
       advance_lead: {
         Args: { p_action: string; p_comment?: string; p_lead_id: string }
         Returns: {
@@ -2442,6 +2814,26 @@ export type Database = {
           time_off_hours: number
           utilization_pct: number
         }[]
+      }
+      client_has_open_escalation: {
+        Args: { p_client_id: string }
+        Returns: boolean
+      }
+      compute_account_health: {
+        Args: { p_client_id: string }
+        Returns: {
+          client_id: string
+          computed_at: string
+          factors: Json
+          light: string
+          score: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "account_health"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       confirm_payout_statement: {
         Args: { p_statement_id: string }
@@ -2604,6 +2996,21 @@ export type Database = {
         Args: { p_invoice_id: string }
         Returns: undefined
       }
+      dunning_queue: {
+        Args: never
+        Returns: {
+          billing_email: string
+          client_id: string
+          client_name: string
+          currency: string
+          days_overdue: number
+          due_date: string
+          invoice_id: string
+          invoice_number: string
+          stage: string
+          total_minor: number
+        }[]
+      }
       feed_event: {
         Args: {
           p_entity_id: string
@@ -2751,6 +3158,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      job_account_health: { Args: never; Returns: number }
       job_approval_nudges: { Args: never; Returns: number }
       job_dunning_scan: { Args: never; Returns: number }
       job_renewal_watchdog: { Args: never; Returns: number }

@@ -5,6 +5,7 @@
  * typed against — no second file to update.
  */
 import type { ApiConfig } from "./base";
+import { AccountsRepository } from "./modules/accounts";
 import { AdminRepository } from "./modules/admin";
 import { ApprovalsRepository } from "./modules/approvals";
 import { ClientsRepository } from "./modules/clients";
@@ -28,6 +29,7 @@ export function createApi(config: ApiConfig) {
     reports: new ReportsRepository(config),
     staffing: new StaffingRepository(config),
     sales: new SalesRepository(config),
+    accounts: new AccountsRepository(config),
     workspace: new WorkspaceRepository(config),
     admin: new AdminRepository(config),
   };

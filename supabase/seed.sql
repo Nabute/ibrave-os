@@ -221,6 +221,36 @@ insert into public.contracts (client_id, start_date, end_date, notes) values
    'Globex support retainer — annual');
 
 -- ----------------------------------------------------------------------------
+-- Accounts (Phase 6): tiers, owners, activities, opportunity, escalation
+-- ----------------------------------------------------------------------------
+update public.clients set tier = 'a', account_owner_id = '11111111-1111-1111-1111-111111111111'
+  where id = 'aaaa1111-0000-0000-0000-000000000001';
+update public.clients set tier = 'b', account_owner_id = '11111111-1111-1111-1111-111111111111'
+  where id = 'aaaa1111-0000-0000-0000-000000000002';
+
+insert into public.user_roles (user_id, role) values
+  ('11111111-1111-1111-1111-111111111111', 'account_owner');
+
+insert into public.account_activities (client_id, kind, body, actor_id, at) values
+  ('aaaa1111-0000-0000-0000-000000000001', 'meeting', 'Quarterly review — very happy with velocity',
+   '11111111-1111-1111-1111-111111111111', now() - interval '10 days'),
+  ('aaaa1111-0000-0000-0000-000000000002', 'call', 'Support check-in — response times raised',
+   '11111111-1111-1111-1111-111111111111', now() - interval '45 days');
+
+insert into public.opportunities (client_id, description, value_minor, stage, expected_start, owner_id) values
+  ('aaaa1111-0000-0000-0000-000000000001', 'Add 2 QA engineers in Q4', 4800000, 'proposed',
+   current_date + 60, '11111111-1111-1111-1111-111111111111');
+
+insert into public.escalations (client_id, severity, summary, owner_id) values
+  ('aaaa1111-0000-0000-0000-000000000002', 'medium',
+   'Ticket response times below SLA two weeks running',
+   '11111111-1111-1111-1111-111111111111');
+
+insert into public.feedback_pulses (client_id, project_id, score_1_5, comment, actor_id) values
+  ('aaaa1111-0000-0000-0000-000000000001', 'bbbb2222-0000-0000-0000-000000000001', 5,
+   'Sprint delivery consistently on time', '11111111-1111-1111-1111-111111111111');
+
+-- ----------------------------------------------------------------------------
 -- Cost rates (E-1): hourly for the devs, monthly for the salaried PM
 -- ----------------------------------------------------------------------------
 insert into public.cost_rates (user_id, effective_from, hourly_cost_minor, monthly_cost_minor, currency, note) values

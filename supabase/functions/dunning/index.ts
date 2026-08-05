@@ -1,15 +1,28 @@
 // Dunning emails (D-3): courtesy at due-3, escalating at due+7 / +14 / +30.
-// Idempotent per (invoice, stage, day) via automation_runs. Respects
-// invoices.dunning_paused. The SQL job job_dunning_scan handles the in-app
-// side; this function emails the client's billing contact.
+// The queue comes from the dunning_queue() DB function — the same source the
+// in-app SQL job reads — so the pause rules (manual pause, open escalation
+// beyond courtesy, G-6) can never diverge between email and in-app legs.
+// Idempotent per (invoice, stage, day) via automation_runs.
 import { adminClient, authorize, sendEmail } from "../_shared/admin.ts";
 
-const STAGES = [
-  { offset: -3, key: "courtesy", tone: "friendly reminder that the invoice below is due soon" },
-  { offset: 7, key: "overdue-7", tone: "gentle reminder that the invoice below is now past due" },
-  { offset: 14, key: "overdue-14", tone: "second notice: the invoice below remains unpaid" },
-  { offset: 30, key: "overdue-30", tone: "final notice before escalation: the invoice below is seriously overdue" },
-];
+const TONE: Record<string, string> = {
+  courtesy: "friendly reminder that the invoice below is due soon",
+  "overdue-7": "gentle reminder that the invoice below is now past due",
+  "overdue-14": "second notice: the invoice below remains unpaid",
+  "overdue-30": "final notice before escalation: the invoice below is seriously overdue",
+};
+
+interface QueueRow {
+  invoice_id: string;
+  invoice_number: string;
+  client_name: string;
+  billing_email: string | null;
+  total_minor: number;
+  currency: string;
+  due_date: string;
+  days_overdue: number;
+  stage: string;
+}
 
 Deno.serve(async (req) => {
   const denied = authorize(req);
@@ -20,57 +33,32 @@ Deno.serve(async (req) => {
   // Flip issued → overdue + in-app notifications first.
   await db.rpc("job_dunning_scan");
 
+  const { data: queue, error } = await db.rpc("dunning_queue");
+  if (error) return json({ error: error.message }, 500);
+
   const today = new Date().toISOString().slice(0, 10);
   const results: Record<string, number> = {};
 
-  for (const stage of STAGES) {
-    const target = new Date(Date.now() - stage.offset * 86_400_000)
-      .toISOString()
-      .slice(0, 10);
+  for (const inv of (queue ?? []) as QueueRow[]) {
+    results[inv.stage] ??= 0;
+    if (!inv.billing_email) continue;
 
-    const { data: invoices, error } = await db
-      .from("invoices")
-      .select(
-        `id, number, total_minor, currency, due_date, dunning_paused,
-         clients ( name, contact_email, contacts ( email, contact_role, opted_out ) )`
-      )
-      .eq("kind", "invoice")
-      .in("status", ["issued", "partially_paid", "overdue"])
-      .eq("due_date", target)
-      .eq("dunning_paused", false);
-    if (error) return json({ error: error.message }, 500);
+    const runKey = `${inv.invoice_id}:${inv.stage}:${today}`;
+    const { error: dup } = await db
+      .from("automation_runs")
+      .insert({ job: "dunning_email", run_key: runKey });
+    if (dup) continue; // already sent this stage today
 
-    let sent = 0;
-    for (const inv of invoices ?? []) {
-      const runKey = `${inv.id}:${stage.key}:${today}`;
-      const { error: dup } = await db
-        .from("automation_runs")
-        .insert({ job: "dunning_email", run_key: runKey });
-      if (dup) continue; // already sent this stage today
-
-      const client = inv.clients as unknown as {
-        name: string;
-        contact_email: string | null;
-        contacts: { email: string | null; contact_role: string; opted_out: boolean }[];
-      };
-      const billing = client.contacts?.find(
-        (c) => c.contact_role === "billing" && c.email && !c.opted_out
-      );
-      const to = billing?.email ?? client.contact_email;
-      if (!to) continue;
-
-      const amount = (inv.total_minor / 100).toFixed(2);
-      const { ok } = await sendEmail({
-        to: [to],
-        subject: `${stage.offset < 0 ? "Upcoming" : "Overdue"} invoice ${inv.number}`,
-        html: `<p>Dear ${client.name},</p>
-               <p>This is a ${stage.tone}.</p>
-               <p><strong>${inv.number}</strong> — ${amount} ${inv.currency}, due ${inv.due_date}.</p>
-               <p>If payment has already been made, please disregard this message.</p>`,
-      });
-      if (ok) sent++;
-    }
-    results[stage.key] = sent;
+    const amount = (inv.total_minor / 100).toFixed(2);
+    const { ok } = await sendEmail({
+      to: [inv.billing_email],
+      subject: `${inv.days_overdue < 0 ? "Upcoming" : "Overdue"} invoice ${inv.invoice_number}`,
+      html: `<p>Dear ${inv.client_name},</p>
+             <p>This is a ${TONE[inv.stage] ?? "reminder"}.</p>
+             <p><strong>${inv.invoice_number}</strong> — ${amount} ${inv.currency}, due ${inv.due_date}.</p>
+             <p>If payment has already been made, please disregard this message.</p>`,
+    });
+    if (ok) results[inv.stage]++;
   }
 
   return json(results);

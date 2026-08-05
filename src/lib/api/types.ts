@@ -39,9 +39,76 @@ export interface CompanySettings {
   bank_details: string | null;
 }
 
+export type HealthLight = "green" | "yellow" | "red";
+
+export interface AccountHealth {
+  client_id: string;
+  score: number;
+  light: HealthLight;
+  factors: { factor: string; detail: string; penalty: number }[];
+  computed_at: string;
+}
+
+export interface AccountActivity {
+  id: number;
+  client_id: string;
+  kind: "call" | "meeting" | "email" | "note" | "doc";
+  body: string;
+  actor_id: string | null;
+  source: "manual" | "system";
+  at: string;
+  profiles?: { full_name: string };
+}
+
+export interface Opportunity {
+  id: string;
+  client_id: string;
+  description: string;
+  value_minor: number | null;
+  currency: string;
+  stage: "idea" | "proposed" | "won" | "lost";
+  expected_start: string | null;
+  owner_id: string | null;
+}
+
+export interface Escalation {
+  id: string;
+  client_id: string;
+  severity: "low" | "medium" | "high";
+  summary: string;
+  owner_id: string | null;
+  opened_at: string;
+  resolved_at: string | null;
+  resolution: string | null;
+  profiles?: { full_name: string };
+}
+
+export interface FeedbackPulse {
+  id: number;
+  client_id: string;
+  project_id: string | null;
+  score_1_5: number;
+  comment: string | null;
+  at: string;
+  projects?: { name: string };
+}
+
+export interface Account360 {
+  hours_this_month: number;
+  team: { user_id: string; full_name: string; role: string | null }[];
+  open_ar_minor: number;
+  overdue_ar_minor: number;
+  next_renewal: string | null;
+  open_opportunities_minor: number;
+  open_escalations: number;
+  health: AccountHealth | null;
+}
+
 export interface Client {
   id: string;
   name: string;
+  tier: "a" | "b" | "c";
+  account_owner_id: string | null;
   legal_name: string | null;
   billing_address: string | null;
   contact_email: string | null;

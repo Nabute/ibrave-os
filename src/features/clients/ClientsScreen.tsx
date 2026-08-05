@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/table";
 import { toDisplayMessage } from "@/lib/api";
 import { useApi } from "@/lib/session";
+import { HEALTH_BADGE } from "./ClientDetailScreen";
 
 export function ClientsScreen() {
   const api = useApi();
@@ -38,6 +39,11 @@ export function ClientsScreen() {
     queryKey: ["clients"],
     queryFn: () => api.clients.list(),
   });
+  const { data: health } = useQuery({
+    queryKey: ["account-health"],
+    queryFn: () => api.accounts.health(),
+  });
+  const healthByClient = new Map((health ?? []).map((h) => [h.client_id, h]));
 
   const createMutation = useMutation({
     mutationFn: () =>
@@ -111,9 +117,10 @@ export function ClientsScreen() {
             <TableHeader>
               <TableRow>
                 <TableHead>Client</TableHead>
+                <TableHead>Health</TableHead>
+                <TableHead>Tier</TableHead>
                 <TableHead>Currency</TableHead>
                 <TableHead>Terms</TableHead>
-                <TableHead>Grouping</TableHead>
                 <TableHead>Status</TableHead>
               </TableRow>
             </TableHeader>
@@ -129,9 +136,21 @@ export function ClientsScreen() {
                       {c.name}
                     </Link>
                   </TableCell>
+                  <TableCell>
+                    {(() => {
+                      const h = healthByClient.get(c.id);
+                      return h ? (
+                        <Badge variant={HEALTH_BADGE[h.light]}>
+                          {h.light} · {h.score}
+                        </Badge>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      );
+                    })()}
+                  </TableCell>
+                  <TableCell className="uppercase text-muted-foreground">{c.tier}</TableCell>
                   <TableCell>{c.currency}</TableCell>
                   <TableCell>Net {c.payment_terms_days}</TableCell>
-                  <TableCell className="text-muted-foreground">{c.invoice_grouping}</TableCell>
                   <TableCell>
                     <Badge variant={c.active ? "success" : "secondary"}>
                       {c.active ? "active" : "inactive"}
