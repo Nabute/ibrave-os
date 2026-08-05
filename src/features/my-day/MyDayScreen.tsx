@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
+import { motion } from "framer-motion";
 import { ArrowRight, BellOff } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +8,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatMinor } from "@/lib/money";
 import { useApi, useSession } from "@/lib/session";
+
+const MCard = motion(Card);
+const fadeUp = {
+  hidden: { opacity: 0, y: 16 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { type: "spring", stiffness: 80, damping: 20 },
+  },
+} as const;
 
 export function MyDayScreen() {
   const api = useApi();
@@ -32,9 +43,14 @@ export function MyDayScreen() {
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <motion.div
+        className="grid gap-4 md:grid-cols-2 xl:grid-cols-3"
+        initial="hidden"
+        animate="show"
+        variants={{ show: { transition: { staggerChildren: 0.06 } } }}
+      >
         {day?.timesheet && (
-          <Card>
+          <MCard variants={fadeUp}>
             <CardHeader className="pb-2">
               <CardDescription>This week's timesheet</CardDescription>
               <CardTitle className="text-xl">
@@ -61,11 +77,11 @@ export function MyDayScreen() {
                 </Link>
               </Button>
             </CardContent>
-          </Card>
+          </MCard>
         )}
 
         {day?.approvals && day.approvals.pending_count > 0 && (
-          <Card>
+          <MCard variants={fadeUp}>
             <CardHeader className="pb-2">
               <CardDescription>Approvals queue</CardDescription>
               <CardTitle className="text-xl">
@@ -84,11 +100,11 @@ export function MyDayScreen() {
                 </Link>
               </Button>
             </CardContent>
-          </Card>
+          </MCard>
         )}
 
         {day?.finance && (
-          <Card>
+          <MCard variants={fadeUp}>
             <CardHeader className="pb-2">
               <CardDescription>Finance</CardDescription>
               <CardTitle className="text-xl">
@@ -99,18 +115,31 @@ export function MyDayScreen() {
               <p className="text-sm text-muted-foreground">
                 Overdue AR {formatMinor(day.finance.overdue_minor, "USD")} · Unbilled{" "}
                 {formatMinor(day.finance.unbilled_minor, "USD")}
+                {day.finance.payouts_to_confirm > 0 &&
+                  ` · ${day.finance.payouts_to_confirm} payout ${
+                    day.finance.payouts_to_confirm === 1 ? "draft" : "drafts"
+                  } to confirm`}
               </p>
-              <Button asChild variant="outline" size="sm">
-                <Link to="/invoices">
-                  Invoice workspace <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
+              <div className="flex gap-2">
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/invoices">
+                    Invoices <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+                {day.finance.payouts_to_confirm > 0 && (
+                  <Button asChild variant="outline" size="sm">
+                    <Link to="/payouts">
+                      Payouts <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                )}
+              </div>
             </CardContent>
-          </Card>
+          </MCard>
         )}
 
         {day?.pulse && (
-          <Card>
+          <MCard variants={fadeUp}>
             <CardHeader className="pb-2">
               <CardDescription>Company pulse</CardDescription>
               <CardTitle className="text-xl">
@@ -119,15 +148,16 @@ export function MyDayScreen() {
             </CardHeader>
             <CardContent className="space-y-1 text-sm text-muted-foreground">
               <p>{formatMinor(day.pulse.collected_this_month_minor, "USD")} collected</p>
+              <p>{formatMinor(day.pulse.margin_this_month_minor, "USD")} gross margin</p>
               <p>
                 {day.pulse.unsubmitted_people}{" "}
                 {day.pulse.unsubmitted_people === 1 ? "person hasn't" : "people haven't"}{" "}
                 submitted last week
               </p>
             </CardContent>
-          </Card>
+          </MCard>
         )}
-      </div>
+      </motion.div>
 
       <Card>
         <CardHeader className="pb-2">

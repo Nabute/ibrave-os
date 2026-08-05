@@ -150,6 +150,14 @@ insert into public.rate_card_lines (rate_card_id, user_id, role_name, hourly_rat
   ('dddd4444-0000-0000-0000-000000000002', null, 'QA Engineer', 9000);
 
 -- ----------------------------------------------------------------------------
+-- Cost rates (E-1): hourly for the devs, monthly for the salaried PM
+-- ----------------------------------------------------------------------------
+insert into public.cost_rates (user_id, effective_from, hourly_cost_minor, monthly_cost_minor, currency, note) values
+  ('44444444-4444-4444-4444-444444444444', current_date - 120, 6000, null, 'USD', 'Senior dev cost'),
+  ('55555555-5555-5555-5555-555555555555', current_date - 120, 4000, null, 'USD', 'Contractor rate'),
+  ('22222222-2222-2222-2222-222222222222', current_date - 120, null, 800000, 'USD', 'Salaried PM');
+
+-- ----------------------------------------------------------------------------
 -- Time entries: two weeks ago approved, last week submitted, this week draft.
 -- Weekday-only via generate_series over Mon–Fri offsets.
 -- ----------------------------------------------------------------------------

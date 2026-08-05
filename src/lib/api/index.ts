@@ -9,6 +9,7 @@ import { AdminRepository } from "./modules/admin";
 import { ApprovalsRepository } from "./modules/approvals";
 import { ClientsRepository } from "./modules/clients";
 import { InvoicesRepository } from "./modules/invoices";
+import { PayoutsRepository } from "./modules/payouts";
 import { ProjectsRepository } from "./modules/projects";
 import { ReportsRepository } from "./modules/reports";
 import { TimesheetsRepository } from "./modules/timesheets";
@@ -21,6 +22,7 @@ export function createApi(config: ApiConfig) {
     projects: new ProjectsRepository(config),
     clients: new ClientsRepository(config),
     invoices: new InvoicesRepository(config),
+    payouts: new PayoutsRepository(config),
     reports: new ReportsRepository(config),
     workspace: new WorkspaceRepository(config),
     admin: new AdminRepository(config),

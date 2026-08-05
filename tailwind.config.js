@@ -38,6 +38,14 @@ export default {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
         },
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
+        },
         muted: {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
@@ -54,6 +62,12 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+      },
+      boxShadow: {
+        // layered, brand-tinted elevation (no flat shadow-md)
+        card: "0 1px 2px hsl(200 30% 10% / 0.05), 0 8px 24px -16px hsl(200 30% 10% / 0.18)",
+        float:
+          "0 2px 4px hsl(200 30% 10% / 0.06), 0 16px 40px -16px hsl(200 30% 10% / 0.28)",
       },
       borderRadius: {
         lg: "var(--radius)",

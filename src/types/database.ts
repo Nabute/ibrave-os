@@ -110,6 +110,13 @@ export type Database = {
             foreignKeyName: "assignments_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
+            referencedRelation: "v_margin_by_project"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "assignments_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
             referencedRelation: "v_project_burn"
             referencedColumns: ["project_id"]
           },
@@ -126,6 +133,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assignments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -346,8 +360,63 @@ export type Database = {
             foreignKeyName: "contacts_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
+            referencedRelation: "v_margin_by_project"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "contacts_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
             referencedRelation: "v_unbilled_work"
             referencedColumns: ["client_id"]
+          },
+        ]
+      }
+      cost_rates: {
+        Row: {
+          created_at: string
+          currency: string
+          effective_from: string
+          hourly_cost_minor: number | null
+          id: string
+          monthly_cost_minor: number | null
+          note: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          effective_from: string
+          hourly_cost_minor?: number | null
+          id?: string
+          monthly_cost_minor?: number | null
+          note?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          effective_from?: string
+          hourly_cost_minor?: number | null
+          id?: string
+          monthly_cost_minor?: number | null
+          note?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cost_rates_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cost_rates_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -539,6 +608,13 @@ export type Database = {
             foreignKeyName: "invoices_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
+            referencedRelation: "v_margin_by_project"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "invoices_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
             referencedRelation: "v_unbilled_work"
             referencedColumns: ["client_id"]
           },
@@ -562,6 +638,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_issued_by_fkey"
+            columns: ["issued_by"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -617,6 +700,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "milestones_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_margin_by_project"
+            referencedColumns: ["project_id"]
           },
           {
             foreignKeyName: "milestones_project_id_fkey"
@@ -723,6 +813,190 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "payments_recorded_by_fkey"
+            columns: ["recorded_by"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      payout_line_entries: {
+        Row: {
+          payout_line_id: string
+          time_entry_id: string
+        }
+        Insert: {
+          payout_line_id: string
+          time_entry_id: string
+        }
+        Update: {
+          payout_line_id?: string
+          time_entry_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payout_line_entries_payout_line_id_fkey"
+            columns: ["payout_line_id"]
+            isOneToOne: false
+            referencedRelation: "payout_lines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payout_line_entries_time_entry_id_fkey"
+            columns: ["time_entry_id"]
+            isOneToOne: false
+            referencedRelation: "time_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payout_line_entries_time_entry_id_fkey"
+            columns: ["time_entry_id"]
+            isOneToOne: false
+            referencedRelation: "v_approval_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payout_lines: {
+        Row: {
+          amount_minor: number
+          hours: number
+          id: string
+          project_id: string
+          rate_minor: number
+          statement_id: string
+        }
+        Insert: {
+          amount_minor: number
+          hours: number
+          id?: string
+          project_id: string
+          rate_minor: number
+          statement_id: string
+        }
+        Update: {
+          amount_minor?: number
+          hours?: number
+          id?: string
+          project_id?: string
+          rate_minor?: number
+          statement_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payout_lines_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payout_lines_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_margin_by_project"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "payout_lines_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_project_burn"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "payout_lines_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_unbilled_work"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "payout_lines_statement_id_fkey"
+            columns: ["statement_id"]
+            isOneToOne: false
+            referencedRelation: "payout_statements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payout_statements: {
+        Row: {
+          confirmed_at: string | null
+          confirmed_by: string | null
+          created_at: string
+          currency: string
+          id: string
+          note: string | null
+          paid_at: string | null
+          period_end: string
+          period_start: string
+          status: string
+          total_minor: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          note?: string | null
+          paid_at?: string | null
+          period_end: string
+          period_start: string
+          status?: string
+          total_minor?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          note?: string | null
+          paid_at?: string | null
+          period_end?: string
+          period_start?: string
+          status?: string
+          total_minor?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payout_statements_confirmed_by_fkey"
+            columns: ["confirmed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payout_statements_confirmed_by_fkey"
+            columns: ["confirmed_by"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "payout_statements_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payout_statements_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
       profiles: {
@@ -825,6 +1099,13 @@ export type Database = {
             foreignKeyName: "projects_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
+            referencedRelation: "v_margin_by_project"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "projects_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
             referencedRelation: "v_unbilled_work"
             referencedColumns: ["client_id"]
           },
@@ -834,6 +1115,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "projects_pm_id_fkey"
+            columns: ["pm_id"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -874,6 +1162,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "rate_card_lines_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
       rate_cards: {
@@ -913,6 +1208,13 @@ export type Database = {
             foreignKeyName: "rate_cards_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
+            referencedRelation: "v_margin_by_project"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "rate_cards_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
             referencedRelation: "v_unbilled_work"
             referencedColumns: ["client_id"]
           },
@@ -922,6 +1224,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rate_cards_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_margin_by_project"
+            referencedColumns: ["project_id"]
           },
           {
             foreignKeyName: "rate_cards_project_id_fkey"
@@ -974,6 +1283,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_margin_by_project"
+            referencedColumns: ["project_id"]
           },
           {
             foreignKeyName: "tasks_project_id_fkey"
@@ -1069,6 +1385,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "time_entries_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
+          },
+          {
             foreignKeyName: "time_entries_invoice_fk"
             columns: ["invoice_id"]
             isOneToOne: false
@@ -1088,6 +1411,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "time_entries_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_margin_by_project"
+            referencedColumns: ["project_id"]
           },
           {
             foreignKeyName: "time_entries_project_id_fkey"
@@ -1116,6 +1446,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "time_entries_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -1154,6 +1491,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "time_off_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -1279,11 +1623,25 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "projects_pm_id_fkey"
+            columns: ["pm_id"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
+          },
+          {
             foreignKeyName: "time_entries_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "time_entries_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_margin_by_project"
+            referencedColumns: ["project_id"]
           },
           {
             foreignKeyName: "time_entries_project_id_fkey"
@@ -1312,6 +1670,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "time_entries_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -1342,10 +1707,46 @@ export type Database = {
             foreignKeyName: "invoices_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
+            referencedRelation: "v_margin_by_project"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "invoices_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
             referencedRelation: "v_unbilled_work"
             referencedColumns: ["client_id"]
           },
         ]
+      }
+      v_margin_by_project: {
+        Row: {
+          approved_hours: number | null
+          client_id: string | null
+          client_name: string | null
+          cost_minor: number | null
+          currency: string | null
+          margin_minor: number | null
+          margin_pct: number | null
+          month: string | null
+          project_id: string | null
+          project_name: string | null
+          revenue_minor: number | null
+        }
+        Relationships: []
+      }
+      v_payout_reconciliation: {
+        Row: {
+          approved_hours: number | null
+          billed_hours: number | null
+          full_name: string | null
+          missing_cost_rate: boolean | null
+          month: string | null
+          paid_out_hours: number | null
+          unpaid_hours: number | null
+          user_id: string | null
+        }
+        Relationships: []
       }
       v_project_burn: {
         Row: {
@@ -1366,6 +1767,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "clients"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "projects_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "v_margin_by_project"
+            referencedColumns: ["client_id"]
           },
           {
             foreignKeyName: "projects_client_id_fkey"
@@ -1406,6 +1814,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "time_entries_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
     }
@@ -1435,6 +1850,30 @@ export type Database = {
           to: "time_entries"
           isOneToOne: false
           isSetofReturn: true
+        }
+      }
+      confirm_payout_statement: {
+        Args: { p_statement_id: string }
+        Returns: {
+          confirmed_at: string | null
+          confirmed_by: string | null
+          created_at: string
+          currency: string
+          id: string
+          note: string | null
+          paid_at: string | null
+          period_end: string
+          period_start: string
+          status: string
+          total_minor: number
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "payout_statements"
+          isOneToOne: true
+          isSetofReturn: false
         }
       }
       copy_previous_week: {
@@ -1592,9 +2031,34 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      generate_payout_statements: {
+        Args: { p_period_end: string; p_period_start: string }
+        Returns: {
+          confirmed_at: string | null
+          confirmed_by: string | null
+          created_at: string
+          currency: string
+          id: string
+          note: string | null
+          paid_at: string | null
+          period_end: string
+          period_start: string
+          status: string
+          total_minor: number
+          updated_at: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "payout_statements"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       has_exact_role: { Args: { check_role: string }; Returns: boolean }
       has_role: { Args: { check_role: string }; Returns: boolean }
       invoice_actions: { Args: { p_invoice_id: string }; Returns: Json }
+      invoke_edge_function: { Args: { p_fn: string }; Returns: undefined }
       is_project_pm: { Args: { p_project_id: string }; Returns: boolean }
       issue_invoice: {
         Args: { p_invoice_id: string }
@@ -1631,6 +2095,30 @@ export type Database = {
       job_dunning_scan: { Args: never; Returns: number }
       job_timesheet_reminders: { Args: never; Returns: number }
       mark_overdue_invoices: { Args: never; Returns: number }
+      mark_payout_paid: {
+        Args: { p_statement_id: string }
+        Returns: {
+          confirmed_at: string | null
+          confirmed_by: string | null
+          created_at: string
+          currency: string
+          id: string
+          note: string | null
+          paid_at: string | null
+          period_end: string
+          period_start: string
+          status: string
+          total_minor: number
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "payout_statements"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       my_day: { Args: never; Returns: Json }
       notify_user: {
         Args: {
@@ -1642,6 +2130,10 @@ export type Database = {
           p_user_id: string
         }
         Returns: undefined
+      }
+      payout_statement_actions: {
+        Args: { p_statement_id: string }
+        Returns: Json
       }
       recompute_invoice_totals: {
         Args: { p_invoice_id: string }
@@ -1710,6 +2202,10 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      resolve_cost_rate: {
+        Args: { p_user_id: string; p_work_date: string }
+        Returns: number
       }
       resolve_rate: {
         Args: { p_project_id: string; p_user_id: string; p_work_date: string }

@@ -254,6 +254,70 @@ export interface BurnRow {
   burn_pct: number | null;
 }
 
+export type PayoutStatus = "draft" | "confirmed" | "paid";
+
+export interface PayoutStatement {
+  id: string;
+  user_id: string;
+  period_start: string;
+  period_end: string;
+  currency: string;
+  status: PayoutStatus;
+  total_minor: number;
+  confirmed_at: string | null;
+  paid_at: string | null;
+  note: string | null;
+  created_at: string;
+  profiles?: Pick<Profile, "id" | "full_name" | "employment_type">;
+  payout_lines?: PayoutLine[];
+}
+
+export interface PayoutLine {
+  id: string;
+  statement_id: string;
+  project_id: string;
+  hours: number;
+  rate_minor: number;
+  amount_minor: number;
+  projects?: Pick<Project, "id" | "name">;
+}
+
+export interface CostRate {
+  id: string;
+  user_id: string;
+  effective_from: string;
+  hourly_cost_minor: number | null;
+  monthly_cost_minor: number | null;
+  currency: string;
+  note: string | null;
+  profiles?: Pick<Profile, "full_name">;
+}
+
+export interface ReconciliationRow {
+  user_id: string;
+  full_name: string;
+  month: string;
+  approved_hours: number;
+  billed_hours: number | null;
+  paid_out_hours: number;
+  unpaid_hours: number;
+  missing_cost_rate: boolean;
+}
+
+export interface MarginRow {
+  project_id: string;
+  project_name: string;
+  client_id: string;
+  client_name: string;
+  currency: string;
+  month: string;
+  approved_hours: number;
+  revenue_minor: number;
+  cost_minor: number;
+  margin_minor: number;
+  margin_pct: number | null;
+}
+
 export interface AppNotification {
   id: number;
   kind: string;
@@ -282,11 +346,13 @@ export interface MyDay {
     overdue_invoices: number;
     overdue_minor: number;
     unbilled_minor: number;
+    payouts_to_confirm: number;
   };
   pulse?: {
     unsubmitted_people: number;
     issued_this_month_minor: number;
     collected_this_month_minor: number;
+    margin_this_month_minor: number;
   };
 }
 

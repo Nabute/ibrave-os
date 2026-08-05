@@ -48,6 +48,7 @@ export function ReportsScreen() {
     queryFn: () => api.reports.utilization(),
   });
   const burn = useQuery({ queryKey: ["r-burn"], queryFn: () => api.reports.burn() });
+  const margin = useQuery({ queryKey: ["r-margin"], queryFn: () => api.payouts.margin() });
 
   return (
     <div className="space-y-4">
@@ -58,6 +59,7 @@ export function ReportsScreen() {
           <TabsTrigger value="aging">Invoice aging</TabsTrigger>
           <TabsTrigger value="utilization">Utilization</TabsTrigger>
           <TabsTrigger value="burn">Project burn</TabsTrigger>
+          <TabsTrigger value="margin">Margin</TabsTrigger>
         </TabsList>
 
         <TabsContent value="unbilled">
@@ -230,6 +232,64 @@ export function ReportsScreen() {
                   ))}
                 </TableBody>
               </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="margin">
+          <Card>
+            <CardContent className="pt-4">
+              <div className="mb-2 flex justify-end">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => downloadCsv("margin.csv", (margin.data ?? []) as never)}
+                >
+                  <Download className="h-4 w-4" /> CSV
+                </Button>
+              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Project</TableHead>
+                    <TableHead>Client</TableHead>
+                    <TableHead>Month</TableHead>
+                    <TableHead className="text-right">Revenue</TableHead>
+                    <TableHead className="text-right">Cost</TableHead>
+                    <TableHead className="text-right">Margin</TableHead>
+                    <TableHead className="text-right">Margin %</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {(margin.data ?? []).map((r) => (
+                    <TableRow key={`${r.project_id}:${r.month}`}>
+                      <TableCell>{r.project_name}</TableCell>
+                      <TableCell className="text-muted-foreground">{r.client_name}</TableCell>
+                      <TableCell>{r.month.slice(0, 7)}</TableCell>
+                      <TableCell className="text-right tabular-nums">
+                        {formatMinor(r.revenue_minor, r.currency)}
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums">
+                        {formatMinor(r.cost_minor, r.currency)}
+                      </TableCell>
+                      <TableCell
+                        className={`text-right font-medium tabular-nums ${
+                          r.margin_minor < 0 ? "text-destructive" : ""
+                        }`}
+                      >
+                        {formatMinor(r.margin_minor, r.currency)}
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums">
+                        {r.margin_pct != null ? `${r.margin_pct}%` : "—"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+                Revenue = invoiced T&M value of stamped entries plus issued milestone
+                lines; cost = approved hours × cost rate. Retainer revenue is reported
+                on the invoice, not allocated per project here.
+              </p>
             </CardContent>
           </Card>
         </TabsContent>

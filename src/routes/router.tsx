@@ -14,6 +14,8 @@ import { ClientsScreen } from "@/features/clients/ClientsScreen";
 import { InvoiceDetailScreen } from "@/features/invoicing/InvoiceDetailScreen";
 import { InvoicesScreen } from "@/features/invoicing/InvoicesScreen";
 import { MyDayScreen } from "@/features/my-day/MyDayScreen";
+import { PayoutDetailScreen } from "@/features/payouts/PayoutDetailScreen";
+import { PayoutsScreen } from "@/features/payouts/PayoutsScreen";
 import { ProjectDetailScreen } from "@/features/projects/ProjectDetailScreen";
 import { ProjectsScreen } from "@/features/projects/ProjectsScreen";
 import { ReportsScreen } from "@/features/reports/ReportsScreen";
@@ -67,6 +69,12 @@ const routes = [
     getParentRoute: () => appRoute,
     path: "/invoices/$invoiceId",
     component: InvoiceDetailScreen,
+  }),
+  createRoute({ getParentRoute: () => appRoute, path: "/payouts", component: PayoutsScreen }),
+  createRoute({
+    getParentRoute: () => appRoute,
+    path: "/payouts/$payoutId",
+    component: PayoutDetailScreen,
   }),
   createRoute({ getParentRoute: () => appRoute, path: "/reports", component: ReportsScreen }),
   createRoute({ getParentRoute: () => appRoute, path: "/admin", component: AdminScreen }),

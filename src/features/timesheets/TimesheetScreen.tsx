@@ -281,7 +281,7 @@ export function TimesheetScreen() {
                         key={d}
                         className={cn(
                           "py-2 text-center text-xs font-medium tabular-nums",
-                          total > 12 && "text-amber-600"
+                          total > 12 && "text-warning-foreground"
                         )}
                       >
                         {total > 0 ? total : ""}
@@ -351,8 +351,8 @@ function HourCell({
       <span
         className={cn(
           "inline-block w-14 rounded px-1 py-1 tabular-nums",
-          status === "approved" && "bg-emerald-50 text-emerald-700",
-          status === "submitted" && "bg-amber-50 text-amber-700"
+          status === "approved" && "bg-success text-success-foreground",
+          status === "submitted" && "bg-warning text-warning-foreground"
         )}
         title={status}
       >
