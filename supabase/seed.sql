@@ -181,6 +181,46 @@ insert into public.time_off (user_id, start_date, end_date, kind, note) values
   ('55555555-5555-5555-5555-555555555555', current_date + 21, current_date + 25, 'vacation', 'Family trip');
 
 -- ----------------------------------------------------------------------------
+-- Sales pipeline (Phase 5). Owner doubles as salesperson in the demo.
+-- ----------------------------------------------------------------------------
+insert into public.user_roles (user_id, role) values
+  ('11111111-1111-1111-1111-111111111111', 'sales');
+
+insert into public.leads
+  (id, company, contact_name, email, source, stage, expected_value_minor, probability_pct,
+   expected_start, owner_id, notes)
+values
+  ('ffff6666-0000-0000-0000-000000000001', 'Initech', 'Bill Lumbergh', 'bill@initech.example',
+   'referral', 'lead', 3000000, 20, current_date + 45,
+   '11111111-1111-1111-1111-111111111111', 'Referred by Acme — needs a support team'),
+  ('ffff6666-0000-0000-0000-000000000002', 'Umbrella Corp', 'Alice Chan', 'alice@umbrella.example',
+   'event', 'proposal_sent', 9000000, 60, current_date + 30,
+   '11111111-1111-1111-1111-111111111111', 'Met at DevCon; wants 2 senior devs for 6 months');
+
+insert into public.lead_activities (lead_id, kind, body, actor_id) values
+  ('ffff6666-0000-0000-0000-000000000002', 'meeting', 'Intro call — scoping 2 senior devs',
+   '11111111-1111-1111-1111-111111111111'),
+  ('ffff6666-0000-0000-0000-000000000002', 'email', 'Sent proposal v1',
+   '11111111-1111-1111-1111-111111111111');
+
+insert into public.quotes (id, lead_id, version, status, currency, valid_until, created_by) values
+  ('ffff7777-0000-0000-0000-000000000001', 'ffff6666-0000-0000-0000-000000000002',
+   1, 'sent', 'USD', current_date + 21, '11111111-1111-1111-1111-111111111111');
+
+insert into public.quote_lines
+  (quote_id, description, role_title, qty_hours, unit_price_minor, amount_minor, billing_model_hint, position)
+values
+  ('ffff7777-0000-0000-0000-000000000001', 'Senior Developer, 160 h/mo × 6 months',
+   'Senior Developer', 960, 12000, 11520000, 'tm', 1),
+  ('ffff7777-0000-0000-0000-000000000001', 'Senior Developer, 160 h/mo × 6 months',
+   'Senior Developer', 960, 12000, 11520000, 'tm', 2);
+
+-- An active contract nearing renewal (for the watchdog)
+insert into public.contracts (client_id, start_date, end_date, notes) values
+  ('aaaa1111-0000-0000-0000-000000000002', current_date - 305, current_date + 60,
+   'Globex support retainer — annual');
+
+-- ----------------------------------------------------------------------------
 -- Cost rates (E-1): hourly for the devs, monthly for the salaried PM
 -- ----------------------------------------------------------------------------
 insert into public.cost_rates (user_id, effective_from, hourly_cost_minor, monthly_cost_minor, currency, note) values

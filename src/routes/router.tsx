@@ -19,6 +19,7 @@ import { PayoutsScreen } from "@/features/payouts/PayoutsScreen";
 import { ProjectDetailScreen } from "@/features/projects/ProjectDetailScreen";
 import { ProjectsScreen } from "@/features/projects/ProjectsScreen";
 import { ReportsScreen } from "@/features/reports/ReportsScreen";
+import { SalesScreen } from "@/features/sales/SalesScreen";
 import { StaffingScreen } from "@/features/staffing/StaffingScreen";
 import { TimesheetScreen } from "@/features/timesheets/TimesheetScreen";
 import { useSession } from "@/lib/session";
@@ -72,6 +73,7 @@ const routes = [
     component: InvoiceDetailScreen,
   }),
   createRoute({ getParentRoute: () => appRoute, path: "/staffing", component: StaffingScreen }),
+  createRoute({ getParentRoute: () => appRoute, path: "/sales", component: SalesScreen }),
   createRoute({ getParentRoute: () => appRoute, path: "/payouts", component: PayoutsScreen }),
   createRoute({
     getParentRoute: () => appRoute,

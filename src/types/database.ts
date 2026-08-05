@@ -372,6 +372,93 @@ export type Database = {
           },
         ]
       }
+      contracts: {
+        Row: {
+          billing_schedule: string
+          client_id: string
+          created_at: string
+          end_date: string | null
+          id: string
+          lead_id: string | null
+          notes: string | null
+          notice_days: number
+          payment_terms_days: number
+          quote_id: string | null
+          signed_doc_ref: string | null
+          start_date: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          billing_schedule?: string
+          client_id: string
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          lead_id?: string | null
+          notes?: string | null
+          notice_days?: number
+          payment_terms_days?: number
+          quote_id?: string | null
+          signed_doc_ref?: string | null
+          start_date: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          billing_schedule?: string
+          client_id?: string
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          lead_id?: string | null
+          notes?: string | null
+          notice_days?: number
+          payment_terms_days?: number
+          quote_id?: string | null
+          signed_doc_ref?: string | null
+          start_date?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contracts_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "v_margin_by_project"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "contracts_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "v_unbilled_work"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "contracts_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cost_rates: {
         Row: {
           created_at: string
@@ -642,6 +729,151 @@ export type Database = {
           {
             foreignKeyName: "invoices_issued_by_fkey"
             columns: ["issued_by"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      lead_activities: {
+        Row: {
+          actor_id: string | null
+          at: string
+          body: string
+          id: number
+          kind: string
+          lead_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          at?: string
+          body: string
+          id?: never
+          kind?: string
+          lead_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          at?: string
+          body?: string
+          id?: never
+          kind?: string
+          lead_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_activities_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_activities_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "lead_activities_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          client_id: string | null
+          company: string
+          contact_name: string | null
+          created_at: string
+          currency: string
+          email: string | null
+          expected_start: string | null
+          expected_value_minor: number | null
+          id: string
+          lost_reason: string | null
+          notes: string | null
+          owner_id: string | null
+          phone: string | null
+          probability_pct: number
+          source: string
+          stage: string
+          updated_at: string
+        }
+        Insert: {
+          client_id?: string | null
+          company: string
+          contact_name?: string | null
+          created_at?: string
+          currency?: string
+          email?: string | null
+          expected_start?: string | null
+          expected_value_minor?: number | null
+          id?: string
+          lost_reason?: string | null
+          notes?: string | null
+          owner_id?: string | null
+          phone?: string | null
+          probability_pct?: number
+          source?: string
+          stage?: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string | null
+          company?: string
+          contact_name?: string | null
+          created_at?: string
+          currency?: string
+          email?: string | null
+          expected_start?: string | null
+          expected_value_minor?: number | null
+          id?: string
+          lost_reason?: string | null
+          notes?: string | null
+          owner_id?: string | null
+          phone?: string | null
+          probability_pct?: number
+          source?: string
+          stage?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "v_margin_by_project"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "leads_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "v_unbilled_work"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "leads_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_owner_id_fkey"
+            columns: ["owner_id"]
             isOneToOne: false
             referencedRelation: "v_payout_reconciliation"
             referencedColumns: ["user_id"]
@@ -1162,6 +1394,120 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "v_payout_reconciliation"
             referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      quote_lines: {
+        Row: {
+          amount_minor: number
+          billing_model_hint:
+            | Database["public"]["Enums"]["billing_model"]
+            | null
+          description: string
+          id: string
+          position: number
+          qty_hours: number | null
+          quote_id: string
+          role_title: string | null
+          unit_price_minor: number
+        }
+        Insert: {
+          amount_minor: number
+          billing_model_hint?:
+            | Database["public"]["Enums"]["billing_model"]
+            | null
+          description: string
+          id?: string
+          position?: number
+          qty_hours?: number | null
+          quote_id: string
+          role_title?: string | null
+          unit_price_minor: number
+        }
+        Update: {
+          amount_minor?: number
+          billing_model_hint?:
+            | Database["public"]["Enums"]["billing_model"]
+            | null
+          description?: string
+          id?: string
+          position?: number
+          qty_hours?: number | null
+          quote_id?: string
+          role_title?: string | null
+          unit_price_minor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_lines_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quotes: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          currency: string
+          id: string
+          lead_id: string
+          notes: string | null
+          status: string
+          total_minor: number
+          updated_at: string
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          lead_id: string
+          notes?: string | null
+          status?: string
+          total_minor?: number
+          updated_at?: string
+          valid_until?: string | null
+          version?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          lead_id?: string
+          notes?: string | null
+          status?: string
+          total_minor?: number
+          updated_at?: string
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "quotes_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1904,6 +2250,15 @@ export type Database = {
         }
         Relationships: []
       }
+      v_pipeline_report: {
+        Row: {
+          deal_count: number | null
+          stage: string | null
+          total_value_minor: number | null
+          weighted_value_minor: number | null
+        }
+        Relationships: []
+      }
       v_project_burn: {
         Row: {
           approved_hours: number | null
@@ -1981,6 +2336,34 @@ export type Database = {
       }
     }
     Functions: {
+      advance_lead: {
+        Args: { p_action: string; p_comment?: string; p_lead_id: string }
+        Returns: {
+          client_id: string | null
+          company: string
+          contact_name: string | null
+          created_at: string
+          currency: string
+          email: string | null
+          expected_start: string | null
+          expected_value_minor: number | null
+          id: string
+          lost_reason: string | null
+          notes: string | null
+          owner_id: string | null
+          phone: string | null
+          probability_pct: number
+          source: string
+          stage: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "leads"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       approve_entries: {
         Args: { p_entry_ids: string[] }
         Returns: {
@@ -2173,6 +2556,50 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      create_quote: {
+        Args: { p_lead_id: string }
+        Returns: {
+          created_at: string
+          created_by: string | null
+          currency: string
+          id: string
+          lead_id: string
+          notes: string | null
+          status: string
+          total_minor: number
+          updated_at: string
+          valid_until: string | null
+          version: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "quotes"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      create_quote_revision: {
+        Args: { p_quote_id: string }
+        Returns: {
+          created_at: string
+          created_by: string | null
+          currency: string
+          id: string
+          lead_id: string
+          notes: string | null
+          status: string
+          total_minor: number
+          updated_at: string
+          valid_until: string | null
+          version: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "quotes"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       delete_draft_invoice: {
         Args: { p_invoice_id: string }
         Returns: undefined
@@ -2326,7 +2753,9 @@ export type Database = {
       }
       job_approval_nudges: { Args: never; Returns: number }
       job_dunning_scan: { Args: never; Returns: number }
+      job_renewal_watchdog: { Args: never; Returns: number }
       job_timesheet_reminders: { Args: never; Returns: number }
+      lead_actions: { Args: { p_lead_id: string }; Returns: Json }
       mark_overdue_invoices: { Args: never; Returns: number }
       mark_payout_paid: {
         Args: { p_statement_id: string }
@@ -2368,6 +2797,29 @@ export type Database = {
         Args: { p_statement_id: string }
         Returns: Json
       }
+      quote_action: {
+        Args: { p_action: string; p_comment?: string; p_quote_id: string }
+        Returns: {
+          created_at: string
+          created_by: string | null
+          currency: string
+          id: string
+          lead_id: string
+          notes: string | null
+          status: string
+          total_minor: number
+          updated_at: string
+          valid_until: string | null
+          version: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "quotes"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      quote_actions: { Args: { p_quote_id: string }; Returns: Json }
       recompute_invoice_totals: {
         Args: { p_invoice_id: string }
         Returns: undefined
@@ -2520,6 +2972,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      win_lead: { Args: { p_lead_id: string; p_options: Json }; Returns: Json }
       write_audit: {
         Args: {
           p_action: string

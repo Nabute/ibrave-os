@@ -1,6 +1,6 @@
 # iBrave OS — Outsourcing Business Automation Platform
 
-Internal platform for a 10–50 person outsourcing company. Phases 1–4 of the
+Internal platform for a 10–50 person outsourcing company. Phases 1–5 of the
 [blueprint](docs/outsourcing-automation-blueprint.md) are implemented:
 **core + time tracking** (weekly grid, submit → approve → reject workflow),
 **billing** (versioned rate cards, draft invoice generation, issue/void/credit
@@ -8,7 +8,10 @@ notes, payments, dunning), **payouts & margin** (versioned cost rates, payout
 statements draft → confirm → paid, reconciliation guard, margin by
 project/month), and **staffing** (skills, bench view with privacy-tiered bench
 cost, staffing requests with ranked candidate matching, capacity forecast,
-time off), plus the My Day workspace and reports.
+time off), and **sales & contracts** (lead pipeline board, versioned quotes,
+contract records with renewal watchdog, and the Won-deal handoff that creates
+client + contract + project + staffing request in one transaction), plus the
+My Day workspace and reports.
 
 ## Architecture
 

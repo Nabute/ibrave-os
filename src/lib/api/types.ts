@@ -254,6 +254,101 @@ export interface BurnRow {
   burn_pct: number | null;
 }
 
+export type LeadStage =
+  | "lead"
+  | "qualified"
+  | "proposal_sent"
+  | "negotiation"
+  | "won"
+  | "lost";
+
+export interface Lead {
+  id: string;
+  company: string;
+  contact_name: string | null;
+  email: string | null;
+  phone: string | null;
+  source: string;
+  stage: LeadStage;
+  expected_value_minor: number | null;
+  currency: string;
+  probability_pct: number;
+  expected_start: string | null;
+  owner_id: string | null;
+  client_id: string | null;
+  lost_reason: string | null;
+  notes: string | null;
+  created_at: string;
+  profiles?: { full_name: string };
+}
+
+export interface LeadActivity {
+  id: number;
+  lead_id: string;
+  kind: string;
+  body: string;
+  actor_id: string | null;
+  at: string;
+  profiles?: { full_name: string };
+}
+
+export type QuoteStatus = "draft" | "sent" | "accepted" | "rejected" | "superseded";
+
+export interface Quote {
+  id: string;
+  lead_id: string;
+  version: number;
+  status: QuoteStatus;
+  currency: string;
+  valid_until: string | null;
+  total_minor: number;
+  notes: string | null;
+  created_at: string;
+  quote_lines?: QuoteLine[];
+}
+
+export interface QuoteLine {
+  id: string;
+  quote_id: string;
+  description: string;
+  role_title: string | null;
+  qty_hours: number | null;
+  unit_price_minor: number;
+  amount_minor: number;
+  billing_model_hint: BillingModel | null;
+  position: number;
+}
+
+export interface Contract {
+  id: string;
+  client_id: string;
+  lead_id: string | null;
+  quote_id: string | null;
+  start_date: string;
+  end_date: string | null;
+  notice_days: number;
+  payment_terms_days: number;
+  billing_schedule: string;
+  status: "active" | "expired" | "terminated";
+  signed_doc_ref: string | null;
+  notes: string | null;
+  clients?: { id: string; name: string };
+}
+
+export interface PipelineStageReport {
+  stage: LeadStage;
+  deal_count: number;
+  total_value_minor: number | null;
+  weighted_value_minor: number | null;
+}
+
+export interface WinHandoffResult {
+  client_id: string;
+  contract_id: string;
+  project_id: string;
+  staffing_request_id: string | null;
+}
+
 export type SkillLevel = "junior" | "mid" | "senior";
 
 export interface Skill {
