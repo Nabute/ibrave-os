@@ -1,0 +1,95 @@
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/fraunces";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * iBrave OS theme — warm stone neutrals, deep teal primary, serif display.
+ * Tokens follow the shadcn convention so every primitive inherits the look.
+ */
+@layer base {
+  :root {
+    --background: 40 25% 97%;
+    --foreground: 205 30% 13%;
+    --card: 0 0% 100%;
+    --card-foreground: 205 30% 13%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 205 30% 13%;
+    --primary: 172 48% 21%;
+    --primary-foreground: 40 40% 97%;
+    --secondary: 42 25% 92%;
+    --secondary-foreground: 200 25% 18%;
+    --muted: 42 20% 93%;
+    --muted-foreground: 205 12% 42%;
+    --accent: 168 30% 90%;
+    --accent-foreground: 172 48% 18%;
+    --destructive: 0 62% 44%;
+    --destructive-foreground: 40 40% 97%;
+    --border: 40 15% 87%;
+    --input: 40 15% 84%;
+    --ring: 172 48% 30%;
+    --radius: 0.65rem;
+
+    /* fixed sidebar palette (same in both themes) */
+    --sidebar: 200 32% 10%;
+    --sidebar-foreground: 40 20% 88%;
+    --sidebar-muted: 202 15% 58%;
+    --sidebar-active: 168 42% 36%;
+    --sidebar-border: 201 25% 18%;
+  }
+
+  .dark {
+    --background: 202 28% 8%;
+    --foreground: 40 25% 92%;
+    --card: 201 26% 11%;
+    --card-foreground: 40 25% 92%;
+    --popover: 201 26% 11%;
+    --popover-foreground: 40 25% 92%;
+    --primary: 168 45% 48%;
+    --primary-foreground: 202 30% 8%;
+    --secondary: 201 20% 16%;
+    --secondary-foreground: 40 25% 92%;
+    --muted: 201 20% 15%;
+    --muted-foreground: 202 12% 62%;
+    --accent: 172 30% 20%;
+    --accent-foreground: 168 40% 80%;
+    --destructive: 0 55% 42%;
+    --destructive-foreground: 40 25% 95%;
+    --border: 201 20% 18%;
+    --input: 201 20% 22%;
+    --ring: 168 45% 48%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+  h1 {
+    font-family: "Fraunces Variable", ui-serif, Georgia, serif;
+    font-variation-settings: "opsz" 40, "SOFT" 40;
+    letter-spacing: -0.015em;
+    font-weight: 560;
+  }
+  .font-display {
+    font-family: "Fraunces Variable", ui-serif, Georgia, serif;
+    font-variation-settings: "opsz" 40, "SOFT" 40;
+    letter-spacing: -0.015em;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: white;
+  }
+}
