@@ -172,6 +172,7 @@ export function ClientDetailScreen() {
 
         <TabsContent value="records">
           <div className="grid gap-4 lg:grid-cols-2">
+            <BillingDetailsCard clientId={clientId} />
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg">Contacts</CardTitle>
@@ -264,6 +265,73 @@ export function ClientDetailScreen() {
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+/** Everything the invoice template needs from the client, editable by finance. */
+function BillingDetailsCard({ clientId }: { clientId: string }) {
+  const api = useApi();
+  const qc = useQueryClient();
+  const { hasRole } = useSession();
+  const [form, setForm] = useState<Record<string, string> | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const { data: client } = useQuery({
+    queryKey: ["client", clientId],
+    queryFn: () => api.clients.get(clientId),
+  });
+
+  const saveMutation = useMutation({
+    mutationFn: () => api.clients.update(clientId, form as never),
+    onSuccess: () => {
+      setForm(null);
+      setError(null);
+      void qc.invalidateQueries({ queryKey: ["client", clientId] });
+    },
+    onError: (e) => setError(toDisplayMessage(e)),
+  });
+
+  if (!client || !hasRole("finance")) return null;
+
+  const fields = [
+    ["legal_name", "Legal name"],
+    ["billing_address", "Billing address"],
+    ["code", "Invoice code (e.g. HWAC)"],
+    ["org_no", "Org. No."],
+    ["vat_no", "VAT No."],
+  ] as const;
+
+  return (
+    <Card className="lg:col-span-2">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg">Billing details</CardTitle>
+        <CardDescription>
+          Printed on invoices; the code becomes part of the invoice number
+          ({`IBR-${(form?.code ?? client.code ?? "CODE").toUpperCase()}-YYYY-NNNN`}).
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {error && <p className="text-sm text-destructive">{error}</p>}
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {fields.map(([key, label]) => (
+            <div key={key} className="space-y-1">
+              <Label>{label}</Label>
+              <Input
+                value={form?.[key] ?? String(client[key] ?? "")}
+                onChange={(e) => setForm({ ...(form ?? {}), [key]: e.target.value })}
+              />
+            </div>
+          ))}
+        </div>
+        <Button
+          size="sm"
+          disabled={!form || saveMutation.isPending}
+          onClick={() => saveMutation.mutate()}
+        >
+          Save billing details
+        </Button>
+      </CardContent>
+    </Card>
   );
 }
 

@@ -4,6 +4,7 @@ import { Mail, Plus, Printer, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 import { EmailComposer } from "@/components/EmailComposer";
+import { InvoiceDocument } from "./InvoiceDocument";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -68,6 +69,10 @@ export function InvoiceDetailScreen() {
     queryKey: ["invoice-history", invoiceId, invoice?.status],
     queryFn: () => api.invoices.history(invoiceId),
     enabled: !!invoice,
+  });
+  const { data: settings } = useQuery({
+    queryKey: ["company-settings"],
+    queryFn: () => api.admin.settings(),
   });
 
   const invalidate = () => {
@@ -200,116 +205,27 @@ export function InvoiceDetailScreen() {
         </p>
       )}
 
-      {/* Printable document */}
-      <Card className="print:border-0 print:shadow-none">
-        <CardContent className="pt-6">
-          <div className="mb-6 flex justify-between">
-            <div>
-              <p className="text-lg font-semibold">iBrave</p>
-              <p className="text-sm text-muted-foreground">Outsourcing & Engineering Services</p>
-            </div>
-            <div className="text-right text-sm">
-              <p className="font-semibold">{invoice.number ?? "DRAFT"}</p>
-              {invoice.issued_at && (
-                <p>Issued {new Date(invoice.issued_at).toLocaleDateString()}</p>
-              )}
-              {invoice.due_date && <p>Due {invoice.due_date}</p>}
-            </div>
-          </div>
-          <div className="mb-6 text-sm">
-            <p className="font-medium">Bill to</p>
-            <p>{invoice.clients?.name}</p>
-            {invoice.clients?.billing_address && (
-              <p className="whitespace-pre-line text-muted-foreground">
-                {invoice.clients.billing_address}
-              </p>
-            )}
-          </div>
+      {/* The branded invoice document (screen + print) */}
+      <InvoiceDocument
+        invoice={invoice}
+        settings={settings}
+        isDraft={isDraft}
+        onDeleteLine={(lineId) => deleteLineMutation.mutate(lineId)}
+      />
 
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Description</TableHead>
-                <TableHead className="text-right">Qty</TableHead>
-                <TableHead className="text-right">Unit price</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-                {isDraft && <TableHead className="no-print w-10" />}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {(invoice.invoice_lines ?? [])
-                .sort((a, b) => a.position - b.position)
-                .map((line) => (
-                  <TableRow key={line.id}>
-                    <TableCell>
-                      {line.description}
-                      <span className="ml-2 text-xs text-muted-foreground">{line.kind}</span>
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums">{line.quantity}</TableCell>
-                    <TableCell className="text-right tabular-nums">
-                      {formatMinor(line.unit_price_minor, invoice.currency)}
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums">
-                      {formatMinor(line.amount_minor, invoice.currency)}
-                    </TableCell>
-                    {isDraft && (
-                      <TableCell className="no-print">
-                        {line.kind === "manual" && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 text-destructive"
-                            onClick={() => deleteLineMutation.mutate(line.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </TableCell>
-                    )}
-                  </TableRow>
-                ))}
-            </TableBody>
-          </Table>
+      {isDraft && (
+        <div className="no-print">
+          <Button variant="ghost" size="sm" onClick={() => setShowManualLine(true)}>
+            <Plus className="h-4 w-4" /> Manual line (discount, fee, credit)
+          </Button>
+        </div>
+      )}
 
-          {isDraft && (
-            <div className="no-print mt-2">
-              <Button variant="ghost" size="sm" onClick={() => setShowManualLine(true)}>
-                <Plus className="h-4 w-4" /> Manual line (discount, fee, credit)
-              </Button>
-            </div>
-          )}
-
-          <div className="mt-4 flex justify-end">
-            <div className="w-64 space-y-1 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Subtotal</span>
-                <span className="tabular-nums">
-                  {formatMinor(invoice.subtotal_minor, invoice.currency)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Tax</span>
-                <span className="tabular-nums">
-                  {formatMinor(invoice.tax_total_minor, invoice.currency)}
-                </span>
-              </div>
-              <Separator />
-              <div className="flex justify-between font-semibold">
-                <span>Total</span>
-                <span className="tabular-nums">
-                  {formatMinor(invoice.total_minor, invoice.currency)}
-                </span>
-              </div>
-              {paidTotal > 0 && (
-                <div className="flex justify-between text-muted-foreground">
-                  <span>Paid</span>
-                  <span className="tabular-nums">{formatMinor(paidTotal, invoice.currency)}</span>
-                </div>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {paidTotal > 0 && (
+        <p className="no-print text-right text-sm text-muted-foreground">
+          Paid so far: <span className="tabular-nums">{formatMinor(paidTotal, invoice.currency)}</span>
+        </p>
+      )}
 
       {(invoice.payments ?? []).length > 0 && (
         <Card className="no-print">

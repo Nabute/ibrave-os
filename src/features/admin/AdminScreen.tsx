@@ -349,10 +349,19 @@ export function AdminScreen() {
                     [
                       ["company_name", "Company name"],
                       ["legal_name", "Legal name"],
+                      ["tagline", "Tagline (invoice header)"],
                       ["address", "Address"],
+                      ["tin", "TIN"],
+                      ["registration_no", "Registration No."],
                       ["base_currency", "Base currency"],
                       ["invoice_prefix", "Invoice prefix"],
                       ["credit_note_prefix", "Credit note prefix"],
+                      ["invoice_intro", "Invoice intro line"],
+                      ["payment_instructions", "Payment method text"],
+                      ["vat_note", "VAT note"],
+                      ["contact_note", "Contact note"],
+                      ["issuer_name", "Issuer name"],
+                      ["issuer_title", "Issuer title"],
                       ["bank_details", "Bank details (shown on invoices)"],
                     ] as const
                   ).map(([key, label]) => (

@@ -80,13 +80,15 @@ Deno.serve(async (req) => {
     const { data: inv } = await db
       .from("invoices")
       .select(
-        "number, kind, issued_at, due_date, currency, subtotal_minor, tax_total_minor, total_minor, clients ( name, billing_address ), invoice_lines ( description, quantity, unit_price_minor, amount_minor, position )"
+        "number, kind, issued_at, due_date, period_start, period_end, currency, subtotal_minor, tax_total_minor, total_minor, notes, clients ( name, legal_name, billing_address, org_no, vat_no, payment_terms_days ), invoice_lines ( description, quantity, unit_price_minor, amount_minor, position )"
       )
       .eq("id", payload.invoice_id)
       .single();
     const { data: company } = await db
       .from("company_settings")
-      .select("company_name, legal_name, address, bank_details")
+      .select(
+        "company_name, legal_name, tagline, address, tin, registration_no, bank_details, invoice_intro, payment_instructions, vat_note, contact_note, issuer_name, issuer_title"
+      )
       .single();
     if (inv?.number && company) {
       const pdf = await buildInvoicePdf(inv as never, company);

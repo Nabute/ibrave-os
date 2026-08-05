@@ -29,7 +29,10 @@ export interface Profile {
 export interface CompanySettings {
   company_name: string;
   legal_name: string | null;
+  tagline: string;
   address: string | null;
+  tin: string | null;
+  registration_no: string | null;
   company_timezone: string;
   base_currency: string;
   invoice_prefix: string;
@@ -37,6 +40,12 @@ export interface CompanySettings {
   default_payment_terms_days: number;
   default_tax_rate_pct: number;
   bank_details: string | null;
+  invoice_intro: string;
+  payment_instructions: string;
+  vat_note: string;
+  contact_note: string;
+  issuer_name: string | null;
+  issuer_title: string | null;
 }
 
 export type HealthLight = "green" | "yellow" | "red";
@@ -107,6 +116,9 @@ export interface Account360 {
 export interface Client {
   id: string;
   name: string;
+  code: string | null;
+  org_no: string | null;
+  vat_no: string | null;
   tier: "a" | "b" | "c";
   account_owner_id: string | null;
   legal_name: string | null;
@@ -250,7 +262,17 @@ export interface Invoice {
   dunning_paused: boolean;
   notes: string | null;
   created_at: string;
-  clients?: Pick<Client, "id" | "name" | "billing_address" | "contact_email">;
+  clients?: Pick<
+    Client,
+    | "id"
+    | "name"
+    | "legal_name"
+    | "billing_address"
+    | "contact_email"
+    | "org_no"
+    | "vat_no"
+    | "payment_terms_days"
+  >;
   invoice_lines?: InvoiceLine[];
   payments?: Payment[];
 }

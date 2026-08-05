@@ -21,7 +21,7 @@ export class InvoicesRepository extends BaseRepository {
       this.db
         .from("invoices")
         .select(
-          "*, clients ( id, name, billing_address, contact_email ), invoice_lines ( * ), payments ( * )"
+          "*, clients ( id, name, legal_name, billing_address, contact_email, org_no, vat_no, payment_terms_days ), invoice_lines ( * ), payments ( * )"
         )
         .eq("id", id)
         .order("position", { referencedTable: "invoice_lines" })

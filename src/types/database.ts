@@ -703,6 +703,7 @@ export type Database = {
           account_owner_id: string | null
           active: boolean
           billing_address: string | null
+          code: string | null
           contact_email: string | null
           created_at: string
           currency: string
@@ -711,16 +712,19 @@ export type Database = {
           legal_name: string | null
           name: string
           notes: string | null
+          org_no: string | null
           payment_terms_days: number
           tax_rate_pct: number
           tier: string
           timesheet_appendix: boolean
           updated_at: string
+          vat_no: string | null
         }
         Insert: {
           account_owner_id?: string | null
           active?: boolean
           billing_address?: string | null
+          code?: string | null
           contact_email?: string | null
           created_at?: string
           currency?: string
@@ -729,16 +733,19 @@ export type Database = {
           legal_name?: string | null
           name: string
           notes?: string | null
+          org_no?: string | null
           payment_terms_days?: number
           tax_rate_pct?: number
           tier?: string
           timesheet_appendix?: boolean
           updated_at?: string
+          vat_no?: string | null
         }
         Update: {
           account_owner_id?: string | null
           active?: boolean
           billing_address?: string | null
+          code?: string | null
           contact_email?: string | null
           created_at?: string
           currency?: string
@@ -747,11 +754,13 @@ export type Database = {
           legal_name?: string | null
           name?: string
           notes?: string | null
+          org_no?: string | null
           payment_terms_days?: number
           tax_rate_pct?: number
           tier?: string
           timesheet_appendix?: boolean
           updated_at?: string
+          vat_no?: string | null
         }
         Relationships: [
           {
@@ -782,16 +791,25 @@ export type Database = {
           base_currency: string
           company_name: string
           company_timezone: string
+          contact_note: string
           created_at: string
           credit_note_prefix: string
           default_payment_terms_days: number
           default_tax_rate_pct: number
           id: boolean
+          invoice_intro: string
           invoice_prefix: string
+          issuer_name: string | null
+          issuer_title: string | null
           legal_name: string | null
           logo_url: string | null
+          payment_instructions: string
+          registration_no: string | null
           stale_entry_days: number
+          tagline: string
+          tin: string | null
           updated_at: string
+          vat_note: string
         }
         Insert: {
           acct_ar?: string
@@ -804,16 +822,25 @@ export type Database = {
           base_currency?: string
           company_name?: string
           company_timezone?: string
+          contact_note?: string
           created_at?: string
           credit_note_prefix?: string
           default_payment_terms_days?: number
           default_tax_rate_pct?: number
           id?: boolean
+          invoice_intro?: string
           invoice_prefix?: string
+          issuer_name?: string | null
+          issuer_title?: string | null
           legal_name?: string | null
           logo_url?: string | null
+          payment_instructions?: string
+          registration_no?: string | null
           stale_entry_days?: number
+          tagline?: string
+          tin?: string | null
           updated_at?: string
+          vat_note?: string
         }
         Update: {
           acct_ar?: string
@@ -826,16 +853,25 @@ export type Database = {
           base_currency?: string
           company_name?: string
           company_timezone?: string
+          contact_note?: string
           created_at?: string
           credit_note_prefix?: string
           default_payment_terms_days?: number
           default_tax_rate_pct?: number
           id?: boolean
+          invoice_intro?: string
           invoice_prefix?: string
+          issuer_name?: string | null
+          issuer_title?: string | null
           legal_name?: string | null
           logo_url?: string | null
+          payment_instructions?: string
+          registration_no?: string | null
           stale_entry_days?: number
+          tagline?: string
+          tin?: string | null
           updated_at?: string
+          vat_note?: string
         }
         Relationships: []
       }
