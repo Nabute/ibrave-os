@@ -9,6 +9,7 @@ import { AccountsRepository } from "./modules/accounts";
 import { AdminRepository } from "./modules/admin";
 import { ApprovalsRepository } from "./modules/approvals";
 import { ClientsRepository } from "./modules/clients";
+import { CommsRepository } from "./modules/comms";
 import { InvoicesRepository } from "./modules/invoices";
 import { PayoutsRepository } from "./modules/payouts";
 import { ProjectsRepository } from "./modules/projects";
@@ -16,6 +17,7 @@ import { ProspectingRepository } from "./modules/prospecting";
 import { ReportsRepository } from "./modules/reports";
 import { SalesRepository } from "./modules/sales";
 import { StaffingRepository } from "./modules/staffing";
+import { TalentRepository } from "./modules/talent";
 import { TimesheetsRepository } from "./modules/timesheets";
 import { WorkspaceRepository } from "./modules/workspace";
 
@@ -32,6 +34,8 @@ export function createApi(config: ApiConfig) {
     sales: new SalesRepository(config),
     accounts: new AccountsRepository(config),
     prospecting: new ProspectingRepository(config),
+    talent: new TalentRepository(config),
+    comms: new CommsRepository(config),
     workspace: new WorkspaceRepository(config),
     admin: new AdminRepository(config),
   };

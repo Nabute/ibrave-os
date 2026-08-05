@@ -375,6 +375,301 @@ export type Database = {
         }
         Relationships: []
       }
+      calendar_attendees: {
+        Row: {
+          email: string | null
+          event_id: string
+          id: number
+          name: string | null
+          response: string
+          user_id: string | null
+        }
+        Insert: {
+          email?: string | null
+          event_id: string
+          id?: never
+          name?: string | null
+          response?: string
+          user_id?: string | null
+        }
+        Update: {
+          email?: string | null
+          event_id?: string
+          id?: never
+          name?: string | null
+          response?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_attendees_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_attendees_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_attendees_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      calendar_events: {
+        Row: {
+          cancelled_at: string | null
+          candidate_id: string | null
+          client_id: string | null
+          created_at: string
+          description: string | null
+          ends_at: string
+          id: string
+          interview_round_id: string | null
+          lead_id: string | null
+          location: string | null
+          organizer_id: string
+          prospect_id: string | null
+          starts_at: string
+          title: string
+        }
+        Insert: {
+          cancelled_at?: string | null
+          candidate_id?: string | null
+          client_id?: string | null
+          created_at?: string
+          description?: string | null
+          ends_at: string
+          id?: string
+          interview_round_id?: string | null
+          lead_id?: string | null
+          location?: string | null
+          organizer_id: string
+          prospect_id?: string | null
+          starts_at: string
+          title: string
+        }
+        Update: {
+          cancelled_at?: string | null
+          candidate_id?: string | null
+          client_id?: string | null
+          created_at?: string
+          description?: string | null
+          ends_at?: string
+          id?: string
+          interview_round_id?: string | null
+          lead_id?: string | null
+          location?: string | null
+          organizer_id?: string
+          prospect_id?: string | null
+          starts_at?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_events_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_events_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_events_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "v_margin_by_project"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "calendar_events_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "v_unbilled_work"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "calendar_events_interview_round_id_fkey"
+            columns: ["interview_round_id"]
+            isOneToOne: false
+            referencedRelation: "interview_rounds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_events_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_events_organizer_id_fkey"
+            columns: ["organizer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_events_organizer_id_fkey"
+            columns: ["organizer_id"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "calendar_events_prospect_id_fkey"
+            columns: ["prospect_id"]
+            isOneToOne: false
+            referencedRelation: "prospects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      candidate_activities: {
+        Row: {
+          actor_id: string | null
+          at: string
+          body: string
+          candidate_id: string
+          id: number
+          kind: string
+        }
+        Insert: {
+          actor_id?: string | null
+          at?: string
+          body: string
+          candidate_id: string
+          id?: never
+          kind?: string
+        }
+        Update: {
+          actor_id?: string | null
+          at?: string
+          body?: string
+          candidate_id?: string
+          id?: never
+          kind?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidate_activities_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "candidate_activities_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "candidate_activities_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      candidates: {
+        Row: {
+          available_from: string | null
+          created_at: string
+          cv_url: string | null
+          email: string | null
+          expected_rate_minor: number | null
+          full_name: string
+          id: string
+          notes: string | null
+          owner_id: string | null
+          phone: string | null
+          rejection_reason: string | null
+          requisition_id: string | null
+          seniority: Database["public"]["Enums"]["skill_level"] | null
+          skills: string[]
+          source: string
+          stage: string
+          updated_at: string
+        }
+        Insert: {
+          available_from?: string | null
+          created_at?: string
+          cv_url?: string | null
+          email?: string | null
+          expected_rate_minor?: number | null
+          full_name: string
+          id?: string
+          notes?: string | null
+          owner_id?: string | null
+          phone?: string | null
+          rejection_reason?: string | null
+          requisition_id?: string | null
+          seniority?: Database["public"]["Enums"]["skill_level"] | null
+          skills?: string[]
+          source?: string
+          stage?: string
+          updated_at?: string
+        }
+        Update: {
+          available_from?: string | null
+          created_at?: string
+          cv_url?: string | null
+          email?: string | null
+          expected_rate_minor?: number | null
+          full_name?: string
+          id?: string
+          notes?: string | null
+          owner_id?: string | null
+          phone?: string | null
+          rejection_reason?: string | null
+          requisition_id?: string | null
+          seniority?: Database["public"]["Enums"]["skill_level"] | null
+          skills?: string[]
+          source?: string
+          stage?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidates_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "candidates_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "candidates_requisition_id_fkey"
+            columns: ["requisition_id"]
+            isOneToOne: false
+            referencedRelation: "requisitions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clients: {
         Row: {
           account_owner_id: string | null
@@ -703,6 +998,191 @@ export type Database = {
           },
         ]
       }
+      email_log: {
+        Row: {
+          body_html: string
+          calendar_event_id: string | null
+          candidate_id: string | null
+          cc_emails: string[]
+          client_id: string | null
+          created_at: string
+          error: string | null
+          id: number
+          invoice_id: string | null
+          lead_id: string | null
+          prospect_id: string | null
+          sent_by: string | null
+          status: string
+          subject: string
+          to_emails: string[]
+        }
+        Insert: {
+          body_html: string
+          calendar_event_id?: string | null
+          candidate_id?: string | null
+          cc_emails?: string[]
+          client_id?: string | null
+          created_at?: string
+          error?: string | null
+          id?: never
+          invoice_id?: string | null
+          lead_id?: string | null
+          prospect_id?: string | null
+          sent_by?: string | null
+          status?: string
+          subject: string
+          to_emails: string[]
+        }
+        Update: {
+          body_html?: string
+          calendar_event_id?: string | null
+          candidate_id?: string | null
+          cc_emails?: string[]
+          client_id?: string | null
+          created_at?: string
+          error?: string | null
+          id?: never
+          invoice_id?: string | null
+          lead_id?: string | null
+          prospect_id?: string | null
+          sent_by?: string | null
+          status?: string
+          subject?: string
+          to_emails?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_log_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_log_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_log_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "v_margin_by_project"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "email_log_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "v_unbilled_work"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "email_log_event_fk"
+            columns: ["calendar_event_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_log_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_log_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "v_invoice_aging"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_log_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_log_prospect_id_fkey"
+            columns: ["prospect_id"]
+            isOneToOne: false
+            referencedRelation: "prospects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_log_sent_by_fkey"
+            columns: ["sent_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_log_sent_by_fkey"
+            columns: ["sent_by"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      engagements: {
+        Row: {
+          assignment_id: string
+          closed_at: string
+          closed_by: string | null
+          internal_rating_1_5: number | null
+          outcome_note: string | null
+        }
+        Insert: {
+          assignment_id: string
+          closed_at?: string
+          closed_by?: string | null
+          internal_rating_1_5?: number | null
+          outcome_note?: string | null
+        }
+        Update: {
+          assignment_id?: string
+          closed_at?: string
+          closed_by?: string | null
+          internal_rating_1_5?: number | null
+          outcome_note?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "engagements_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: true
+            referencedRelation: "assignments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "engagements_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: true
+            referencedRelation: "v_engagement_history"
+            referencedColumns: ["assignment_id"]
+          },
+          {
+            foreignKeyName: "engagements_closed_by_fkey"
+            columns: ["closed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "engagements_closed_by_fkey"
+            columns: ["closed_by"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       escalations: {
         Row: {
           client_id: string
@@ -863,6 +1343,61 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "v_unbilled_work"
             referencedColumns: ["project_id"]
+          },
+        ]
+      }
+      interview_rounds: {
+        Row: {
+          candidate_id: string
+          id: string
+          interviewer_id: string
+          recommendation: string | null
+          round_no: number
+          scheduled_at: string | null
+          scorecard: Json | null
+          submitted_at: string | null
+        }
+        Insert: {
+          candidate_id: string
+          id?: string
+          interviewer_id: string
+          recommendation?: string | null
+          round_no?: number
+          scheduled_at?: string | null
+          scorecard?: Json | null
+          submitted_at?: string | null
+        }
+        Update: {
+          candidate_id?: string
+          id?: string
+          interviewer_id?: string
+          recommendation?: string | null
+          round_no?: number
+          scheduled_at?: string | null
+          scorecard?: Json | null
+          submitted_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interview_rounds_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "interview_rounds_interviewer_id_fkey"
+            columns: ["interviewer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "interview_rounds_interviewer_id_fkey"
+            columns: ["interviewer_id"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -1350,6 +1885,96 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      offers: {
+        Row: {
+          candidate_id: string
+          id: string
+          rate_minor: number
+          rate_period: string
+          responded_at: string | null
+          sent_at: string
+          start_date: string | null
+          status: string
+        }
+        Insert: {
+          candidate_id: string
+          id?: string
+          rate_minor: number
+          rate_period?: string
+          responded_at?: string | null
+          sent_at?: string
+          start_date?: string | null
+          status?: string
+        }
+        Update: {
+          candidate_id?: string
+          id?: string
+          rate_minor?: number
+          rate_period?: string
+          responded_at?: string | null
+          sent_at?: string
+          start_date?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offers_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      onboarding_tasks: {
+        Row: {
+          candidate_id: string
+          done_at: string | null
+          due_date: string | null
+          id: string
+          owner_id: string | null
+          task: string
+        }
+        Insert: {
+          candidate_id: string
+          done_at?: string | null
+          due_date?: string | null
+          id?: string
+          owner_id?: string | null
+          task: string
+        }
+        Update: {
+          candidate_id?: string
+          done_at?: string | null
+          due_date?: string | null
+          id?: string
+          owner_id?: string | null
+          task?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "onboarding_tasks_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "onboarding_tasks_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "onboarding_tasks_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       opportunities: {
         Row: {
@@ -2196,6 +2821,56 @@ export type Database = {
           },
         ]
       }
+      requisitions: {
+        Row: {
+          filled_at: string | null
+          headcount: number
+          id: string
+          notes: string | null
+          opened_at: string
+          reason: string
+          role_title: string
+          seniority: Database["public"]["Enums"]["skill_level"] | null
+          skills: string[]
+          staffing_request_id: string | null
+          status: string
+        }
+        Insert: {
+          filled_at?: string | null
+          headcount?: number
+          id?: string
+          notes?: string | null
+          opened_at?: string
+          reason?: string
+          role_title: string
+          seniority?: Database["public"]["Enums"]["skill_level"] | null
+          skills?: string[]
+          staffing_request_id?: string | null
+          status?: string
+        }
+        Update: {
+          filled_at?: string | null
+          headcount?: number
+          id?: string
+          notes?: string | null
+          opened_at?: string
+          reason?: string
+          role_title?: string
+          seniority?: Database["public"]["Enums"]["skill_level"] | null
+          skills?: string[]
+          staffing_request_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "requisitions_staffing_request_id_fkey"
+            columns: ["staffing_request_id"]
+            isOneToOne: false
+            referencedRelation: "staffing_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sales_tasks: {
         Row: {
           cadence_run_id: string | null
@@ -2373,6 +3048,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "assignments"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staffing_requests_filled_by_assignment_fkey"
+            columns: ["filled_by_assignment"]
+            isOneToOne: false
+            referencedRelation: "v_engagement_history"
+            referencedColumns: ["assignment_id"]
           },
           {
             foreignKeyName: "staffing_requests_project_id_fkey"
@@ -2836,6 +3518,66 @@ export type Database = {
           },
         ]
       }
+      v_engagement_history: {
+        Row: {
+          allocation_pct: number | null
+          approved_hours: number | null
+          assignment_id: string | null
+          client_name: string | null
+          end_date: string | null
+          ended: boolean | null
+          full_name: string | null
+          project_id: string | null
+          project_name: string | null
+          role_on_project: string | null
+          start_date: string | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assignments_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assignments_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_margin_by_project"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "assignments_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_project_burn"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "assignments_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_unbilled_work"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "assignments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assignments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       v_invoice_aging: {
         Row: {
           bucket: string | null
@@ -2960,6 +3702,18 @@ export type Database = {
         }
         Relationships: []
       }
+      v_recruiting_funnel: {
+        Row: {
+          candidates: number | null
+          hired: number | null
+          interviewed: number | null
+          offered: number | null
+          pooled: number | null
+          screened: number | null
+          source: string | null
+        }
+        Relationships: []
+      }
       v_unbilled_work: {
         Row: {
           client_id: string | null
@@ -3073,6 +3827,9 @@ export type Database = {
           weekly_capacity_hours: number
         }[]
       }
+      can_see_candidate: { Args: { p_candidate_id: string }; Returns: boolean }
+      can_see_event: { Args: { p_event_id: string }; Returns: boolean }
+      cancel_event: { Args: { p_event_id: string }; Returns: undefined }
       cancel_staffing_request: {
         Args: { p_comment: string; p_request_id: string }
         Returns: {
@@ -3098,6 +3855,35 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      candidate_action: {
+        Args: { p_action: string; p_candidate_id: string; p_comment?: string }
+        Returns: {
+          available_from: string | null
+          created_at: string
+          cv_url: string | null
+          email: string | null
+          expected_rate_minor: number | null
+          full_name: string
+          id: string
+          notes: string | null
+          owner_id: string | null
+          phone: string | null
+          rejection_reason: string | null
+          requisition_id: string | null
+          seniority: Database["public"]["Enums"]["skill_level"] | null
+          skills: string[]
+          source: string
+          stage: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "candidates"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      candidate_actions: { Args: { p_candidate_id: string }; Returns: Json }
       capacity_forecast: {
         Args: { p_months?: number }
         Returns: {
@@ -3468,6 +4254,23 @@ export type Database = {
       }
       has_exact_role: { Args: { check_role: string }; Returns: boolean }
       has_role: { Args: { check_role: string }; Returns: boolean }
+      hire_candidate: {
+        Args: { p_admin_id?: string; p_candidate_id: string }
+        Returns: {
+          candidate_id: string
+          done_at: string | null
+          due_date: string | null
+          id: string
+          owner_id: string | null
+          task: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "onboarding_tasks"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       invoice_actions: { Args: { p_invoice_id: string }; Returns: Json }
       invoke_edge_function: { Args: { p_fn: string }; Returns: undefined }
       is_project_pm: { Args: { p_project_id: string }; Returns: boolean }
@@ -3505,6 +4308,7 @@ export type Database = {
       job_account_checkins: { Args: never; Returns: number }
       job_account_health: { Args: never; Returns: number }
       job_approval_nudges: { Args: never; Returns: number }
+      job_candidate_idle_nudge: { Args: never; Returns: number }
       job_dunning_scan: { Args: never; Returns: number }
       job_renewal_watchdog: { Args: never; Returns: number }
       job_timesheet_reminders: { Args: never; Returns: number }
@@ -3605,6 +4409,30 @@ export type Database = {
         Args: { p_invoice_id: string }
         Returns: undefined
       }
+      record_offer: {
+        Args: {
+          p_candidate_id: string
+          p_rate_minor: number
+          p_rate_period: string
+          p_start_date: string
+        }
+        Returns: {
+          candidate_id: string
+          id: string
+          rate_minor: number
+          rate_period: string
+          responded_at: string | null
+          sent_at: string
+          start_date: string | null
+          status: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "offers"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       record_payment: {
         Args: {
           p_amount_minor: number
@@ -3676,6 +4504,31 @@ export type Database = {
       resolve_rate: {
         Args: { p_project_id: string; p_user_id: string; p_work_date: string }
         Returns: number
+      }
+      schedule_event: {
+        Args: { p: Json }
+        Returns: {
+          cancelled_at: string | null
+          candidate_id: string | null
+          client_id: string | null
+          created_at: string
+          description: string | null
+          ends_at: string
+          id: string
+          interview_round_id: string | null
+          lead_id: string | null
+          location: string | null
+          organizer_id: string
+          prospect_id: string | null
+          starts_at: string
+          title: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "calendar_events"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       staffing_request_actions: {
         Args: { p_request_id: string }

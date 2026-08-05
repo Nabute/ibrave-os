@@ -321,6 +321,172 @@ export interface BurnRow {
   burn_pct: number | null;
 }
 
+export interface Requisition {
+  id: string;
+  role_title: string;
+  skills: string[];
+  seniority: SkillLevel | null;
+  headcount: number;
+  reason: "growth" | "backfill" | "staffing_request";
+  staffing_request_id: string | null;
+  status: "open" | "filled" | "cancelled";
+  opened_at: string;
+  filled_at: string | null;
+  notes: string | null;
+}
+
+export type CandidateStage =
+  | "sourced"
+  | "screening"
+  | "interview"
+  | "assessment"
+  | "offer"
+  | "hired"
+  | "rejected"
+  | "talent_pool";
+
+export interface Candidate {
+  id: string;
+  full_name: string;
+  email: string | null;
+  phone: string | null;
+  cv_url: string | null;
+  skills: string[];
+  seniority: SkillLevel | null;
+  expected_rate_minor: number | null;
+  available_from: string | null;
+  source: string;
+  stage: CandidateStage;
+  requisition_id: string | null;
+  owner_id: string | null;
+  rejection_reason: string | null;
+  notes: string | null;
+  updated_at: string;
+  requisitions?: { role_title: string };
+}
+
+export interface CandidateActivity {
+  id: number;
+  candidate_id: string;
+  kind: string;
+  body: string;
+  at: string;
+}
+
+export interface ScorecardItem {
+  criterion: string;
+  score_1_5: number;
+  notes: string;
+}
+
+export interface InterviewRound {
+  id: string;
+  candidate_id: string;
+  round_no: number;
+  interviewer_id: string;
+  scheduled_at: string | null;
+  scorecard: ScorecardItem[] | null;
+  recommendation: "strong_yes" | "yes" | "no" | "strong_no" | null;
+  submitted_at: string | null;
+  profiles?: { full_name: string };
+}
+
+export interface Offer {
+  id: string;
+  candidate_id: string;
+  rate_minor: number;
+  rate_period: "hourly" | "monthly";
+  start_date: string | null;
+  status: "sent" | "accepted" | "declined";
+  sent_at: string;
+}
+
+export interface OnboardingTask {
+  id: string;
+  candidate_id: string;
+  task: string;
+  owner_id: string | null;
+  due_date: string | null;
+  done_at: string | null;
+  candidates?: { full_name: string };
+  profiles?: { full_name: string };
+}
+
+export interface RecruitingFunnelRow {
+  source: string;
+  candidates: number;
+  screened: number;
+  interviewed: number;
+  offered: number;
+  hired: number;
+  pooled: number;
+}
+
+export interface EngagementRow {
+  assignment_id: string;
+  user_id: string;
+  full_name: string;
+  project_id: string;
+  project_name: string;
+  client_name: string;
+  role_on_project: string | null;
+  start_date: string;
+  end_date: string | null;
+  allocation_pct: number;
+  approved_hours: number;
+  ended: boolean;
+}
+
+export interface SendEmailPayload {
+  to: string[];
+  cc?: string[];
+  subject: string;
+  html: string;
+  client_id?: string;
+  lead_id?: string;
+  prospect_id?: string;
+  candidate_id?: string;
+  invoice_id?: string;
+  event_id?: string;
+}
+
+export interface EmailLogRow {
+  id: number;
+  sent_by: string | null;
+  to_emails: string[];
+  subject: string;
+  status: "sent" | "failed";
+  created_at: string;
+  profiles?: { full_name: string };
+}
+
+export interface CalendarAttendee {
+  id: number;
+  event_id: string;
+  user_id: string | null;
+  email: string | null;
+  name: string | null;
+  response: "pending" | "accepted" | "declined";
+}
+
+export interface CalendarEvent {
+  id: string;
+  title: string;
+  description: string | null;
+  location: string | null;
+  starts_at: string;
+  ends_at: string;
+  organizer_id: string;
+  client_id: string | null;
+  lead_id: string | null;
+  prospect_id: string | null;
+  candidate_id: string | null;
+  interview_round_id: string | null;
+  cancelled_at: string | null;
+  calendar_attendees?: CalendarAttendee[];
+  profiles?: { full_name: string };
+}
+
 export interface Prospect {
   id: string;
   company: string;

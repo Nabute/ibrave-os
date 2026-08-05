@@ -15,13 +15,15 @@ export interface EmailMessage {
   subject: string;
   html: string;
   cc?: string[];
+  replyTo?: string;
+  attachments?: { filename: string; content: string }[]; // base64
 }
 
 /**
  * Send via Resend. Without RESEND_API_KEY configured (local dev) the send is
  * logged and skipped, so jobs stay runnable locally.
  */
-export async function sendEmail(msg: EmailMessage): Promise<{ ok: boolean; detail: string }> {
+export async function sendEmailRaw(msg: EmailMessage): Promise<{ ok: boolean; detail: string }> {
   const apiKey = Deno.env.get("RESEND_API_KEY");
   const from = Deno.env.get("EMAIL_FROM") ?? "iBrave OS <noreply@ibrave.dev>";
   if (!apiKey) {
@@ -34,12 +36,22 @@ export async function sendEmail(msg: EmailMessage): Promise<{ ok: boolean; detai
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ from, to: msg.to, cc: msg.cc, subject: msg.subject, html: msg.html }),
+    body: JSON.stringify({
+      from,
+      to: msg.to,
+      cc: msg.cc,
+      reply_to: msg.replyTo,
+      subject: msg.subject,
+      html: msg.html,
+      attachments: msg.attachments,
+    }),
   });
   const detail = await res.text();
   if (!res.ok) console.error(`Resend error ${res.status}: ${detail}`);
   return { ok: res.ok, detail };
 }
+
+export const sendEmail = sendEmailRaw;
 
 /** Require the cron secret so jobs can't be triggered by the public. */
 export function authorize(req: Request): Response | null {

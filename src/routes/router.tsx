@@ -8,6 +8,7 @@ import {
 import { AppShell } from "@/components/AppShell";
 import { AdminScreen } from "@/features/admin/AdminScreen";
 import { ApprovalsScreen } from "@/features/approvals/ApprovalsScreen";
+import { CalendarScreen } from "@/features/calendar/CalendarScreen";
 import { LoginScreen } from "@/features/auth/LoginScreen";
 import { ClientDetailScreen } from "@/features/clients/ClientDetailScreen";
 import { ClientsScreen } from "@/features/clients/ClientsScreen";
@@ -18,7 +19,10 @@ import { PayoutDetailScreen } from "@/features/payouts/PayoutDetailScreen";
 import { PayoutsScreen } from "@/features/payouts/PayoutsScreen";
 import { ProjectDetailScreen } from "@/features/projects/ProjectDetailScreen";
 import { ProjectsScreen } from "@/features/projects/ProjectsScreen";
+import { PeopleScreen } from "@/features/people/PeopleScreen";
+import { PersonDetailScreen } from "@/features/people/PersonDetailScreen";
 import { ProspectingScreen } from "@/features/prospecting/ProspectingScreen";
+import { RecruitingScreen } from "@/features/recruiting/RecruitingScreen";
 import { ReportsScreen } from "@/features/reports/ReportsScreen";
 import { SalesScreen } from "@/features/sales/SalesScreen";
 import { StaffingScreen } from "@/features/staffing/StaffingScreen";
@@ -79,6 +83,14 @@ const routes = [
     getParentRoute: () => appRoute,
     path: "/prospecting",
     component: ProspectingScreen,
+  }),
+  createRoute({ getParentRoute: () => appRoute, path: "/calendar", component: CalendarScreen }),
+  createRoute({ getParentRoute: () => appRoute, path: "/recruiting", component: RecruitingScreen }),
+  createRoute({ getParentRoute: () => appRoute, path: "/people", component: PeopleScreen }),
+  createRoute({
+    getParentRoute: () => appRoute,
+    path: "/people/$personId",
+    component: PersonDetailScreen,
   }),
   createRoute({ getParentRoute: () => appRoute, path: "/payouts", component: PayoutsScreen }),
   createRoute({

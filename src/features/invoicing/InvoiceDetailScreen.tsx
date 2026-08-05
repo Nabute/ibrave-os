@@ -1,7 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "@tanstack/react-router";
-import { Plus, Printer, Trash2 } from "lucide-react";
+import { Mail, Plus, Printer, Trash2 } from "lucide-react";
 import { useState } from "react";
+
+import { EmailComposer } from "@/components/EmailComposer";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -51,6 +53,7 @@ export function InvoiceDetailScreen() {
   const [credit, setCredit] = useState({ amount: "", description: "" });
   const [manualLine, setManualLine] = useState({ description: "", amount: "" });
   const [showManualLine, setShowManualLine] = useState(false);
+  const [emailing, setEmailing] = useState(false);
 
   const { data: invoice } = useQuery({
     queryKey: ["invoice", invoiceId],
@@ -179,9 +182,14 @@ export function InvoiceDetailScreen() {
             </Button>
           ))}
           {invoice.status !== "draft" && (
-            <Button variant="outline" onClick={() => window.print()}>
-              <Printer className="h-4 w-4" /> Print / PDF
-            </Button>
+            <>
+              <Button variant="outline" onClick={() => setEmailing(true)}>
+                <Mail className="h-4 w-4" /> Email to client
+              </Button>
+              <Button variant="outline" onClick={() => window.print()}>
+                <Printer className="h-4 w-4" /> Print / PDF
+              </Button>
+            </>
           )}
         </div>
       </div>
@@ -412,6 +420,18 @@ export function InvoiceDetailScreen() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* In-app invoice sending (D-2) — logged to the client timeline */}
+      <EmailComposer
+        open={emailing}
+        onClose={() => setEmailing(false)}
+        to={invoice.clients?.contact_email ? [invoice.clients.contact_email] : []}
+        subject={`Invoice ${invoice.number} — ${formatMinor(invoice.total_minor, invoice.currency)}`}
+        body={`Dear ${invoice.clients?.name},\n\nPlease find invoice ${invoice.number} for ${formatMinor(invoice.total_minor, invoice.currency)}, due ${invoice.due_date}.\n\n${(invoice.invoice_lines ?? [])
+          .map((l) => `• ${l.description}: ${formatMinor(l.amount_minor, invoice.currency)}`)
+          .join("\n")}\n\nThank you for your business.`}
+        related={{ invoice_id: invoice.id, client_id: invoice.client_id }}
+      />
 
       {/* Manual line dialog */}
       <Dialog open={showManualLine} onOpenChange={setShowManualLine}>

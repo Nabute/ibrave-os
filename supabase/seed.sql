@@ -279,6 +279,47 @@ values
    '11111111-1111-1111-1111-111111111111', 'Cold list — low fit');
 
 -- ----------------------------------------------------------------------------
+-- Talent (Phase 8): requisition, candidates, scorecards, offer
+-- ----------------------------------------------------------------------------
+insert into public.user_roles (user_id, role) values
+  ('11111111-1111-1111-1111-111111111111', 'recruiter');
+
+insert into public.requisitions (id, role_title, skills, seniority, headcount, reason, notes) values
+  ('aaab0000-0000-0000-0000-000000000001', 'Backend Developer', array['node','postgres'], 'mid',
+   1, 'staffing_request', 'Demand from Globex Data Migration staffing request');
+
+insert into public.candidates
+  (id, full_name, email, skills, seniority, expected_rate_minor, available_from, source, stage, requisition_id, owner_id)
+values
+  ('aaab1111-0000-0000-0000-000000000001', 'Meron Haile', 'meron@example.com',
+   array['node','postgres','react'], 'mid', 5500, current_date + 21, 'referral', 'interview',
+   'aaab0000-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111'),
+  ('aaab1111-0000-0000-0000-000000000002', 'Jonas Weber', 'jonas@example.com',
+   array['node','go'], 'senior', 8000, current_date + 30, 'linkedin', 'offer',
+   'aaab0000-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111'),
+  ('aaab1111-0000-0000-0000-000000000003', 'Sara Kide', 'sara@example.com',
+   array['qa-automation'], 'mid', 4500, null, 'job_board', 'talent_pool',
+   null, '11111111-1111-1111-1111-111111111111');
+
+insert into public.interview_rounds
+  (candidate_id, round_no, interviewer_id, scheduled_at, scorecard, recommendation, submitted_at)
+values
+  ('aaab1111-0000-0000-0000-000000000001', 1, '22222222-2222-2222-2222-222222222222',
+   now() - interval '2 days',
+   '[{"criterion":"Problem solving","score_1_5":4,"notes":"Structured thinking"},
+     {"criterion":"Postgres depth","score_1_5":4,"notes":"Solid indexing knowledge"},
+     {"criterion":"Communication","score_1_5":5,"notes":"Very clear"}]'::jsonb,
+   'yes', now() - interval '2 days'),
+  ('aaab1111-0000-0000-0000-000000000002', 1, '22222222-2222-2222-2222-222222222222',
+   now() - interval '5 days',
+   '[{"criterion":"System design","score_1_5":5,"notes":"Excellent"},
+     {"criterion":"Node depth","score_1_5":4,"notes":"Strong"}]'::jsonb,
+   'strong_yes', now() - interval '5 days');
+
+insert into public.offers (candidate_id, rate_minor, rate_period, start_date) values
+  ('aaab1111-0000-0000-0000-000000000002', 7500, 'hourly', current_date + 30);
+
+-- ----------------------------------------------------------------------------
 -- Cost rates (E-1): hourly for the devs, monthly for the salaried PM
 -- ----------------------------------------------------------------------------
 insert into public.cost_rates (user_id, effective_from, hourly_cost_minor, monthly_cost_minor, currency, note) values

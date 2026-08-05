@@ -1,6 +1,6 @@
 # iBrave OS — Outsourcing Business Automation Platform
 
-Internal platform for a 10–50 person outsourcing company. Phases 1–7 of the
+Internal platform for a 10–50 person outsourcing company. Phases 1–8 of the
 [blueprint](docs/outsourcing-automation-blueprint.md) are implemented:
 **core + time tracking** (weekly grid, submit → approve → reject workflow),
 **billing** (versioned rate cards, draft invoice generation, issue/void/credit
@@ -16,8 +16,19 @@ document entries, explainable health scores, opportunities, escalations that
 pause dunning, feedback pulses), and **sales development** (prospect list with
 fit scores, reusable outreach cadences that auto-schedule the next touch, the
 today-view task queue shared with account check-ins, one-click prospect→lead
-conversion carrying history, do-not-contact, funnel analytics by source), plus
-the My Day workspace and reports.
+conversion carrying history, do-not-contact, funnel analytics by source), and
+**talent acquisition** (requisitions, candidate pipeline with interview
+scorecards required before hiring, offers, talent pool, hire→onboarding
+checklist, Talent 360 with automatic engagement history and client-ready
+profile export), plus the My Day workspace and reports.
+
+**All communication stays in-app**: every email (invoices, outreach, candidate
+correspondence, event invites) is composed in the app and sent through the
+`send-user-email` Edge Function — from the company address with reply-to the
+sender, written to `email_log`, and mirrored into the record's timeline. An
+in-app **calendar** handles scheduling (meetings, account check-ins, interview
+rounds); external attendees receive real ICS calendar invites by email. Users
+never need an outside mail client or calendar.
 
 ## Architecture
 

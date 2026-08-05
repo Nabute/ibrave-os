@@ -3,6 +3,8 @@ import { Link, useParams } from "@tanstack/react-router";
 import { AlertTriangle, MessageSquarePlus, Star } from "lucide-react";
 import { useState } from "react";
 
+import { EmailComposer } from "@/components/EmailComposer";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -295,10 +297,15 @@ function TimelineTab({ clientId }: { clientId: string }) {
   const { userId } = useSession();
   const [note, setNote] = useState("");
   const [kind, setKind] = useState("note");
+  const [emailing, setEmailing] = useState(false);
 
   const { data: activities } = useQuery({
     queryKey: ["account-activities", clientId],
     queryFn: () => api.accounts.activities(clientId),
+  });
+  const { data: contacts } = useQuery({
+    queryKey: ["client-contacts", clientId],
+    queryFn: () => api.clients.contacts(clientId),
   });
 
   const logMutation = useMutation({
@@ -341,7 +348,21 @@ function TimelineTab({ clientId }: { clientId: string }) {
           >
             <MessageSquarePlus className="h-4 w-4" />
           </Button>
+          <Button variant="outline" onClick={() => setEmailing(true)}>
+            Email client
+          </Button>
         </div>
+        <EmailComposer
+          open={emailing}
+          onClose={() => setEmailing(false)}
+          to={(contacts ?? [])
+            .filter((c) => c.email && !c.opted_out)
+            .map((c) => c.email!)}
+          related={{ client_id: clientId }}
+          onSent={() => {
+            void qc.invalidateQueries({ queryKey: ["account-activities", clientId] });
+          }}
+        />
         <ul className="space-y-2.5 text-sm">
           {(activities ?? []).map((a) => (
             <li key={a.id} className="flex gap-3">
