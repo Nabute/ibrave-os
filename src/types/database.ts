@@ -999,6 +999,46 @@ export type Database = {
           },
         ]
       }
+      person_skills: {
+        Row: {
+          level: Database["public"]["Enums"]["skill_level"]
+          skill_id: string
+          user_id: string
+        }
+        Insert: {
+          level?: Database["public"]["Enums"]["skill_level"]
+          skill_id: string
+          user_id: string
+        }
+        Update: {
+          level?: Database["public"]["Enums"]["skill_level"]
+          skill_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "person_skills_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "person_skills_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "person_skills_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           active: boolean
@@ -1241,6 +1281,122 @@ export type Database = {
           },
           {
             foreignKeyName: "rate_cards_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_unbilled_work"
+            referencedColumns: ["project_id"]
+          },
+        ]
+      }
+      skills: {
+        Row: {
+          id: string
+          name: string
+        }
+        Insert: {
+          id?: string
+          name: string
+        }
+        Update: {
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      staffing_requests: {
+        Row: {
+          allocation_pct: number
+          created_at: string
+          created_by: string | null
+          duration_weeks: number | null
+          filled_by_assignment: string | null
+          id: string
+          notes: string | null
+          project_id: string | null
+          role_title: string
+          seniority: Database["public"]["Enums"]["skill_level"] | null
+          skills: string[]
+          start_date: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          allocation_pct?: number
+          created_at?: string
+          created_by?: string | null
+          duration_weeks?: number | null
+          filled_by_assignment?: string | null
+          id?: string
+          notes?: string | null
+          project_id?: string | null
+          role_title: string
+          seniority?: Database["public"]["Enums"]["skill_level"] | null
+          skills?: string[]
+          start_date: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          allocation_pct?: number
+          created_at?: string
+          created_by?: string | null
+          duration_weeks?: number | null
+          filled_by_assignment?: string | null
+          id?: string
+          notes?: string | null
+          project_id?: string | null
+          role_title?: string
+          seniority?: Database["public"]["Enums"]["skill_level"] | null
+          skills?: string[]
+          start_date?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staffing_requests_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staffing_requests_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "v_payout_reconciliation"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "staffing_requests_filled_by_assignment_fkey"
+            columns: ["filled_by_assignment"]
+            isOneToOne: false
+            referencedRelation: "assignments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staffing_requests_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staffing_requests_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_margin_by_project"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "staffing_requests_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_project_burn"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "staffing_requests_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "v_unbilled_work"
@@ -1852,6 +2008,58 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      bench: {
+        Args: { p_from?: string; p_to?: string }
+        Returns: {
+          bench_pct: number
+          committed_allocation_pct: number
+          employment_type: Database["public"]["Enums"]["employment_type"]
+          full_name: string
+          skills: string[]
+          time_off_days: number
+          title: string
+          under_allocated: boolean
+          user_id: string
+          weekly_bench_cost_minor: number
+          weekly_capacity_hours: number
+        }[]
+      }
+      cancel_staffing_request: {
+        Args: { p_comment: string; p_request_id: string }
+        Returns: {
+          allocation_pct: number
+          created_at: string
+          created_by: string | null
+          duration_weeks: number | null
+          filled_by_assignment: string | null
+          id: string
+          notes: string | null
+          project_id: string | null
+          role_title: string
+          seniority: Database["public"]["Enums"]["skill_level"] | null
+          skills: string[]
+          start_date: string
+          status: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "staffing_requests"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      capacity_forecast: {
+        Args: { p_months?: number }
+        Returns: {
+          capacity_hours: number
+          committed_hours: number
+          free_hours: number
+          month: string
+          time_off_hours: number
+          utilization_pct: number
+        }[]
+      }
       confirm_payout_statement: {
         Args: { p_statement_id: string }
         Returns: {
@@ -1977,6 +2185,31 @@ export type Database = {
           p_summary: string
         }
         Returns: undefined
+      }
+      fill_staffing_request: {
+        Args: { p_request_id: string; p_user_id: string }
+        Returns: {
+          allocation_pct: number
+          created_at: string
+          created_by: string | null
+          duration_weeks: number | null
+          filled_by_assignment: string | null
+          id: string
+          notes: string | null
+          project_id: string | null
+          role_title: string
+          seniority: Database["public"]["Enums"]["skill_level"] | null
+          skills: string[]
+          start_date: string
+          status: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "staffing_requests"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       fsm_actions: {
         Args: {
@@ -2211,6 +2444,10 @@ export type Database = {
         Args: { p_project_id: string; p_user_id: string; p_work_date: string }
         Returns: number
       }
+      staffing_request_actions: {
+        Args: { p_request_id: string }
+        Returns: Json
+      }
       submit_week: {
         Args: { p_week_start: string }
         Returns: {
@@ -2237,6 +2474,19 @@ export type Database = {
           isOneToOne: false
           isSetofReturn: true
         }
+      }
+      suggest_candidates: {
+        Args: { p_request_id: string }
+        Returns: {
+          available_pct: number
+          committed_allocation_pct: number
+          full_name: string
+          matched_skills: string[]
+          score: number
+          skill_match_count: number
+          title: string
+          user_id: string
+        }[]
       }
       time_entry_actions: { Args: { p_entry_id: string }; Returns: Json }
       void_invoice: {
@@ -2296,6 +2546,7 @@ export type Database = {
       invoice_grouping: "project" | "person" | "role" | "detailed"
       invoice_kind: "invoice" | "credit_note"
       project_status: "active" | "paused" | "closed"
+      skill_level: "junior" | "mid" | "senior"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2442,6 +2693,7 @@ export const Constants = {
       invoice_grouping: ["project", "person", "role", "detailed"],
       invoice_kind: ["invoice", "credit_note"],
       project_status: ["active", "paused", "closed"],
+      skill_level: ["junior", "mid", "senior"],
     },
   },
 } as const

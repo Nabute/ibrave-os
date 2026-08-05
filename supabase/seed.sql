@@ -150,6 +150,37 @@ insert into public.rate_card_lines (rate_card_id, user_id, role_name, hourly_rat
   ('dddd4444-0000-0000-0000-000000000002', null, 'QA Engineer', 9000);
 
 -- ----------------------------------------------------------------------------
+-- Skills + staffing (Phase 4). PM doubles as resourcing manager in the demo.
+-- ----------------------------------------------------------------------------
+insert into public.user_roles (user_id, role) values
+  ('22222222-2222-2222-2222-222222222222', 'resourcing');
+
+insert into public.skills (id, name) values
+  ('eeee5555-0000-0000-0000-000000000001', 'react'),
+  ('eeee5555-0000-0000-0000-000000000002', 'node'),
+  ('eeee5555-0000-0000-0000-000000000003', 'qa-automation'),
+  ('eeee5555-0000-0000-0000-000000000004', 'postgres'),
+  ('eeee5555-0000-0000-0000-000000000005', 'project-management');
+
+insert into public.person_skills (user_id, skill_id, level) values
+  ('44444444-4444-4444-4444-444444444444', 'eeee5555-0000-0000-0000-000000000001', 'senior'),
+  ('44444444-4444-4444-4444-444444444444', 'eeee5555-0000-0000-0000-000000000002', 'senior'),
+  ('44444444-4444-4444-4444-444444444444', 'eeee5555-0000-0000-0000-000000000004', 'mid'),
+  ('55555555-5555-5555-5555-555555555555', 'eeee5555-0000-0000-0000-000000000003', 'senior'),
+  ('55555555-5555-5555-5555-555555555555', 'eeee5555-0000-0000-0000-000000000001', 'junior'),
+  ('22222222-2222-2222-2222-222222222222', 'eeee5555-0000-0000-0000-000000000005', 'senior');
+
+insert into public.staffing_requests
+  (project_id, role_title, skills, seniority, allocation_pct, start_date, duration_weeks, notes, created_by)
+values
+  ('bbbb2222-0000-0000-0000-000000000003', 'Backend Developer',
+   array['node', 'postgres'], 'mid', 50, current_date + 14, 12,
+   'Data migration needs backend support', '22222222-2222-2222-2222-222222222222');
+
+insert into public.time_off (user_id, start_date, end_date, kind, note) values
+  ('55555555-5555-5555-5555-555555555555', current_date + 21, current_date + 25, 'vacation', 'Family trip');
+
+-- ----------------------------------------------------------------------------
 -- Cost rates (E-1): hourly for the devs, monthly for the salaried PM
 -- ----------------------------------------------------------------------------
 insert into public.cost_rates (user_id, effective_from, hourly_cost_minor, monthly_cost_minor, currency, note) values

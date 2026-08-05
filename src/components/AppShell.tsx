@@ -6,6 +6,7 @@ import {
   CheckSquare,
   Clock,
   HandCoins,
+  Users,
   LayoutDashboard,
   LineChart,
   LogOut,
@@ -42,6 +43,12 @@ const NAV: NavSection[] = [
     items: [
       { to: "/approvals", label: "Approvals", icon: CheckSquare, roles: ["pm"] },
       { to: "/projects", label: "Projects", icon: Briefcase, roles: ["pm", "finance"] },
+      {
+        to: "/staffing",
+        label: "Staffing",
+        icon: Users,
+        roles: ["resourcing", "pm", "finance"],
+      },
     ],
   },
   {

@@ -254,6 +254,81 @@ export interface BurnRow {
   burn_pct: number | null;
 }
 
+export type SkillLevel = "junior" | "mid" | "senior";
+
+export interface Skill {
+  id: string;
+  name: string;
+}
+
+export interface PersonSkill {
+  user_id: string;
+  skill_id: string;
+  level: SkillLevel;
+  skills?: { name: string };
+  profiles?: { full_name: string };
+}
+
+export interface StaffingRequest {
+  id: string;
+  project_id: string | null;
+  role_title: string;
+  skills: string[];
+  seniority: SkillLevel | null;
+  allocation_pct: number;
+  start_date: string;
+  duration_weeks: number | null;
+  status: "open" | "filled" | "cancelled";
+  filled_by_assignment: string | null;
+  notes: string | null;
+  created_at: string;
+  projects?: { id: string; name: string };
+}
+
+export interface CandidateSuggestion {
+  user_id: string;
+  full_name: string;
+  title: string | null;
+  matched_skills: string[];
+  skill_match_count: number;
+  committed_allocation_pct: number;
+  available_pct: number;
+  score: number;
+}
+
+export interface BenchRow {
+  user_id: string;
+  full_name: string;
+  title: string | null;
+  employment_type: "employee" | "contractor";
+  weekly_capacity_hours: number;
+  committed_allocation_pct: number;
+  bench_pct: number;
+  under_allocated: boolean;
+  skills: string[];
+  time_off_days: number;
+  weekly_bench_cost_minor: number | null;
+}
+
+export interface CapacityMonth {
+  month: string;
+  capacity_hours: number;
+  committed_hours: number;
+  time_off_hours: number;
+  free_hours: number;
+  utilization_pct: number;
+}
+
+export interface TimeOff {
+  id: string;
+  user_id: string;
+  start_date: string;
+  end_date: string;
+  kind: string;
+  note: string | null;
+  profiles?: { full_name: string };
+}
+
 export type PayoutStatus = "draft" | "confirmed" | "paid";
 
 export interface PayoutStatement {
