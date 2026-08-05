@@ -5,6 +5,7 @@ import {
   Building2,
   CalendarDays,
   CheckSquare,
+  Gauge,
   Clock,
   Contact,
   HandCoins,
@@ -83,6 +84,12 @@ const NAV: NavSection[] = [
       { to: "/invoices", label: "Invoices", icon: Banknote, roles: ["finance"] },
       { to: "/payouts", label: "Payouts", icon: HandCoins, roles: ["finance"] },
       { to: "/reports", label: "Reports", icon: LineChart, roles: ["pm", "finance"] },
+    ],
+  },
+  {
+    title: "Owner",
+    items: [
+      { to: "/command-center", label: "Command Center", icon: Gauge, roles: ["owner"] },
     ],
   },
   {

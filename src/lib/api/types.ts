@@ -321,6 +321,68 @@ export interface BurnRow {
   burn_pct: number | null;
 }
 
+export interface CommandCenterPulse {
+  issued_mtd_minor: number;
+  collected_mtd_minor: number;
+  margin_mtd_minor: number;
+  overdue_ar_minor: number;
+  unbilled_minor: number;
+  utilization_pct: number | null;
+  bench_cost_weekly_minor: number;
+  weighted_pipeline_minor: number;
+  upsell_pipeline_minor: number;
+  open_requisitions: number;
+  candidates_in_pipeline: number;
+  red_accounts: number;
+  yellow_accounts: number;
+  unsubmitted_people: number;
+  open_escalations: number;
+}
+
+export interface EngagementBoardRow {
+  project_id: string;
+  project_name: string;
+  billing_model: BillingModel;
+  client_id: string;
+  client_name: string;
+  health: HealthLight | null;
+  health_score: number | null;
+  team_size: number;
+  approved_hours: number | null;
+  burn_pct: number | null;
+  budget_hours: number | null;
+  overdue_ar_minor: number;
+  renewal_date: string | null;
+  risk_score: number;
+}
+
+export interface TwoSidedPipelineRow {
+  month: string;
+  demand_hours: number;
+  supply_free_hours: number;
+  hiring_hours: number;
+  net_position: number;
+}
+
+export interface ActivityFeedRow {
+  id: number;
+  event_type: string;
+  entity_type: string;
+  entity_id: string;
+  summary: string;
+  actor_id: string | null;
+  at: string;
+  profiles?: { full_name: string };
+}
+
+export interface OwnerAlertRule {
+  id: string;
+  metric: string;
+  comparator: "gt" | "lt";
+  threshold: number;
+  active: boolean;
+}
+
 export interface Requisition {
   id: string;
   role_title: string;

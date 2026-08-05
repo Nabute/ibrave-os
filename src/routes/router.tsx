@@ -11,6 +11,7 @@ import { ApprovalsScreen } from "@/features/approvals/ApprovalsScreen";
 import { CalendarScreen } from "@/features/calendar/CalendarScreen";
 import { LoginScreen } from "@/features/auth/LoginScreen";
 import { ClientDetailScreen } from "@/features/clients/ClientDetailScreen";
+import { CommandCenterScreen } from "@/features/command-center/CommandCenterScreen";
 import { ClientsScreen } from "@/features/clients/ClientsScreen";
 import { InvoiceDetailScreen } from "@/features/invoicing/InvoiceDetailScreen";
 import { InvoicesScreen } from "@/features/invoicing/InvoicesScreen";
@@ -85,6 +86,11 @@ const routes = [
     component: ProspectingScreen,
   }),
   createRoute({ getParentRoute: () => appRoute, path: "/calendar", component: CalendarScreen }),
+  createRoute({
+    getParentRoute: () => appRoute,
+    path: "/command-center",
+    component: CommandCenterScreen,
+  }),
   createRoute({ getParentRoute: () => appRoute, path: "/recruiting", component: RecruitingScreen }),
   createRoute({ getParentRoute: () => appRoute, path: "/people", component: PeopleScreen }),
   createRoute({

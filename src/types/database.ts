@@ -88,6 +88,13 @@ export type Database = {
             foreignKeyName: "account_activities_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
+            referencedRelation: "v_engagement_board"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "account_activities_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
             referencedRelation: "v_margin_by_project"
             referencedColumns: ["client_id"]
           },
@@ -129,6 +136,13 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "clients"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "account_health_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: true
+            referencedRelation: "v_engagement_board"
+            referencedColumns: ["client_id"]
           },
           {
             foreignKeyName: "account_health_client_id_fkey"
@@ -217,6 +231,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assignments_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_engagement_board"
+            referencedColumns: ["project_id"]
           },
           {
             foreignKeyName: "assignments_project_id_fkey"
@@ -487,6 +508,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "clients"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_events_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "v_engagement_board"
+            referencedColumns: ["client_id"]
           },
           {
             foreignKeyName: "calendar_events_client_id_fkey"
@@ -851,6 +879,13 @@ export type Database = {
             foreignKeyName: "contacts_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
+            referencedRelation: "v_engagement_board"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "contacts_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
             referencedRelation: "v_margin_by_project"
             referencedColumns: ["client_id"]
           },
@@ -919,6 +954,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "clients"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "v_engagement_board"
+            referencedColumns: ["client_id"]
           },
           {
             foreignKeyName: "contracts_client_id_fkey"
@@ -1102,6 +1144,13 @@ export type Database = {
             foreignKeyName: "email_log_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
+            referencedRelation: "v_engagement_board"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "email_log_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
             referencedRelation: "v_margin_by_project"
             referencedColumns: ["client_id"]
           },
@@ -1259,6 +1308,13 @@ export type Database = {
             foreignKeyName: "escalations_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
+            referencedRelation: "v_engagement_board"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "escalations_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
             referencedRelation: "v_margin_by_project"
             referencedColumns: ["client_id"]
           },
@@ -1339,6 +1395,13 @@ export type Database = {
             foreignKeyName: "feedback_pulses_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
+            referencedRelation: "v_engagement_board"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "feedback_pulses_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
             referencedRelation: "v_margin_by_project"
             referencedColumns: ["client_id"]
           },
@@ -1355,6 +1418,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_pulses_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_engagement_board"
+            referencedColumns: ["project_id"]
           },
           {
             foreignKeyName: "feedback_pulses_project_id_fkey"
@@ -1622,6 +1692,13 @@ export type Database = {
             foreignKeyName: "invoices_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
+            referencedRelation: "v_engagement_board"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "invoices_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
             referencedRelation: "v_margin_by_project"
             referencedColumns: ["client_id"]
           },
@@ -1781,6 +1858,13 @@ export type Database = {
             foreignKeyName: "leads_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
+            referencedRelation: "v_engagement_board"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "leads_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
             referencedRelation: "v_margin_by_project"
             referencedColumns: ["client_id"]
           },
@@ -1859,6 +1943,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "milestones_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_engagement_board"
+            referencedColumns: ["project_id"]
           },
           {
             foreignKeyName: "milestones_project_id_fkey"
@@ -2058,6 +2149,13 @@ export type Database = {
             foreignKeyName: "opportunities_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
+            referencedRelation: "v_engagement_board"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "opportunities_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
             referencedRelation: "v_margin_by_project"
             referencedColumns: ["client_id"]
           },
@@ -2083,6 +2181,33 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
         ]
+      }
+      owner_alert_rules: {
+        Row: {
+          active: boolean
+          comparator: string
+          created_at: string
+          id: string
+          metric: string
+          threshold: number
+        }
+        Insert: {
+          active?: boolean
+          comparator: string
+          created_at?: string
+          id?: string
+          metric: string
+          threshold: number
+        }
+        Update: {
+          active?: boolean
+          comparator?: string
+          created_at?: string
+          id?: string
+          metric?: string
+          threshold?: number
+        }
+        Relationships: []
       }
       payments: {
         Row: {
@@ -2215,6 +2340,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payout_lines_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_engagement_board"
+            referencedColumns: ["project_id"]
           },
           {
             foreignKeyName: "payout_lines_project_id_fkey"
@@ -2458,6 +2590,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "clients"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "projects_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "v_engagement_board"
+            referencedColumns: ["client_id"]
           },
           {
             foreignKeyName: "projects_client_id_fkey"
@@ -2814,6 +2953,13 @@ export type Database = {
             foreignKeyName: "rate_cards_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
+            referencedRelation: "v_engagement_board"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "rate_cards_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
             referencedRelation: "v_margin_by_project"
             referencedColumns: ["client_id"]
           },
@@ -2830,6 +2976,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rate_cards_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_engagement_board"
+            referencedColumns: ["project_id"]
           },
           {
             foreignKeyName: "rate_cards_project_id_fkey"
@@ -2958,6 +3111,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "clients"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_tasks_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "v_engagement_board"
+            referencedColumns: ["client_id"]
           },
           {
             foreignKeyName: "sales_tasks_client_id_fkey"
@@ -3100,6 +3260,13 @@ export type Database = {
             foreignKeyName: "staffing_requests_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
+            referencedRelation: "v_engagement_board"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "staffing_requests_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
             referencedRelation: "v_margin_by_project"
             referencedColumns: ["project_id"]
           },
@@ -3154,6 +3321,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_engagement_board"
+            referencedColumns: ["project_id"]
           },
           {
             foreignKeyName: "tasks_project_id_fkey"
@@ -3282,6 +3456,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "time_entries_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_engagement_board"
+            referencedColumns: ["project_id"]
           },
           {
             foreignKeyName: "time_entries_project_id_fkey"
@@ -3511,6 +3692,13 @@ export type Database = {
             foreignKeyName: "time_entries_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
+            referencedRelation: "v_engagement_board"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "time_entries_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
             referencedRelation: "v_margin_by_project"
             referencedColumns: ["project_id"]
           },
@@ -3551,6 +3739,25 @@ export type Database = {
           },
         ]
       }
+      v_engagement_board: {
+        Row: {
+          approved_hours: number | null
+          billing_model: Database["public"]["Enums"]["billing_model"] | null
+          budget_hours: number | null
+          burn_pct: number | null
+          client_id: string | null
+          client_name: string | null
+          health: string | null
+          health_score: number | null
+          overdue_ar_minor: number | null
+          project_id: string | null
+          project_name: string | null
+          renewal_date: string | null
+          risk_score: number | null
+          team_size: number | null
+        }
+        Relationships: []
+      }
       v_engagement_history: {
         Row: {
           allocation_pct: number | null
@@ -3573,6 +3780,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assignments_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_engagement_board"
+            referencedColumns: ["project_id"]
           },
           {
             foreignKeyName: "assignments_project_id_fkey"
@@ -3633,6 +3847,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "clients"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "v_engagement_board"
+            referencedColumns: ["client_id"]
           },
           {
             foreignKeyName: "invoices_client_id_fkey"
@@ -3707,6 +3928,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "clients"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "projects_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "v_engagement_board"
+            referencedColumns: ["client_id"]
           },
           {
             foreignKeyName: "projects_client_id_fkey"
@@ -3936,6 +4164,7 @@ export type Database = {
         Args: { p_client_id: string }
         Returns: boolean
       }
+      command_center: { Args: never; Returns: Json }
       complete_sales_task: {
         Args: { p_note?: string; p_task_id: string }
         Returns: {
@@ -4347,6 +4576,7 @@ export type Database = {
       job_approval_nudges: { Args: never; Returns: number }
       job_candidate_idle_nudge: { Args: never; Returns: number }
       job_dunning_scan: { Args: never; Returns: number }
+      job_owner_alerts: { Args: never; Returns: number }
       job_renewal_watchdog: { Args: never; Returns: number }
       job_timesheet_reminders: { Args: never; Returns: number }
       lead_actions: { Args: { p_lead_id: string }; Returns: Json }
@@ -4641,6 +4871,16 @@ export type Database = {
         }[]
       }
       time_entry_actions: { Args: { p_entry_id: string }; Returns: Json }
+      two_sided_pipeline: {
+        Args: { p_months?: number }
+        Returns: {
+          demand_hours: number
+          hiring_hours: number
+          month: string
+          net_position: number
+          supply_free_hours: number
+        }[]
+      }
       void_invoice: {
         Args: { p_invoice_id: string; p_reason: string }
         Returns: {
