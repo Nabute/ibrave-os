@@ -998,6 +998,36 @@ export type Database = {
           },
         ]
       }
+      email_identities: {
+        Row: {
+          active: boolean
+          allowed_roles: Database["public"]["Enums"]["app_role"][]
+          created_at: string
+          display_name: string
+          email: string
+          id: string
+          kind: string
+        }
+        Insert: {
+          active?: boolean
+          allowed_roles?: Database["public"]["Enums"]["app_role"][]
+          created_at?: string
+          display_name: string
+          email: string
+          id?: string
+          kind?: string
+        }
+        Update: {
+          active?: boolean
+          allowed_roles?: Database["public"]["Enums"]["app_role"][]
+          created_at?: string
+          display_name?: string
+          email?: string
+          id?: string
+          kind?: string
+        }
+        Relationships: []
+      }
       email_log: {
         Row: {
           body_html: string
@@ -1007,6 +1037,7 @@ export type Database = {
           client_id: string | null
           created_at: string
           error: string | null
+          from_email: string | null
           id: number
           invoice_id: string | null
           lead_id: string | null
@@ -1024,6 +1055,7 @@ export type Database = {
           client_id?: string | null
           created_at?: string
           error?: string | null
+          from_email?: string | null
           id?: never
           invoice_id?: string | null
           lead_id?: string | null
@@ -1041,6 +1073,7 @@ export type Database = {
           client_id?: string | null
           created_at?: string
           error?: string | null
+          from_email?: string | null
           id?: never
           invoice_id?: string | null
           lead_id?: string | null
@@ -3829,6 +3862,10 @@ export type Database = {
       }
       can_see_candidate: { Args: { p_candidate_id: string }; Returns: boolean }
       can_see_event: { Args: { p_event_id: string }; Returns: boolean }
+      can_use_email_identity: {
+        Args: { p_email: string; p_user_id: string }
+        Returns: boolean
+      }
       cancel_event: { Args: { p_event_id: string }; Returns: undefined }
       cancel_staffing_request: {
         Args: { p_comment: string; p_request_id: string }
@@ -4339,6 +4376,14 @@ export type Database = {
         }
       }
       my_day: { Args: never; Returns: Json }
+      my_email_identities: {
+        Args: never
+        Returns: {
+          display_name: string
+          email: string
+          kind: string
+        }[]
+      }
       notify_user: {
         Args: {
           p_body?: string

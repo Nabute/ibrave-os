@@ -25,6 +25,167 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toDisplayMessage, type AppRole } from "@/lib/api";
 import { useApi } from "@/lib/session";
 
+function EmailIdentitiesTab() {
+  const api = useApi();
+  const qc = useQueryClient();
+  const [error, setError] = useState<string | null>(null);
+  const [form, setForm] = useState({ email: "", display_name: "", roles: [] as string[] });
+
+  const { data: identities } = useQuery({
+    queryKey: ["email-identities-admin"],
+    queryFn: () => api.comms.identities(),
+  });
+
+  const invalidate = () => {
+    void qc.invalidateQueries({ queryKey: ["email-identities-admin"] });
+    void qc.invalidateQueries({ queryKey: ["email-identities"] });
+  };
+
+  const addMutation = useMutation({
+    mutationFn: () =>
+      api.comms.addIdentity({
+        email: form.email,
+        display_name: form.display_name,
+        allowed_roles: form.roles,
+      }),
+    onSuccess: () => {
+      setForm({ email: "", display_name: "", roles: [] });
+      setError(null);
+      invalidate();
+    },
+    onError: (e) => setError(toDisplayMessage(e)),
+  });
+
+  const toggleMutation = useMutation({
+    mutationFn: ({ id, active }: { id: string; active: boolean }) =>
+      api.comms.setIdentityActive(id, active),
+    onSuccess: invalidate,
+    onError: (e) => setError(toDisplayMessage(e)),
+  });
+
+  return (
+    <div className="space-y-4">
+      {error && (
+        <p className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          {error}
+        </p>
+      )}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg">Department sender addresses</CardTitle>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            User-initiated email is never “noreply”: people send as themselves or as a
+            department address their role entitles them to. The domain must be verified
+            in Resend.
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="space-y-1">
+              <Label>Email</Label>
+              <Input
+                className="w-56"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                placeholder="talent@ibrave.co"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label>Display name</Label>
+              <Input
+                className="w-48"
+                value={form.display_name}
+                onChange={(e) => setForm({ ...form, display_name: e.target.value })}
+                placeholder="iBrave Talent"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label>Roles allowed to use it</Label>
+              <div className="flex flex-wrap gap-1.5">
+                {ALL_ROLES.filter((r) => !["owner", "admin"].includes(r)).map((r) => {
+                  const on = form.roles.includes(r);
+                  return (
+                    <button
+                      key={r}
+                      type="button"
+                      onClick={() =>
+                        setForm({
+                          ...form,
+                          roles: on
+                            ? form.roles.filter((x) => x !== r)
+                            : [...form.roles, r],
+                        })
+                      }
+                      className={`rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                        on
+                          ? "border-transparent bg-primary text-primary-foreground"
+                          : "hover:bg-accent"
+                      }`}
+                    >
+                      {r}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <Button
+              disabled={!form.email || !form.display_name || addMutation.isPending}
+              onClick={() => addMutation.mutate()}
+            >
+              Add
+            </Button>
+          </div>
+
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Address</TableHead>
+                <TableHead>Display name</TableHead>
+                <TableHead>Roles</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right" />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {(identities ?? []).map((i) => (
+                <TableRow key={i.id}>
+                  <TableCell className="font-medium">{i.email}</TableCell>
+                  <TableCell>{i.display_name}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {i.allowed_roles.map((r) => (
+                        <Badge key={r} variant="secondary">
+                          {r}
+                        </Badge>
+                      ))}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={i.active ? "success" : "outline"}>
+                      {i.active ? "active" : "disabled"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() =>
+                        toggleMutation.mutate({ id: i.id, active: !i.active })
+                      }
+                    >
+                      {i.active ? "Disable" : "Enable"}
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 const ALL_ROLES: AppRole[] = [
   "employee",
   "pm",
@@ -87,8 +248,13 @@ export function AdminScreen() {
       <Tabs defaultValue="people">
         <TabsList>
           <TabsTrigger value="people">People & roles</TabsTrigger>
+          <TabsTrigger value="identities">Email identities</TabsTrigger>
           <TabsTrigger value="settings">Company settings</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="identities">
+          <EmailIdentitiesTab />
+        </TabsContent>
 
         <TabsContent value="people">
           <Card>

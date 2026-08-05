@@ -1,6 +1,12 @@
 import { ApiError } from "../errors";
 import { BaseRepository } from "../base";
-import type { CalendarEvent, EmailLogRow, SendEmailPayload } from "../types";
+import type {
+  CalendarEvent,
+  EmailIdentity,
+  EmailIdentityRow,
+  EmailLogRow,
+  SendEmailPayload,
+} from "../types";
 
 /**
  * In-app communications: email (via the send-user-email Edge Function, which
@@ -17,6 +23,31 @@ export class CommsRepository extends BaseRepository {
       throw new ApiError(undefined, data.detail ?? "Email provider rejected the message");
     }
     return data as { ok: boolean; log_id?: number };
+  }
+
+  /** The From addresses this user may send as (own email + department ones). */
+  myIdentities(): Promise<EmailIdentity[]> {
+    return this.rpc("my_email_identities");
+  }
+
+  identities(): Promise<EmailIdentityRow[]> {
+    return this.query(this.db.from("email_identities").select("*").order("email"));
+  }
+
+  addIdentity(identity: {
+    email: string;
+    display_name: string;
+    allowed_roles: string[];
+  }): Promise<EmailIdentityRow> {
+    return this.query(
+      this.db.from("email_identities").insert(identity).select().single()
+    );
+  }
+
+  setIdentityActive(id: string, active: boolean): Promise<EmailIdentityRow> {
+    return this.query(
+      this.db.from("email_identities").update({ active }).eq("id", id).select().single()
+    );
   }
 
   emailLog(filter?: { client_id?: string; candidate_id?: string }): Promise<EmailLogRow[]> {

@@ -437,11 +437,28 @@ export interface EngagementRow {
   ended: boolean;
 }
 
+export interface EmailIdentity {
+  email: string;
+  display_name: string;
+  kind: "personal" | "department" | "system";
+}
+
+export interface EmailIdentityRow {
+  id: string;
+  email: string;
+  display_name: string;
+  kind: string;
+  allowed_roles: AppRole[];
+  active: boolean;
+}
+
 export interface SendEmailPayload {
   to: string[];
   cc?: string[];
   subject: string;
   html: string;
+  from_email?: string;
+  from_name?: string;
   client_id?: string;
   lead_id?: string;
   prospect_id?: string;

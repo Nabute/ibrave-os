@@ -1,8 +1,15 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Mail } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -49,7 +56,14 @@ export function EmailComposer({
 }: EmailComposerProps) {
   const api = useApi();
   const [form, setForm] = useState({ to: "", cc: "", subject: "", body: "" });
+  const [fromEmail, setFromEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
+
+  const { data: identities } = useQuery({
+    queryKey: ["email-identities"],
+    queryFn: () => api.comms.myIdentities(),
+    enabled: open,
+  });
 
   useEffect(() => {
     if (open) {
@@ -64,6 +78,13 @@ export function EmailComposer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
+  useEffect(() => {
+    if (open && identities?.length && !fromEmail) {
+      setFromEmail(identities[0].email); // personal identity comes first
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, identities]);
+
   const sendMutation = useMutation({
     mutationFn: () => {
       const toList = form.to.split(/[,;\s]+/).filter(Boolean);
@@ -72,11 +93,14 @@ export function EmailComposer({
         .split(/\n{2,}/)
         .map((p) => `<p>${p.replace(/\n/g, "<br/>")}</p>`)
         .join("");
+      const identity = (identities ?? []).find((i) => i.email === fromEmail);
       return api.comms.sendEmail({
         to: toList,
         cc: form.cc.split(/[,;\s]+/).filter(Boolean),
         subject: form.subject,
         html,
+        from_email: fromEmail || undefined,
+        from_name: identity?.display_name,
         ...related,
       });
     },
@@ -95,11 +119,26 @@ export function EmailComposer({
             <Mail className="h-5 w-5" /> Send email
           </DialogTitle>
           <DialogDescription>
-            Sent from the company address with reply-to you; logged to the record's
-            timeline.
+            Logged to the record's timeline. Department addresses reply to you.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
+          <div className="space-y-1">
+            <Label>From</Label>
+            <Select value={fromEmail} onValueChange={setFromEmail}>
+              <SelectTrigger>
+                <SelectValue placeholder="Choose sender…" />
+              </SelectTrigger>
+              <SelectContent>
+                {(identities ?? []).map((i) => (
+                  <SelectItem key={i.email} value={i.email}>
+                    {i.display_name} &lt;{i.email}&gt;
+                    {i.kind === "department" ? " · department" : ""}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <div className="space-y-1">
             <Label>To</Label>
             <Input

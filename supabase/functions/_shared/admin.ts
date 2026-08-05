@@ -15,6 +15,8 @@ export interface EmailMessage {
   subject: string;
   html: string;
   cc?: string[];
+  /** Full From header ("Name <addr>"). Defaults to EMAIL_FROM (system mail). */
+  from?: string;
   replyTo?: string;
   attachments?: { filename: string; content: string }[]; // base64
 }
@@ -25,7 +27,7 @@ export interface EmailMessage {
  */
 export async function sendEmailRaw(msg: EmailMessage): Promise<{ ok: boolean; detail: string }> {
   const apiKey = Deno.env.get("RESEND_API_KEY");
-  const from = Deno.env.get("EMAIL_FROM") ?? "iBrave OS <noreply@ibrave.dev>";
+  const from = msg.from ?? Deno.env.get("EMAIL_FROM") ?? "iBrave OS <noreply@ibrave.dev>";
   if (!apiKey) {
     console.log(`[email skipped — no RESEND_API_KEY] to=${msg.to.join(",")} subject=${msg.subject}`);
     return { ok: true, detail: "skipped (no RESEND_API_KEY)" };

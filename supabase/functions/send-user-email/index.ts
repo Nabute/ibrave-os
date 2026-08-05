@@ -11,6 +11,10 @@ interface SendPayload {
   cc?: string[];
   subject: string;
   html: string;
+  /** The validated sender address — the user's own email or a department
+   *  identity their role entitles them to. Defaults to the user's email. */
+  from_email?: string;
+  from_name?: string;
   client_id?: string;
   lead_id?: string;
   prospect_id?: string;
@@ -45,6 +49,28 @@ Deno.serve(async (req) => {
     .eq("id", user.id)
     .single();
 
+  // Resolve + authorize the From address: never noreply for user-initiated
+  // mail. Own login email is always allowed; department identities are
+  // role-gated (validated server-side, the UI picker is not the boundary).
+  const fromEmail = payload.from_email ?? profile?.email;
+  if (!fromEmail) return json({ error: "No sender address available" }, 422);
+  const { data: allowed, error: identErr } = await db.rpc("can_use_email_identity", {
+    p_user_id: user.id,
+    p_email: fromEmail,
+  });
+  if (identErr || !allowed) {
+    return json({ error: `You are not allowed to send as ${fromEmail}` }, 403);
+  }
+  let fromName = payload.from_name ?? profile?.full_name ?? "iBrave";
+  if (payload.from_email && payload.from_email !== profile?.email) {
+    const { data: ident } = await db
+      .from("email_identities")
+      .select("display_name")
+      .eq("email", fromEmail)
+      .single();
+    fromName = ident?.display_name ?? fromName;
+  }
+
   // ICS attachment for calendar invites.
   let attachments: { filename: string; content: string }[] | undefined;
   if (payload.event_id) {
@@ -61,15 +87,15 @@ Deno.serve(async (req) => {
 
   const signedHtml = `${payload.html}
     <p style="color:#6b7280;font-size:13px;margin-top:24px">
-      ${profile?.full_name ?? "iBrave"} · iBrave<br/>
-      Sent via iBrave OS — replies go to ${profile?.email ?? ""}</p>`;
+      ${profile?.full_name ?? "iBrave"} · iBrave</p>`;
 
   const result = await sendEmailRaw({
+    from: `${fromName} <${fromEmail}>`,
     to: payload.to,
     cc: payload.cc,
     subject: payload.subject,
     html: signedHtml,
-    replyTo: profile?.email,
+    replyTo: fromEmail === profile?.email ? undefined : profile?.email,
     attachments,
   });
 
@@ -77,6 +103,7 @@ Deno.serve(async (req) => {
     .from("email_log")
     .insert({
       sent_by: user.id,
+      from_email: fromEmail,
       to_emails: payload.to,
       cc_emails: payload.cc ?? [],
       subject: payload.subject,
