@@ -44,6 +44,14 @@ const ACTIVE_STAGES: { key: LeadStage; label: string }[] = [
   { key: "negotiation", label: "Negotiation" },
 ];
 
+// Drag a card one column forward = the FSM action for that transition.
+// The server re-validates via lead_actions; anything else is not a drop target.
+const DRAG_FORWARD: Partial<Record<LeadStage, { to: LeadStage; action: string }>> = {
+  lead: { to: "qualified", action: "qualify" },
+  qualified: { to: "proposal_sent", action: "send_proposal" },
+  proposal_sent: { to: "negotiation", action: "negotiate" },
+};
+
 export const STAGE_BADGE: Record<LeadStage, "secondary" | "warning" | "success" | "destructive" | "default"> = {
   lead: "secondary",
   qualified: "default",
@@ -72,6 +80,19 @@ export function SalesScreen() {
   const { data: report } = useQuery({
     queryKey: ["pipeline-report"],
     queryFn: () => api.sales.pipelineReport(),
+  });
+
+  const [dragging, setDragging] = useState<Lead | null>(null);
+  const [dropStage, setDropStage] = useState<LeadStage | null>(null);
+  const dragMutation = useMutation({
+    mutationFn: ({ lead, action }: { lead: Lead; action: string }) =>
+      api.sales.advanceLead(lead.id, action),
+    onSuccess: () => {
+      setError(null);
+      void qc.invalidateQueries({ queryKey: ["leads"] });
+      void qc.invalidateQueries({ queryKey: ["pipeline-report"] });
+    },
+    onError: (e) => setError(toDisplayMessage(e)),
   });
 
   const createMutation = useMutation({
@@ -196,6 +217,11 @@ export function SalesScreen() {
         </TabsList>
 
         <TabsContent value="pipeline">
+          {error && (
+            <p className="mb-3 rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {error}
+            </p>
+          )}
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             {ACTIVE_STAGES.map((stage) => {
               const stageLeads = (leads ?? []).filter((l) => l.stage === stage.key);
@@ -203,6 +229,8 @@ export function SalesScreen() {
                 (s, l) => s + (l.expected_value_minor ?? 0) * (l.probability_pct / 100),
                 0
               );
+              const acceptsDrag =
+                dragging != null && DRAG_FORWARD[dragging.stage]?.to === stage.key;
               return (
                 <div key={stage.key} className="space-y-2">
                   <div className="flex items-baseline justify-between px-1">
@@ -211,19 +239,55 @@ export function SalesScreen() {
                       {stageLeads.length} · {formatMinor(Math.round(stageValue), "USD")}
                     </p>
                   </div>
-                  <div className="space-y-2 rounded-lg bg-muted/50 p-2 min-h-24">
+                  <div
+                    onDragOver={(e) => {
+                      if (!acceptsDrag) return;
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = "move";
+                      setDropStage(stage.key);
+                    }}
+                    onDragLeave={() =>
+                      setDropStage((s) => (s === stage.key ? null : s))
+                    }
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      if (dragging && acceptsDrag) {
+                        dragMutation.mutate({
+                          lead: dragging,
+                          action: DRAG_FORWARD[dragging.stage]!.action,
+                        });
+                      }
+                      setDragging(null);
+                      setDropStage(null);
+                    }}
+                    className={cn(
+                      "min-h-24 space-y-2 rounded-lg bg-muted/50 p-2 transition-colors duration-fast",
+                      acceptsDrag && "outline-dashed outline-1 outline-brass/50",
+                      acceptsDrag && dropStage === stage.key && "bg-brass/10 outline-brass"
+                    )}
+                  >
                     {stageLeads.map((lead) => (
                       <button
                         key={lead.id}
+                        draggable={DRAG_FORWARD[lead.stage] != null}
+                        onDragStart={(e) => {
+                          e.dataTransfer.effectAllowed = "move";
+                          setDragging(lead);
+                        }}
+                        onDragEnd={() => {
+                          setDragging(null);
+                          setDropStage(null);
+                        }}
                         onClick={() => setOpenLead(lead)}
                         className={cn(
                           // Ledger kanban card: 3px left rail carries the
                           // stage's kind color; ≤5 elements, hover floats.
-                          "w-full rounded-md border border-l-[3px] bg-card p-3 text-left transition-shadow duration-fast ease-ledger",
+                          "w-full cursor-grab rounded-md border border-l-[3px] bg-card p-3 text-left transition-shadow duration-fast ease-ledger",
                           stage.key === "lead" && "border-l-border",
                           stage.key === "qualified" && "border-l-info",
                           (stage.key === "proposal_sent" || stage.key === "negotiation") &&
                             "border-l-warning",
+                          dragging?.id === lead.id && "opacity-40",
                           "hover:shadow-float focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/30"
                         )}
                       >
@@ -242,7 +306,9 @@ export function SalesScreen() {
                       </button>
                     ))}
                     {stageLeads.length === 0 && (
-                      <p className="px-1 py-3 text-center text-xs text-muted-foreground">empty</p>
+                      <p className="px-1 py-3 text-center text-xs text-muted-foreground">
+                        {acceptsDrag ? "drop here" : "empty"}
+                      </p>
                     )}
                   </div>
                 </div>

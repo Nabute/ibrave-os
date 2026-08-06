@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { EmptyState } from "@/components/EmptyState";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,14 +24,24 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { toDisplayMessage, type ApprovalQueueRow } from "@/lib/api";
 import { useApi } from "@/lib/session";
+import { cn } from "@/lib/utils";
 
-/** Queue grouped by person + week; bulk approve, reject-with-comment. */
+/** Queue grouped by person + week; row selection, bulk approve, reject-with-comment. */
 export function ApprovalsScreen() {
   const api = useApi();
   const qc = useQueryClient();
   const [error, setError] = useState<string | null>(null);
   const [rejecting, setRejecting] = useState<ApprovalQueueRow | null>(null);
   const [comment, setComment] = useState("");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  const toggle = (id: string) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
 
   const { data: queue, isLoading } = useQuery({
     queryKey: ["approval-queue"],
@@ -44,8 +55,13 @@ export function ApprovalsScreen() {
 
   const approveMutation = useMutation({
     mutationFn: (ids: string[]) => api.approvals.approve(ids),
-    onSuccess: () => {
+    onSuccess: (_data, ids) => {
       setError(null);
+      setSelected((prev) => {
+        const next = new Set(prev);
+        for (const id of ids) next.delete(id);
+        return next;
+      });
       invalidate();
     },
     onError: (e) => setError(toDisplayMessage(e)),
@@ -90,8 +106,8 @@ export function ApprovalsScreen() {
 
       {!isLoading && groups.length === 0 && (
         <Card>
-          <CardContent className="py-8 text-center text-muted-foreground">
-            Queue is empty — nothing waiting on you. 🎉
+          <CardContent>
+            <EmptyState sentence="Queue is empty — nothing waiting on you." />
           </CardContent>
         </Card>
       )}
@@ -99,6 +115,8 @@ export function ApprovalsScreen() {
       {groups.map((rows) => {
         const first = rows[0];
         const total = rows.reduce((s, r) => s + Number(r.hours), 0);
+        const selectedHere = rows.filter((r) => selected.has(r.id));
+        const allSelected = selectedHere.length === rows.length;
         return (
           <Card key={`${first.user_id}:${first.week_start}`}>
             <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
@@ -108,18 +126,48 @@ export function ApprovalsScreen() {
                   week of {first.week_start} · {total} h
                 </span>
               </CardTitle>
-              <Button
-                size="sm"
-                onClick={() => approveMutation.mutate(rows.map((r) => r.id))}
-                disabled={approveMutation.isPending}
-              >
-                <Check className="h-4 w-4" /> Approve all
-              </Button>
+              <div className="flex gap-2">
+                {selectedHere.length > 0 && !allSelected && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => approveMutation.mutate(selectedHere.map((r) => r.id))}
+                    disabled={approveMutation.isPending}
+                  >
+                    <Check className="h-4 w-4" /> Approve selected ({selectedHere.length})
+                  </Button>
+                )}
+                <Button
+                  size="sm"
+                  onClick={() => approveMutation.mutate(rows.map((r) => r.id))}
+                  disabled={approveMutation.isPending}
+                >
+                  <Check className="h-4 w-4" /> Approve all
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-8">
+                      <input
+                        type="checkbox"
+                        aria-label="Select all entries in this week"
+                        className="h-4 w-4 accent-[hsl(var(--brass))]"
+                        checked={allSelected}
+                        onChange={() =>
+                          setSelected((prev) => {
+                            const next = new Set(prev);
+                            for (const r of rows) {
+                              if (allSelected) next.delete(r.id);
+                              else next.add(r.id);
+                            }
+                            return next;
+                          })
+                        }
+                      />
+                    </TableHead>
                     <TableHead>Date</TableHead>
                     <TableHead>Project</TableHead>
                     <TableHead>Task</TableHead>
@@ -131,7 +179,22 @@ export function ApprovalsScreen() {
                 </TableHeader>
                 <TableBody>
                   {rows.map((row) => (
-                    <TableRow key={row.id}>
+                    <TableRow
+                      key={row.id}
+                      className={cn(
+                        selected.has(row.id) &&
+                          "bg-brass/5 shadow-[inset_2px_0_0_0_hsl(var(--brass))]"
+                      )}
+                    >
+                      <TableCell className="w-8">
+                        <input
+                          type="checkbox"
+                          aria-label={`Select entry ${row.work_date}`}
+                          className="h-4 w-4 accent-[hsl(var(--brass))]"
+                          checked={selected.has(row.id)}
+                          onChange={() => toggle(row.id)}
+                        />
+                      </TableCell>
                       <TableCell>{row.work_date}</TableCell>
                       <TableCell>{row.project_name}</TableCell>
                       <TableCell className="text-muted-foreground">

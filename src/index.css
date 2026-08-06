@@ -176,4 +176,39 @@
   body {
     background: white;
   }
+  /* Paper is paper: printing re-pins the light tokens even when the
+     dark theme is active, so invoices/statements never print inverted. */
+  .dark {
+    --background: 40 22% 96%;
+    --foreground: 25 15% 11%;
+    --card: 42 40% 98.5%;
+    --card-foreground: 25 15% 11%;
+    --popover: 42 45% 99.5%;
+    --popover-foreground: 25 15% 11%;
+    --muted: 38 18% 92%;
+    --muted-foreground: 28 8% 40%;
+    --border: 34 16% 85%;
+    --input: 34 16% 82%;
+    --primary: 25 15% 11%;
+    --primary-foreground: 40 30% 96%;
+    --secondary: 38 18% 90%;
+    --secondary-foreground: 25 15% 11%;
+    --accent: 38 18% 93%;
+    --accent-foreground: 25 15% 11%;
+    --brass: 34 58% 44%;
+    --brass-foreground: 42 40% 98%;
+    --success: 152 32% 30%;
+    --success-subtle: 152 28% 92%;
+    --success-foreground: 152 32% 30%;
+    --warning: 32 70% 34%;
+    --warning-subtle: 38 70% 91%;
+    --warning-foreground: 32 70% 34%;
+    --destructive: 6 55% 40%;
+    --destructive-subtle: 6 60% 95%;
+    --destructive-foreground: 42 40% 98%;
+    --info: 214 32% 34%;
+    --info-subtle: 214 35% 93%;
+    --grid-line: 34 16% 91%;
+    --grid-weekend: 38 16% 94%;
+  }
 }

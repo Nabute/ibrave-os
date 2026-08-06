@@ -112,15 +112,18 @@ export function BankImportDialog() {
           <Landmark className="h-4 w-4" /> Import bank CSV
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[85vh] max-w-3xl overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Match bank statement</DialogTitle>
+      <DialogContent className="flex max-h-[85vh] w-[880px] max-w-[92vw] flex-col gap-0 p-0">
+        <DialogHeader className="border-b px-6 py-4">
+          <DialogTitle className="font-display text-2xl tracking-tight">
+            Match bank statement
+          </DialogTitle>
           <DialogDescription>
             Paste rows from your bank's CSV export. Matches by invoice number in the
             reference (high confidence) or exact outstanding amount. Nothing is recorded
             until you apply a row.
           </DialogDescription>
         </DialogHeader>
+        <div className="flex-1 space-y-4 overflow-y-auto px-6 py-4">
         <Textarea
           rows={5}
           className="font-mono text-xs"
@@ -188,6 +191,7 @@ export function BankImportDialog() {
             </TableBody>
           </Table>
         )}
+        </div>
       </DialogContent>
     </Dialog>
   );

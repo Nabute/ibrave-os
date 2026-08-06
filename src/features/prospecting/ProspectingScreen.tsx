@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, Plus, Star } from "lucide-react";
 import { useState } from "react";
 
+import { EmptyState } from "@/components/EmptyState";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -109,9 +110,7 @@ function TodayTab() {
       <Card>
         <CardContent className="pt-4">
           {due.length === 0 && (
-            <p className="py-6 text-center text-sm text-muted-foreground">
-              Nothing due — genuinely done for the day. 🎉
-            </p>
+            <EmptyState sentence="Nothing due — genuinely done for the day." />
           )}
           <ul className="divide-y">
             {due.map((t) => (

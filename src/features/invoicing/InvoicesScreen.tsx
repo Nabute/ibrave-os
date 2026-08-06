@@ -2,7 +2,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { FilePlus2 } from "lucide-react";
 import { format, startOfMonth, subMonths } from "date-fns";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+
+import { SortHead } from "@/components/SortHead";
+import { useSort } from "@/lib/useSort";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -57,6 +60,15 @@ export function InvoicesScreen() {
     queryKey: ["invoices"],
     queryFn: () => api.invoices.list(),
   });
+  const sortableRows = useMemo(
+    () =>
+      (invoices ?? []).map((inv) => ({
+        ...inv,
+        client_name: inv.clients?.name ?? "",
+      })),
+    [invoices]
+  );
+  const sort = useSort(sortableRows, "created_at");
   const { data: clients } = useQuery({
     queryKey: ["clients"],
     queryFn: () => api.clients.list(),
@@ -156,17 +168,27 @@ export function InvoicesScreen() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Number</TableHead>
-                <TableHead>Client</TableHead>
+                <SortHead sortKey="number" current={sort.sortKey} dir={sort.dir} onSort={sort.toggle}>
+                  Number
+                </SortHead>
+                <SortHead sortKey="client_name" current={sort.sortKey} dir={sort.dir} onSort={sort.toggle}>
+                  Client
+                </SortHead>
                 <TableHead>Kind</TableHead>
                 <TableHead>Period</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Total</TableHead>
-                <TableHead>Due</TableHead>
+                <SortHead sortKey="status" current={sort.sortKey} dir={sort.dir} onSort={sort.toggle}>
+                  Status
+                </SortHead>
+                <SortHead sortKey="total_minor" current={sort.sortKey} dir={sort.dir} onSort={sort.toggle} className="text-right">
+                  Total
+                </SortHead>
+                <SortHead sortKey="due_date" current={sort.sortKey} dir={sort.dir} onSort={sort.toggle}>
+                  Due
+                </SortHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {(invoices ?? []).map((inv) => (
+              {sort.rows.map((inv) => (
                 <TableRow key={inv.id}>
                   <TableCell>
                     <Link

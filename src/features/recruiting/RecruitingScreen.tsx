@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, UserRoundPlus } from "lucide-react";
 import { useState } from "react";
 
+import { EmptyState } from "@/components/EmptyState";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -44,6 +45,15 @@ const PIPELINE_STAGES: { key: CandidateStage; label: string }[] = [
   { key: "assessment", label: "Assessment" },
   { key: "offer", label: "Offer" },
 ];
+
+// Dragging a card one column forward fires the FSM action for that
+// transition; the server re-validates, so an invalid drop just errors.
+const DRAG_FORWARD: Partial<Record<CandidateStage, { to: CandidateStage; action: string }>> = {
+  sourced: { to: "screening", action: "screen" },
+  screening: { to: "interview", action: "interview" },
+  interview: { to: "assessment", action: "assess" },
+  assessment: { to: "offer", action: "offer" },
+};
 
 export const CANDIDATE_BADGE: Record<
   CandidateStage,
@@ -162,6 +172,18 @@ function PipelineTab({
   });
 
   const closed = candidates.filter((c) => c.stage === "hired" || c.stage === "rejected");
+
+  const [dragging, setDragging] = useState<Candidate | null>(null);
+  const [dropStage, setDropStage] = useState<CandidateStage | null>(null);
+  const dragMutation = useMutation({
+    mutationFn: ({ candidate, action }: { candidate: Candidate; action: string }) =>
+      api.talent.candidateAction(candidate.id, action),
+    onSuccess: () => {
+      setError(null);
+      void qc.invalidateQueries({ queryKey: ["candidates"] });
+    },
+    onError: (e) => setError(toDisplayMessage(e)),
+  });
 
   return (
     <div className="space-y-3">
@@ -282,6 +304,8 @@ function PipelineTab({
       <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-5">
         {PIPELINE_STAGES.map((stage) => {
           const stageCandidates = candidates.filter((c) => c.stage === stage.key);
+          const acceptsDrag =
+            dragging != null && DRAG_FORWARD[dragging.stage]?.to === stage.key;
           return (
             <div key={stage.key} className="space-y-2">
               <div className="flex items-baseline justify-between px-1">
@@ -290,19 +314,53 @@ function PipelineTab({
                   {stageCandidates.length}
                 </p>
               </div>
-              <div className="min-h-24 space-y-2 rounded-lg bg-muted/50 p-2">
+              <div
+                onDragOver={(e) => {
+                  if (!acceptsDrag) return;
+                  e.preventDefault();
+                  e.dataTransfer.dropEffect = "move";
+                  setDropStage(stage.key);
+                }}
+                onDragLeave={() => setDropStage((s) => (s === stage.key ? null : s))}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  if (dragging && acceptsDrag) {
+                    dragMutation.mutate({
+                      candidate: dragging,
+                      action: DRAG_FORWARD[dragging.stage]!.action,
+                    });
+                  }
+                  setDragging(null);
+                  setDropStage(null);
+                }}
+                className={cn(
+                  "min-h-24 space-y-2 rounded-lg bg-muted/50 p-2 transition-colors duration-fast",
+                  acceptsDrag && "outline-dashed outline-1 outline-brass/50",
+                  acceptsDrag && dropStage === stage.key && "bg-brass/10 outline-brass"
+                )}
+              >
                 {stageCandidates.map((c) => (
                   <button
                     key={c.id}
+                    draggable={DRAG_FORWARD[c.stage] != null}
+                    onDragStart={(e) => {
+                      e.dataTransfer.effectAllowed = "move";
+                      setDragging(c);
+                    }}
+                    onDragEnd={() => {
+                      setDragging(null);
+                      setDropStage(null);
+                    }}
                     onClick={() => onOpen(c)}
                     className={cn(
-                      "w-full rounded-md border border-l-[3px] bg-card p-3 text-left transition-shadow duration-fast ease-ledger",
+                      "w-full cursor-grab rounded-md border border-l-[3px] bg-card p-3 text-left transition-shadow duration-fast ease-ledger",
                       stage.key === "sourced" && "border-l-border",
                       stage.key === "screening" && "border-l-info",
                       (stage.key === "interview" ||
                         stage.key === "assessment" ||
                         stage.key === "offer") &&
                         "border-l-warning",
+                      dragging?.id === c.id && "opacity-40",
                       "hover:shadow-float focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/30"
                     )}
                   >
@@ -315,7 +373,7 @@ function PipelineTab({
                 ))}
                 {stageCandidates.length === 0 && (
                   <p className="px-1 py-3 text-center text-xs text-muted-foreground">
-                    empty
+                    {acceptsDrag ? "drop here" : "empty"}
                   </p>
                 )}
               </div>
@@ -371,7 +429,7 @@ function PoolTab({
           </TableBody>
         </Table>
         {pool.length === 0 && (
-          <p className="py-4 text-center text-sm text-muted-foreground">Pool is empty.</p>
+          <EmptyState sentence="The talent pool is empty — park strong candidates here." />
         )}
       </CardContent>
     </Card>

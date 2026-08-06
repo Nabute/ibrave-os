@@ -19,7 +19,12 @@ const TableHeader = React.forwardRef<
   HTMLTableSectionElement,
   React.HTMLAttributes<HTMLTableSectionElement>
 >(({ className, ...props }, ref) => (
-  <thead ref={ref} className={cn("[&_tr]:border-b", className)} {...props} />
+  // Paper-tinted header band (Ledger): a shade above the card surface.
+  <thead
+    ref={ref}
+    className={cn("bg-muted/60 [&_tr]:border-b [&_tr]:hover:bg-transparent", className)}
+    {...props}
+  />
 ));
 TableHeader.displayName = "TableHeader";
 
@@ -39,9 +44,13 @@ const TableFooter = React.forwardRef<
   HTMLTableSectionElement,
   React.HTMLAttributes<HTMLTableSectionElement>
 >(({ className, ...props }, ref) => (
+  // Ledger totals row: 2px ink rule, mono 600, no fill.
   <tfoot
     ref={ref}
-    className={cn("border-t bg-muted/50 font-medium [&>tr]:last:border-b-0", className)}
+    className={cn(
+      "border-t-2 border-foreground font-mono text-[13px] font-semibold [&>tr]:border-b-0 [&>tr]:hover:bg-transparent",
+      className
+    )}
     {...props}
   />
 ));

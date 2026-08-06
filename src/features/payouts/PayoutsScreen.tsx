@@ -4,6 +4,7 @@ import { format, endOfMonth, startOfMonth, subMonths } from "date-fns";
 import { HandCoins } from "lucide-react";
 import { useState } from "react";
 
+import { EmptyState } from "@/components/EmptyState";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -177,9 +178,11 @@ export function PayoutsScreen() {
             </TableBody>
           </Table>
           {(statements ?? []).length === 0 && (
-            <p className="py-6 text-center text-sm text-muted-foreground">
-              No statements yet — draft them for a period above.
-            </p>
+            <EmptyState
+              sentence="No payout statements yet."
+              action="Draft statements for a period"
+              onAction={() => setOpen(true)}
+            />
           )}
         </CardContent>
       </Card>

@@ -3,6 +3,9 @@ import { format } from "date-fns";
 import { CalendarOff, UserPlus } from "lucide-react";
 import { useState } from "react";
 
+import { EmptyState } from "@/components/EmptyState";
+import { SortHead } from "@/components/SortHead";
+import { useSort } from "@/lib/useSort";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -78,6 +81,7 @@ function BenchTab() {
     queryFn: () => api.staffing.bench(),
   });
   const showCost = (bench ?? []).some((r) => r.weekly_bench_cost_minor != null);
+  const sort = useSort(bench ?? [], "bench_pct");
 
   return (
     <Card>
@@ -85,16 +89,26 @@ function BenchTab() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Person</TableHead>
+              <SortHead sortKey="full_name" current={sort.sortKey} dir={sort.dir} onSort={sort.toggle}>
+                Person
+              </SortHead>
               <TableHead>Skills</TableHead>
-              <TableHead className="text-right">Allocated</TableHead>
-              <TableHead className="text-right">Bench</TableHead>
+              <SortHead sortKey="committed_allocation_pct" current={sort.sortKey} dir={sort.dir} onSort={sort.toggle} className="text-right">
+                Allocated
+              </SortHead>
+              <SortHead sortKey="bench_pct" current={sort.sortKey} dir={sort.dir} onSort={sort.toggle} className="text-right">
+                Bench
+              </SortHead>
               <TableHead>Time off (4 wks)</TableHead>
-              {showCost && <TableHead className="text-right">Bench cost / wk</TableHead>}
+              {showCost && (
+                <SortHead sortKey="weekly_bench_cost_minor" current={sort.sortKey} dir={sort.dir} onSort={sort.toggle} className="text-right">
+                  Bench cost / wk
+                </SortHead>
+              )}
             </TableRow>
           </TableHeader>
           <TableBody>
-            {(bench ?? []).map((r) => (
+            {sort.rows.map((r) => (
               <TableRow key={r.user_id}>
                 <TableCell>
                   <span className="font-medium">{r.full_name}</span>
@@ -474,8 +488,8 @@ function RequestsTab() {
       ))}
       {(requests ?? []).length === 0 && (
         <Card>
-          <CardContent className="py-8 text-center text-muted-foreground">
-            No staffing requests.
+          <CardContent>
+            <EmptyState sentence="No staffing requests open." />
           </CardContent>
         </Card>
       )}

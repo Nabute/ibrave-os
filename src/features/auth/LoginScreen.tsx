@@ -36,7 +36,7 @@ export function LoginScreen() {
           <span className="font-display text-xl tracking-tight">iBrave&nbsp;OS</span>
         </div>
         <div className="relative max-w-md">
-          <h1 className="font-display text-4xl leading-tight text-white">
+          <h1 className="font-display text-[44px] leading-[1.05] tracking-[-0.02em] text-white">
             One system, from first hello to final invoice.
           </h1>
           <p className="mt-4 text-[15px] leading-relaxed text-sidebar-muted">

@@ -11,6 +11,8 @@ import {
   HandCoins,
   Handshake,
   Moon,
+  PanelLeftClose,
+  PanelLeftOpen,
   Sun,
   Target,
   UserRoundSearch,
@@ -107,11 +109,18 @@ export function AppShell() {
   const [dark, setDark] = useState(
     () => localStorage.getItem("theme") === "dark"
   );
+  const [collapsed, setCollapsed] = useState(
+    () => localStorage.getItem("sidebar") === "collapsed"
+  );
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
     localStorage.setItem("theme", dark ? "dark" : "light");
   }, [dark]);
+
+  useEffect(() => {
+    localStorage.setItem("sidebar", collapsed ? "collapsed" : "open");
+  }, [collapsed]);
 
   useEffect(() => {
     if (!userId) return;
@@ -131,9 +140,33 @@ export function AppShell() {
 
   return (
     <div className="flex min-h-screen">
-      <aside className="no-print sticky top-0 flex h-screen w-[236px] shrink-0 flex-col bg-sidebar text-sidebar-foreground">
-        <div className="flex h-16 items-center gap-2.5 px-5">
-          <span className="font-display text-lg text-white">iBrave&nbsp;OS</span>
+      <aside
+        className={cn(
+          "no-print sticky top-0 flex h-screen shrink-0 flex-col bg-sidebar text-sidebar-foreground transition-[width] duration-base ease-ledger",
+          collapsed ? "w-[60px]" : "w-[236px]"
+        )}
+      >
+        <div
+          className={cn(
+            "flex h-16 items-center",
+            collapsed ? "justify-center" : "justify-between px-5"
+          )}
+        >
+          {!collapsed && (
+            <span className="font-display text-lg text-white">iBrave&nbsp;OS</span>
+          )}
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            className="rounded-md p-1.5 text-sidebar-muted transition-colors duration-fast hover:bg-sidebar-active hover:text-white"
+          >
+            {collapsed ? (
+              <PanelLeftOpen className="h-4 w-4" />
+            ) : (
+              <PanelLeftClose className="h-4 w-4" />
+            )}
+          </button>
         </div>
 
         <nav className="flex-1 space-y-6 overflow-y-auto py-4">
@@ -144,7 +177,7 @@ export function AppShell() {
             if (visible.length === 0) return null;
             return (
               <div key={section.title ?? "main"}>
-                {section.title && (
+                {section.title && !collapsed && (
                   <p className="label-caps mb-1.5 px-5 text-[10px] text-sidebar-muted">
                     {section.title}
                   </p>
@@ -157,10 +190,12 @@ export function AppShell() {
                       <Link
                         key={item.to}
                         to={item.to}
+                        title={collapsed ? item.label : undefined}
                         className={cn(
                           // Active = 2px brass rail + one step lighter surface.
                           // No fill pill, no rounding — the rail is the signal.
-                          "group flex items-center gap-3 px-5 py-2 text-[13.5px] font-medium transition-colors duration-fast ease-ledger",
+                          "group flex items-center gap-3 py-2 text-[13.5px] font-medium transition-colors duration-fast ease-ledger",
+                          collapsed ? "justify-center px-0" : "px-5",
                           active
                             ? "bg-sidebar-active text-white shadow-[inset_2px_0_0_0_hsl(var(--brass))]"
                             : "text-sidebar-foreground hover:bg-sidebar-active/60 hover:text-white"
@@ -168,14 +203,14 @@ export function AppShell() {
                       >
                         <item.icon
                           className={cn(
-                            "h-4 w-4 transition-colors duration-fast",
+                            "h-4 w-4 shrink-0 transition-colors duration-fast",
                             active
                               ? "text-brass"
                               : "text-sidebar-muted group-hover:text-sidebar-foreground"
                           )}
                         />
-                        {item.label}
-                        {item.to === "/" && unread > 0 && (
+                        {!collapsed && item.label}
+                        {!collapsed && item.to === "/" && unread > 0 && (
                           <span className="num ml-auto text-[11px] font-semibold text-brass">
                             {unread}
                           </span>
@@ -190,16 +225,26 @@ export function AppShell() {
         </nav>
 
         <div className="border-t border-sidebar-border p-3">
-          <div className="flex items-center gap-3 rounded-lg px-2 py-2">
-            <div className="num flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sidebar-active text-xs font-semibold">
+          <div
+            className={cn(
+              "flex items-center gap-3 rounded-lg py-2",
+              collapsed ? "flex-col px-0" : "px-2"
+            )}
+          >
+            <div
+              className="num flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sidebar-active text-xs font-semibold"
+              title={collapsed ? profile?.full_name : undefined}
+            >
               {initials}
             </div>
+            {!collapsed && (
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium">{profile?.full_name}</p>
               <p className="truncate text-xs text-sidebar-muted">
                 {roles.join(" · ") || "member"}
               </p>
             </div>
+            )}
             <button
               onClick={() => setDark(!dark)}
               title={dark ? "Light mode" : "Dark mode"}

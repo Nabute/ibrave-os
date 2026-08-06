@@ -109,6 +109,9 @@ export function TimesheetScreen() {
   const invalidate = () =>
     qc.invalidateQueries({ queryKey: ["timesheet", userId, weekStart] });
 
+  // "Just saved" flash (Ledger): brass 8% → transparent over 480ms.
+  const [flashCell, setFlashCell] = useState<string | null>(null);
+
   const saveMutation = useMutation({
     mutationFn: async ({
       row,
@@ -134,7 +137,12 @@ export function TimesheetScreen() {
         });
       }
     },
-    onSuccess: invalidate,
+    onSuccess: (_r, vars) => {
+      void invalidate();
+      const key = `${vars.row.key}:${vars.date}`;
+      setFlashCell(key);
+      setTimeout(() => setFlashCell((c) => (c === key ? null : c)), 600);
+    },
     onError: (e) => setError(toDisplayMessage(e)),
   });
 
@@ -267,6 +275,7 @@ export function TimesheetScreen() {
                               value={entry ? Number(entry.hours) : 0}
                               locked={!!locked}
                               status={entry?.status}
+                              flash={flashCell === `${row.key}:${d}`}
                               onCommit={(hours) =>
                                 saveMutation.mutate({ row, date: d, hours, existing: entry })
                               }
@@ -348,11 +357,13 @@ function HourCell({
   value,
   locked,
   status,
+  flash,
   onCommit,
 }: {
   value: number;
   locked: boolean;
   status?: TimeEntry["status"];
+  flash?: boolean;
   onCommit: (hours: number) => void;
 }) {
   const [text, setText] = useState(value > 0 ? String(value) : "");
@@ -378,7 +389,10 @@ function HourCell({
 
   return (
     <input
-      className="w-14 rounded-sm border border-transparent bg-transparent px-1 py-1 text-center tabular-nums outline-none transition-shadow duration-fast ease-ledger hover:border-grid-line focus:bg-popover focus:shadow-[inset_0_0_0_2px_hsl(var(--brass))]"
+      className={cn(
+        "w-14 rounded-sm border border-transparent bg-transparent px-1 py-1 text-center tabular-nums outline-none transition-shadow duration-fast ease-ledger hover:border-grid-line focus:bg-popover focus:shadow-[inset_0_0_0_2px_hsl(var(--brass))]",
+        flash && "saved-flash"
+      )}
       value={text}
       inputMode="decimal"
       onChange={(e) => setText(e.target.value)}
