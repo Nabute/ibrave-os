@@ -24,6 +24,13 @@ export interface Profile {
   employment_type: "employee" | "contractor";
   weekly_capacity_hours: number;
   active: boolean;
+  timezone: string | null;
+  preferences: UserPreferences;
+}
+
+export interface UserPreferences {
+  email_notifications?: boolean;
+  theme?: "light" | "dark";
 }
 
 export interface CompanySettings {
@@ -129,6 +136,7 @@ export interface Client {
   tax_rate_pct: number;
   invoice_grouping: "project" | "person" | "role" | "detailed";
   timesheet_appendix: boolean;
+  timezone: string | null;
   notes: string | null;
   active: boolean;
 }

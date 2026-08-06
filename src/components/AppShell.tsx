@@ -21,10 +21,12 @@ import {
   LineChart,
   LogOut,
   Settings,
+  SlidersHorizontal,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { useSession } from "@/lib/session";
+import { supabase } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 import type { AppRole } from "@/lib/api";
 
@@ -98,7 +100,10 @@ const NAV: NavSection[] = [
   },
   {
     title: "System",
-    items: [{ to: "/admin", label: "Admin", icon: Settings, roles: ["admin"] }],
+    items: [
+      { to: "/settings", label: "Preferences", icon: SlidersHorizontal },
+      { to: "/admin", label: "Admin", icon: Settings, roles: ["admin"] },
+    ],
   },
 ];
 
@@ -117,6 +122,12 @@ export function AppShell() {
     document.documentElement.classList.toggle("dark", dark);
     localStorage.setItem("theme", dark ? "dark" : "light");
   }, [dark]);
+
+  // The stored preference (Preferences → Appearance) wins on a fresh device.
+  const themePref = profile?.preferences?.theme;
+  useEffect(() => {
+    if (themePref) setDark(themePref === "dark");
+  }, [themePref]);
 
   useEffect(() => {
     localStorage.setItem("sidebar", collapsed ? "collapsed" : "open");
@@ -246,7 +257,21 @@ export function AppShell() {
             </div>
             )}
             <button
-              onClick={() => setDark(!dark)}
+              onClick={() => {
+                const next = !dark;
+                setDark(next);
+                // Persist so the choice follows the user to other devices.
+                if (userId)
+                  void supabase
+                    .from("profiles")
+                    .update({
+                      preferences: {
+                        ...(profile?.preferences ?? {}),
+                        theme: next ? "dark" : "light",
+                      },
+                    })
+                    .eq("id", userId);
+              }}
               title={dark ? "Light mode" : "Dark mode"}
               aria-label="Toggle theme"
               className="rounded-md p-2 text-sidebar-muted transition-colors duration-fast hover:bg-sidebar-active hover:text-white"

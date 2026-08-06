@@ -2,32 +2,12 @@ import {
   createRootRoute,
   createRoute,
   createRouter,
+  lazyRouteComponent,
   Outlet,
 } from "@tanstack/react-router";
 
 import { AppShell } from "@/components/AppShell";
-import { AdminScreen } from "@/features/admin/AdminScreen";
-import { ApprovalsScreen } from "@/features/approvals/ApprovalsScreen";
-import { CalendarScreen } from "@/features/calendar/CalendarScreen";
 import { LoginScreen } from "@/features/auth/LoginScreen";
-import { ClientDetailScreen } from "@/features/clients/ClientDetailScreen";
-import { CommandCenterScreen } from "@/features/command-center/CommandCenterScreen";
-import { ClientsScreen } from "@/features/clients/ClientsScreen";
-import { InvoiceDetailScreen } from "@/features/invoicing/InvoiceDetailScreen";
-import { InvoicesScreen } from "@/features/invoicing/InvoicesScreen";
-import { MyDayScreen } from "@/features/my-day/MyDayScreen";
-import { PayoutDetailScreen } from "@/features/payouts/PayoutDetailScreen";
-import { PayoutsScreen } from "@/features/payouts/PayoutsScreen";
-import { ProjectDetailScreen } from "@/features/projects/ProjectDetailScreen";
-import { ProjectsScreen } from "@/features/projects/ProjectsScreen";
-import { PeopleScreen } from "@/features/people/PeopleScreen";
-import { PersonDetailScreen } from "@/features/people/PersonDetailScreen";
-import { ProspectingScreen } from "@/features/prospecting/ProspectingScreen";
-import { RecruitingScreen } from "@/features/recruiting/RecruitingScreen";
-import { ReportsScreen } from "@/features/reports/ReportsScreen";
-import { SalesScreen } from "@/features/sales/SalesScreen";
-import { StaffingScreen } from "@/features/staffing/StaffingScreen";
-import { TimesheetScreen } from "@/features/timesheets/TimesheetScreen";
 import { useSession } from "@/lib/session";
 
 function Root() {
@@ -56,61 +36,174 @@ const appRoute = createRoute({
   component: AuthenticatedLayout,
 });
 
+// Every screen is its own chunk; the shell + login stay in the entry bundle.
 const routes = [
-  createRoute({ getParentRoute: () => appRoute, path: "/", component: MyDayScreen }),
-  createRoute({ getParentRoute: () => appRoute, path: "/timesheet", component: TimesheetScreen }),
-  createRoute({ getParentRoute: () => appRoute, path: "/approvals", component: ApprovalsScreen }),
-  createRoute({ getParentRoute: () => appRoute, path: "/projects", component: ProjectsScreen }),
+  createRoute({
+    getParentRoute: () => appRoute,
+    path: "/",
+    component: lazyRouteComponent(() => import("@/features/my-day/MyDayScreen"), "MyDayScreen"),
+  }),
+  createRoute({
+    getParentRoute: () => appRoute,
+    path: "/timesheet",
+    component: lazyRouteComponent(
+      () => import("@/features/timesheets/TimesheetScreen"),
+      "TimesheetScreen"
+    ),
+  }),
+  createRoute({
+    getParentRoute: () => appRoute,
+    path: "/approvals",
+    component: lazyRouteComponent(
+      () => import("@/features/approvals/ApprovalsScreen"),
+      "ApprovalsScreen"
+    ),
+  }),
+  createRoute({
+    getParentRoute: () => appRoute,
+    path: "/projects",
+    component: lazyRouteComponent(
+      () => import("@/features/projects/ProjectsScreen"),
+      "ProjectsScreen"
+    ),
+  }),
   createRoute({
     getParentRoute: () => appRoute,
     path: "/projects/$projectId",
-    component: ProjectDetailScreen,
+    component: lazyRouteComponent(
+      () => import("@/features/projects/ProjectDetailScreen"),
+      "ProjectDetailScreen"
+    ),
   }),
-  createRoute({ getParentRoute: () => appRoute, path: "/clients", component: ClientsScreen }),
+  createRoute({
+    getParentRoute: () => appRoute,
+    path: "/clients",
+    component: lazyRouteComponent(() => import("@/features/clients/ClientsScreen"), "ClientsScreen"),
+  }),
   createRoute({
     getParentRoute: () => appRoute,
     path: "/clients/$clientId",
-    component: ClientDetailScreen,
+    component: lazyRouteComponent(
+      () => import("@/features/clients/ClientDetailScreen"),
+      "ClientDetailScreen"
+    ),
   }),
-  createRoute({ getParentRoute: () => appRoute, path: "/invoices", component: InvoicesScreen }),
+  createRoute({
+    getParentRoute: () => appRoute,
+    path: "/invoices",
+    component: lazyRouteComponent(
+      () => import("@/features/invoicing/InvoicesScreen"),
+      "InvoicesScreen"
+    ),
+  }),
   createRoute({
     getParentRoute: () => appRoute,
     path: "/invoices/$invoiceId",
-    component: InvoiceDetailScreen,
+    component: lazyRouteComponent(
+      () => import("@/features/invoicing/InvoiceDetailScreen"),
+      "InvoiceDetailScreen"
+    ),
   }),
-  createRoute({ getParentRoute: () => appRoute, path: "/staffing", component: StaffingScreen }),
-  createRoute({ getParentRoute: () => appRoute, path: "/sales", component: SalesScreen }),
+  createRoute({
+    getParentRoute: () => appRoute,
+    path: "/staffing",
+    component: lazyRouteComponent(
+      () => import("@/features/staffing/StaffingScreen"),
+      "StaffingScreen"
+    ),
+  }),
+  createRoute({
+    getParentRoute: () => appRoute,
+    path: "/sales",
+    component: lazyRouteComponent(() => import("@/features/sales/SalesScreen"), "SalesScreen"),
+  }),
   createRoute({
     getParentRoute: () => appRoute,
     path: "/prospecting",
-    component: ProspectingScreen,
+    component: lazyRouteComponent(
+      () => import("@/features/prospecting/ProspectingScreen"),
+      "ProspectingScreen"
+    ),
   }),
-  createRoute({ getParentRoute: () => appRoute, path: "/calendar", component: CalendarScreen }),
+  createRoute({
+    getParentRoute: () => appRoute,
+    path: "/calendar",
+    component: lazyRouteComponent(
+      () => import("@/features/calendar/CalendarScreen"),
+      "CalendarScreen"
+    ),
+  }),
   createRoute({
     getParentRoute: () => appRoute,
     path: "/command-center",
-    component: CommandCenterScreen,
+    component: lazyRouteComponent(
+      () => import("@/features/command-center/CommandCenterScreen"),
+      "CommandCenterScreen"
+    ),
   }),
-  createRoute({ getParentRoute: () => appRoute, path: "/recruiting", component: RecruitingScreen }),
-  createRoute({ getParentRoute: () => appRoute, path: "/people", component: PeopleScreen }),
+  createRoute({
+    getParentRoute: () => appRoute,
+    path: "/recruiting",
+    component: lazyRouteComponent(
+      () => import("@/features/recruiting/RecruitingScreen"),
+      "RecruitingScreen"
+    ),
+  }),
+  createRoute({
+    getParentRoute: () => appRoute,
+    path: "/people",
+    component: lazyRouteComponent(() => import("@/features/people/PeopleScreen"), "PeopleScreen"),
+  }),
   createRoute({
     getParentRoute: () => appRoute,
     path: "/people/$personId",
-    component: PersonDetailScreen,
+    component: lazyRouteComponent(
+      () => import("@/features/people/PersonDetailScreen"),
+      "PersonDetailScreen"
+    ),
   }),
-  createRoute({ getParentRoute: () => appRoute, path: "/payouts", component: PayoutsScreen }),
+  createRoute({
+    getParentRoute: () => appRoute,
+    path: "/payouts",
+    component: lazyRouteComponent(() => import("@/features/payouts/PayoutsScreen"), "PayoutsScreen"),
+  }),
   createRoute({
     getParentRoute: () => appRoute,
     path: "/payouts/$payoutId",
-    component: PayoutDetailScreen,
+    component: lazyRouteComponent(
+      () => import("@/features/payouts/PayoutDetailScreen"),
+      "PayoutDetailScreen"
+    ),
   }),
-  createRoute({ getParentRoute: () => appRoute, path: "/reports", component: ReportsScreen }),
-  createRoute({ getParentRoute: () => appRoute, path: "/admin", component: AdminScreen }),
+  createRoute({
+    getParentRoute: () => appRoute,
+    path: "/reports",
+    component: lazyRouteComponent(() => import("@/features/reports/ReportsScreen"), "ReportsScreen"),
+  }),
+  createRoute({
+    getParentRoute: () => appRoute,
+    path: "/admin",
+    component: lazyRouteComponent(() => import("@/features/admin/AdminScreen"), "AdminScreen"),
+  }),
+  createRoute({
+    getParentRoute: () => appRoute,
+    path: "/settings",
+    component: lazyRouteComponent(
+      () => import("@/features/settings/PreferencesScreen"),
+      "PreferencesScreen"
+    ),
+  }),
 ];
 
 const routeTree = rootRoute.addChildren([appRoute.addChildren(routes)]);
 
-export const router = createRouter({ routeTree });
+export const router = createRouter({
+  routeTree,
+  // Hovering a nav link preloads that route's chunk, so the click is instant.
+  defaultPreload: "intent",
+  // A hairline pause instead of a spinner flash while a chunk loads.
+  defaultPendingComponent: () => <div className="min-h-24" />,
+});
 
 declare module "@tanstack/react-router" {
   interface Register {

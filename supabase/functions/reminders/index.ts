@@ -17,15 +17,22 @@ Deno.serve(async (req) => {
   // Email leg: today's unread reminder notifications.
   const { data: pending } = await db
     .from("notifications")
-    .select("id, user_id, kind, title, body, profiles:user_id ( email, full_name )")
+    .select("id, user_id, kind, title, body, profiles:user_id ( email, full_name, preferences )")
     .in("kind", ["timesheet_reminder", "approval_nudge"])
     .is("read_at", null)
     .gte("created_at", new Date(Date.now() - 86_400_000).toISOString());
 
   let emailed = 0;
   for (const n of pending ?? []) {
-    const profile = n.profiles as unknown as { email: string; full_name: string } | null;
+    const profile = n.profiles as unknown as {
+      email: string;
+      full_name: string;
+      preferences?: { email_notifications?: boolean };
+    } | null;
     if (!profile?.email) continue;
+    // The in-app notification always lands; the email leg respects the
+    // user's master switch (Preferences → Notifications).
+    if (profile.preferences?.email_notifications === false) continue;
     const { ok } = await sendEmail({
       to: [profile.email],
       subject: n.title,

@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { EmailComposer } from "@/components/EmailComposer";
 import { KpiTile } from "@/components/KpiTile";
+import { LocalClock } from "@/components/LocalClock";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -97,6 +98,12 @@ export function ClientDetailScreen() {
             grouped by {client.invoice_grouping}
           </p>
         </div>
+        {client.timezone && (
+          <div className="text-right">
+            <p className="label-caps text-[10px] text-muted-foreground">Local time</p>
+            <LocalClock timezone={client.timezone} className="text-lg" />
+          </div>
+        )}
       </div>
 
       {health && health.factors.length > 0 && (
@@ -283,7 +290,12 @@ function BillingDetailsCard({ clientId }: { clientId: string }) {
   });
 
   const saveMutation = useMutation({
-    mutationFn: () => api.clients.update(clientId, form as never),
+    // Blank timezone must reach the DB as null, not "" (the zone is validated).
+    mutationFn: () =>
+      api.clients.update(clientId, {
+        ...form,
+        ...(form && "timezone" in form ? { timezone: form.timezone?.trim() || null } : {}),
+      } as never),
     onSuccess: () => {
       setForm(null);
       setError(null);
@@ -300,6 +312,7 @@ function BillingDetailsCard({ clientId }: { clientId: string }) {
     ["code", "Invoice code (e.g. HWAC)"],
     ["org_no", "Org. No."],
     ["vat_no", "VAT No."],
+    ["timezone", "Timezone (e.g. Europe/Berlin)"],
   ] as const;
 
   return (
@@ -308,7 +321,8 @@ function BillingDetailsCard({ clientId }: { clientId: string }) {
         <CardTitle className="text-lg">Billing details</CardTitle>
         <CardDescription>
           Printed on invoices; the code becomes part of the invoice number
-          ({`IBR-${(form?.code ?? client.code ?? "CODE").toUpperCase()}-YYYY-NNNN`}).
+          ({`INV-${(form?.code ?? client.code ?? "CODE").toUpperCase()}-YYYY-NNNN`}).
+          The timezone drives the local-time display on client screens.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">

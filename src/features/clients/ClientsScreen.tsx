@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 
+import { LocalClock } from "@/components/LocalClock";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -118,6 +119,7 @@ export function ClientsScreen() {
               <TableRow>
                 <TableHead>Client</TableHead>
                 <TableHead>Health</TableHead>
+                <TableHead>Local time</TableHead>
                 <TableHead>Tier</TableHead>
                 <TableHead>Currency</TableHead>
                 <TableHead>Terms</TableHead>
@@ -147,6 +149,13 @@ export function ClientsScreen() {
                         <span className="text-muted-foreground">—</span>
                       );
                     })()}
+                  </TableCell>
+                  <TableCell>
+                    {c.timezone ? (
+                      <LocalClock timezone={c.timezone} />
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
                   </TableCell>
                   <TableCell className="uppercase text-muted-foreground">{c.tier}</TableCell>
                   <TableCell>{c.currency}</TableCell>

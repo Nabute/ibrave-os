@@ -18,6 +18,8 @@ interface SessionState {
   api: Api;
   hasRole: (role: AppRole) => boolean;
   signOut: () => Promise<void>;
+  /** Re-fetch the profile after the user edits their own account. */
+  refreshProfile: () => Promise<void>;
 }
 
 const SessionContext = createContext<SessionState | null>(null);
@@ -75,6 +77,15 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         roles.includes(role) || roles.includes("owner") || roles.includes("admin"),
       signOut: async () => {
         await supabase.auth.signOut();
+      },
+      refreshProfile: async () => {
+        if (!userId) return;
+        const { data } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", userId)
+          .single();
+        if (data) setProfile(data as Profile);
       },
     }),
     [userId, profile, roles, ready, api]

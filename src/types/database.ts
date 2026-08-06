@@ -7,6 +7,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.15"
+  }
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -717,6 +722,7 @@ export type Database = {
           tax_rate_pct: number
           tier: string
           timesheet_appendix: boolean
+          timezone: string | null
           updated_at: string
           vat_no: string | null
         }
@@ -738,6 +744,7 @@ export type Database = {
           tax_rate_pct?: number
           tier?: string
           timesheet_appendix?: boolean
+          timezone?: string | null
           updated_at?: string
           vat_no?: string | null
         }
@@ -759,6 +766,7 @@ export type Database = {
           tax_rate_pct?: number
           tier?: string
           timesheet_appendix?: boolean
+          timezone?: string | null
           updated_at?: string
           vat_no?: string | null
         }
@@ -1554,16 +1562,19 @@ export type Database = {
       }
       invoice_counters: {
         Row: {
+          client_id: string
           kind: Database["public"]["Enums"]["invoice_kind"]
           last_value: number
           year: number
         }
         Insert: {
+          client_id?: string
           kind: Database["public"]["Enums"]["invoice_kind"]
           last_value?: number
           year: number
         }
         Update: {
+          client_id?: string
           kind?: Database["public"]["Enums"]["invoice_kind"]
           last_value?: number
           year?: number
@@ -2551,6 +2562,7 @@ export type Database = {
           employment_type: Database["public"]["Enums"]["employment_type"]
           full_name: string
           id: string
+          preferences: Json
           timezone: string | null
           title: string | null
           updated_at: string
@@ -2563,6 +2575,7 @@ export type Database = {
           employment_type?: Database["public"]["Enums"]["employment_type"]
           full_name: string
           id: string
+          preferences?: Json
           timezone?: string | null
           title?: string | null
           updated_at?: string
@@ -2575,6 +2588,7 @@ export type Database = {
           employment_type?: Database["public"]["Enums"]["employment_type"]
           full_name?: string
           id?: string
+          preferences?: Json
           timezone?: string | null
           title?: string | null
           updated_at?: string
@@ -5156,4 +5170,3 @@ export const Constants = {
     },
   },
 } as const
-

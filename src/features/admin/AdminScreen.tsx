@@ -1,9 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Copy, KeyRound, Pencil, UserRoundPlus } from "lucide-react";
 import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -22,8 +31,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { toDisplayMessage, type AppRole } from "@/lib/api";
-import { useApi } from "@/lib/session";
+import { toDisplayMessage, type AppRole, type Profile } from "@/lib/api";
+import { useApi, useSession } from "@/lib/session";
 
 function EmailIdentitiesTab() {
   const api = useApi();
@@ -201,8 +210,14 @@ const ALL_ROLES: AppRole[] = [
 export function AdminScreen() {
   const api = useApi();
   const qc = useQueryClient();
+  const { userId } = useSession();
   const [error, setError] = useState<string | null>(null);
   const [pendingRole, setPendingRole] = useState<Record<string, AppRole | "">>({});
+  const [showInvite, setShowInvite] = useState(false);
+  const [editing, setEditing] = useState<Profile | null>(null);
+  const [tempPassword, setTempPassword] = useState<{ label: string; value: string } | null>(
+    null
+  );
 
   const { data: people } = useQuery({
     queryKey: ["admin-people"],
@@ -236,6 +251,18 @@ export function AdminScreen() {
     },
     onError: (e) => setError(toDisplayMessage(e)),
   });
+  const activeMutation = useMutation({
+    mutationFn: ({ id, active }: { id: string; active: boolean }) =>
+      api.admin.setUserActive(id, active),
+    onSuccess: invalidatePeople,
+    onError: (e) => setError(toDisplayMessage(e)),
+  });
+  const resetMutation = useMutation({
+    mutationFn: (p: Profile) => api.admin.resetPassword(p.id),
+    onSuccess: (r, p) =>
+      setTempPassword({ label: `New password for ${p.full_name}`, value: r.temp_password }),
+    onError: (e) => setError(toDisplayMessage(e)),
+  });
 
   return (
     <div className="space-y-4">
@@ -259,22 +286,39 @@ export function AdminScreen() {
         <TabsContent value="people">
           <Card>
             <CardContent className="pt-4">
+              <div className="mb-3 flex justify-end">
+                <Button onClick={() => setShowInvite(true)}>
+                  <UserRoundPlus className="h-4 w-4" /> Add person
+                </Button>
+              </div>
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Person</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Type</TableHead>
+                    <TableHead>Status</TableHead>
                     <TableHead>Roles</TableHead>
-                    <TableHead className="w-64">Grant role</TableHead>
+                    <TableHead className="w-56">Grant role</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {(people ?? []).map((p) => (
-                    <TableRow key={p.id}>
-                      <TableCell className="font-medium">{p.full_name}</TableCell>
+                    <TableRow key={p.id} className={p.active ? "" : "opacity-60"}>
+                      <TableCell className="font-medium">
+                        {p.full_name}
+                        {p.title && (
+                          <span className="ml-2 text-xs text-muted-foreground">{p.title}</span>
+                        )}
+                      </TableCell>
                       <TableCell className="text-muted-foreground">{p.email}</TableCell>
                       <TableCell>{p.employment_type}</TableCell>
+                      <TableCell>
+                        <Badge variant={p.active ? "success" : "outline"}>
+                          {p.active ? "active" : "deactivated"}
+                        </Badge>
+                      </TableCell>
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
                           {p.user_roles.map((r) => (
@@ -329,12 +373,75 @@ export function AdminScreen() {
                           </Button>
                         </div>
                       </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            title="Edit profile"
+                            onClick={() => setEditing(p)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            title="Reset password"
+                            disabled={resetMutation.isPending}
+                            onClick={() => resetMutation.mutate(p)}
+                          >
+                            <KeyRound className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className={p.active ? "text-destructive" : ""}
+                            disabled={activeMutation.isPending || p.id === userId}
+                            title={
+                              p.id === userId
+                                ? "You cannot deactivate yourself"
+                                : p.active
+                                  ? "Deactivate (blocks sign-in)"
+                                  : "Reactivate"
+                            }
+                            onClick={() =>
+                              activeMutation.mutate({ id: p.id, active: !p.active })
+                            }
+                          >
+                            {p.active ? "Deactivate" : "Reactivate"}
+                          </Button>
+                        </div>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             </CardContent>
           </Card>
+
+          <InvitePersonDialog
+            open={showInvite}
+            onClose={() => setShowInvite(false)}
+            onInvited={(fullName, password) => {
+              setShowInvite(false);
+              invalidatePeople();
+              setTempPassword({ label: `Temporary password for ${fullName}`, value: password });
+            }}
+          />
+          {editing && (
+            <EditPersonDialog
+              person={editing}
+              onClose={() => setEditing(null)}
+              onSaved={() => {
+                setEditing(null);
+                invalidatePeople();
+              }}
+            />
+          )}
+          <TempPasswordDialog
+            info={tempPassword}
+            onClose={() => setTempPassword(null)}
+          />
         </TabsContent>
 
         <TabsContent value="settings">
@@ -392,5 +499,286 @@ export function AdminScreen() {
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+/** Create the auth user + profile + roles; shows the one-time temp password. */
+function InvitePersonDialog({
+  open,
+  onClose,
+  onInvited,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onInvited: (fullName: string, tempPassword: string) => void;
+}) {
+  const api = useApi();
+  const [error, setError] = useState<string | null>(null);
+  const [form, setForm] = useState({
+    email: "",
+    full_name: "",
+    title: "",
+    employment_type: "employee" as "employee" | "contractor",
+    roles: ["employee"] as AppRole[],
+  });
+
+  const inviteMutation = useMutation({
+    mutationFn: () =>
+      api.admin.inviteUser({
+        email: form.email.trim(),
+        full_name: form.full_name.trim(),
+        title: form.title.trim() || undefined,
+        employment_type: form.employment_type,
+        roles: form.roles,
+      }),
+    onSuccess: (r) => {
+      setError(null);
+      const name = form.full_name;
+      setForm({
+        email: "",
+        full_name: "",
+        title: "",
+        employment_type: "employee",
+        roles: ["employee"],
+      });
+      onInvited(name, r.temp_password);
+    },
+    onError: (e) => setError(toDisplayMessage(e)),
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add person</DialogTitle>
+          <DialogDescription>
+            Creates the account immediately. You hand over the temporary password
+            yourself — it is shown once and never emailed.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1">
+            <Label>Full name</Label>
+            <Input
+              value={form.full_name}
+              onChange={(e) => setForm({ ...form, full_name: e.target.value })}
+            />
+          </div>
+          <div className="space-y-1">
+            <Label>Email</Label>
+            <Input
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+            />
+          </div>
+          <div className="space-y-1">
+            <Label>Title</Label>
+            <Input
+              value={form.title}
+              placeholder="Developer"
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+            />
+          </div>
+          <div className="space-y-1">
+            <Label>Type</Label>
+            <Select
+              value={form.employment_type}
+              onValueChange={(v) =>
+                setForm({ ...form, employment_type: v as "employee" | "contractor" })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="employee">employee</SelectItem>
+                <SelectItem value="contractor">contractor</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="col-span-2 space-y-1">
+            <Label>Roles</Label>
+            <div className="flex flex-wrap gap-1.5">
+              {ALL_ROLES.map((r) => {
+                const on = form.roles.includes(r);
+                return (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() =>
+                      setForm({
+                        ...form,
+                        roles: on
+                          ? form.roles.filter((x) => x !== r)
+                          : [...form.roles, r],
+                      })
+                    }
+                    className={`rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                      on
+                        ? "border-transparent bg-primary text-primary-foreground"
+                        : "hover:bg-accent"
+                    }`}
+                  >
+                    {r}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+        {error && <p className="text-sm text-destructive">{error}</p>}
+        <DialogFooter>
+          <Button
+            disabled={
+              !form.email.trim() ||
+              !form.full_name.trim() ||
+              form.roles.length === 0 ||
+              inviteMutation.isPending
+            }
+            onClick={() => inviteMutation.mutate()}
+          >
+            {inviteMutation.isPending ? "Creating…" : "Create account"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function EditPersonDialog({
+  person,
+  onClose,
+  onSaved,
+}: {
+  person: Profile;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const api = useApi();
+  const [error, setError] = useState<string | null>(null);
+  const [form, setForm] = useState({
+    full_name: person.full_name,
+    title: person.title ?? "",
+    employment_type: person.employment_type,
+    weekly_capacity_hours: String(person.weekly_capacity_hours),
+  });
+
+  const saveMutation = useMutation({
+    mutationFn: () =>
+      api.admin.updatePerson(person.id, {
+        full_name: form.full_name.trim(),
+        title: form.title.trim() || null,
+        employment_type: form.employment_type,
+        weekly_capacity_hours: Number(form.weekly_capacity_hours) || 40,
+      }),
+    onSuccess: onSaved,
+    onError: (e) => setError(toDisplayMessage(e)),
+  });
+
+  return (
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit {person.full_name}</DialogTitle>
+          <DialogDescription>{person.email}</DialogDescription>
+        </DialogHeader>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="col-span-2 space-y-1">
+            <Label>Full name</Label>
+            <Input
+              value={form.full_name}
+              onChange={(e) => setForm({ ...form, full_name: e.target.value })}
+            />
+          </div>
+          <div className="space-y-1">
+            <Label>Title</Label>
+            <Input
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+            />
+          </div>
+          <div className="space-y-1">
+            <Label>Type</Label>
+            <Select
+              value={form.employment_type}
+              onValueChange={(v) =>
+                setForm({ ...form, employment_type: v as "employee" | "contractor" })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="employee">employee</SelectItem>
+                <SelectItem value="contractor">contractor</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1">
+            <Label>Weekly capacity (h)</Label>
+            <Input
+              inputMode="decimal"
+              value={form.weekly_capacity_hours}
+              onChange={(e) =>
+                setForm({ ...form, weekly_capacity_hours: e.target.value })
+              }
+            />
+          </div>
+        </div>
+        {error && <p className="text-sm text-destructive">{error}</p>}
+        <DialogFooter>
+          <Button
+            disabled={!form.full_name.trim() || saveMutation.isPending}
+            onClick={() => saveMutation.mutate()}
+          >
+            Save
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/** One-time reveal of a generated password, with copy. */
+function TempPasswordDialog({
+  info,
+  onClose,
+}: {
+  info: { label: string; value: string } | null;
+  onClose: () => void;
+}) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <Dialog open={!!info} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{info?.label}</DialogTitle>
+          <DialogDescription>
+            Share it over a secure channel; it won't be shown again. The person
+            should change it under Preferences after first sign-in.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex items-center gap-2">
+          <code className="flex-1 rounded-md border bg-muted px-3 py-2 font-mono text-sm">
+            {info?.value}
+          </code>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              if (info) void navigator.clipboard.writeText(info.value);
+              setCopied(true);
+              setTimeout(() => setCopied(false), 1500);
+            }}
+          >
+            <Copy className="h-4 w-4" /> {copied ? "Copied" : "Copy"}
+          </Button>
+        </div>
+        <DialogFooter>
+          <Button onClick={onClose}>Done</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
