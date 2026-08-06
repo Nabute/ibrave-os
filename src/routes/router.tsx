@@ -8,6 +8,7 @@ import {
 
 import { AppShell } from "@/components/AppShell";
 import { LoginScreen } from "@/features/auth/LoginScreen";
+import { MfaGate } from "@/features/auth/MfaGate";
 import { useSession } from "@/lib/session";
 
 function Root() {
@@ -25,7 +26,11 @@ function AuthenticatedLayout() {
     );
   }
   if (!userId) return <LoginScreen />;
-  return <AppShell />;
+  return (
+    <MfaGate>
+      <AppShell />
+    </MfaGate>
+  );
 }
 
 const rootRoute = createRootRoute({ component: Root });

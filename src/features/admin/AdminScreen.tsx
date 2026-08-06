@@ -445,6 +445,45 @@ export function AdminScreen() {
         </TabsContent>
 
         <TabsContent value="settings">
+          <Card className="mb-4">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Security — two-factor authentication</CardTitle>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                MFA is off by default. Pick the roles for which it is mandatory — anyone
+                holding one of them must enroll an authenticator app at next sign-in.
+                Individual people can also be mandated from the People tab (edit ✎).
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-1.5">
+                {ALL_ROLES.map((r) => {
+                  const current = settings?.mfa_required_roles ?? [];
+                  const on = current.includes(r);
+                  return (
+                    <button
+                      key={r}
+                      type="button"
+                      disabled={settingsMutation.isPending}
+                      onClick={() =>
+                        settingsMutation.mutate({
+                          mfa_required_roles: on
+                            ? current.filter((x) => x !== r)
+                            : [...current, r],
+                        })
+                      }
+                      className={`rounded-full border px-2.5 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                        on
+                          ? "border-transparent bg-primary text-primary-foreground"
+                          : "hover:bg-accent"
+                      }`}
+                    >
+                      {on ? "✓ " : ""}{r}
+                    </button>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg">Company settings</CardTitle>
@@ -662,6 +701,7 @@ function EditPersonDialog({
     title: person.title ?? "",
     employment_type: person.employment_type,
     weekly_capacity_hours: String(person.weekly_capacity_hours),
+    mfa_required: person.mfa_required ?? false,
   });
 
   const saveMutation = useMutation({
@@ -671,6 +711,7 @@ function EditPersonDialog({
         title: form.title.trim() || null,
         employment_type: form.employment_type,
         weekly_capacity_hours: Number(form.weekly_capacity_hours) || 40,
+        mfa_required: form.mfa_required,
       }),
     onSuccess: onSaved,
     onError: (e) => setError(toDisplayMessage(e)),
@@ -725,6 +766,21 @@ function EditPersonDialog({
               }
             />
           </div>
+          <label className="col-span-2 flex cursor-pointer items-center justify-between gap-4 rounded-md border px-4 py-3">
+            <span>
+              <span className="block text-sm font-medium">Require MFA</span>
+              <span className="block text-xs text-muted-foreground">
+                Must enroll an authenticator app at next sign-in (role-wide
+                mandates live in Company settings)
+              </span>
+            </span>
+            <input
+              type="checkbox"
+              className="h-4 w-4 accent-[hsl(var(--brass))]"
+              checked={form.mfa_required}
+              onChange={(e) => setForm({ ...form, mfa_required: e.target.checked })}
+            />
+          </label>
         </div>
         {error && <p className="text-sm text-destructive">{error}</p>}
         <DialogFooter>

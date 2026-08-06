@@ -24,7 +24,9 @@ export class AdminRepository extends BaseRepository {
   /** Admin edit of another person's profile (RLS: profiles_admin_all). */
   updatePerson(
     userId: string,
-    patch: Partial<Pick<Profile, "full_name" | "title" | "employment_type" | "weekly_capacity_hours">>
+    patch: Partial<
+      Pick<Profile, "full_name" | "title" | "employment_type" | "weekly_capacity_hours" | "mfa_required">
+    >
   ): Promise<Profile> {
     return this.query(
       this.db.from("profiles").update(patch).eq("id", userId).select().single()

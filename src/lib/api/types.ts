@@ -26,6 +26,7 @@ export interface Profile {
   active: boolean;
   timezone: string | null;
   preferences: UserPreferences;
+  mfa_required: boolean;
 }
 
 export interface UserPreferences {
@@ -35,6 +36,7 @@ export interface UserPreferences {
 
 export interface CompanySettings {
   company_name: string;
+  mfa_required_roles: string[];
   legal_name: string | null;
   tagline: string;
   address: string | null;

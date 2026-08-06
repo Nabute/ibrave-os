@@ -1,6 +1,12 @@
-import { useMutation } from "@tanstack/react-query";
-import { Check, Moon, Sun } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Check, Moon, ShieldCheck, Sun } from "lucide-react";
 import { useState } from "react";
+
+import { EnrollStep } from "@/features/auth/MfaGate";
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -244,6 +250,8 @@ export function PreferencesScreen() {
           </CardContent>
         </Card>
 
+        <SecurityCard />
+
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">
@@ -279,5 +287,87 @@ export function PreferencesScreen() {
         </Card>
       </div>
     </div>
+  );
+}
+
+/** Two-factor authentication: optional for everyone, mandatory when an admin
+ *  mandates it for your role or account (then the MFA gate enforces it). */
+function SecurityCard() {
+  const qc = useQueryClient();
+  const [enrolling, setEnrolling] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const { data: factors } = useQuery({
+    queryKey: ["mfa-factors"],
+    queryFn: async () => {
+      const { data, error: err } = await supabase.auth.mfa.listFactors();
+      if (err) throw new Error(err.message);
+      return data?.totp ?? [];
+    },
+  });
+  const { data: required } = useQuery({
+    queryKey: ["mfa-required"],
+    queryFn: async () => (await supabase.rpc("my_mfa_requirement")).data === true,
+  });
+
+  const verified = (factors ?? []).filter((f) => f.status === "verified");
+
+  const unenrollMutation = useMutation({
+    mutationFn: async (factorId: string) => {
+      const { error: err } = await supabase.auth.mfa.unenroll({ factorId });
+      if (err) throw new Error(err.message);
+    },
+    onSuccess: () => {
+      setError(null);
+      void qc.invalidateQueries({ queryKey: ["mfa-factors"] });
+    },
+    onError: (e) => setError(toDisplayMessage(e)),
+  });
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg">Two-factor authentication</CardTitle>
+        <CardDescription>
+          {required
+            ? "Mandatory for your role — you cannot disable it"
+            : "Optional — an authenticator app adds a second lock on your account"}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {error && <p className="text-sm text-destructive">{error}</p>}
+        {verified.length > 0 ? (
+          <div className="flex items-center justify-between rounded-md border px-4 py-3">
+            <span className="flex items-center gap-2 text-sm font-medium">
+              <ShieldCheck className="h-4 w-4 text-success" /> Authenticator app active
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={required || unenrollMutation.isPending}
+              title={required ? "MFA is mandated for your role" : undefined}
+              onClick={() => unenrollMutation.mutate(verified[0].id)}
+            >
+              Remove
+            </Button>
+          </div>
+        ) : (
+          <Button onClick={() => setEnrolling(true)}>
+            <ShieldCheck className="h-4 w-4" /> Set up authenticator app
+          </Button>
+        )}
+      </CardContent>
+
+      <Dialog open={enrolling} onOpenChange={(o) => !o && setEnrolling(false)}>
+        <DialogContent className="p-0">
+          <EnrollStep
+            onDone={() => {
+              setEnrolling(false);
+              void qc.invalidateQueries({ queryKey: ["mfa-factors"] });
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+    </Card>
   );
 }
