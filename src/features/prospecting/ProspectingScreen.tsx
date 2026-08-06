@@ -39,7 +39,7 @@ export function ProspectingScreen() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-2xl">Prospecting</h1>
+        <h1>Prospecting</h1>
         <p className="text-sm leading-relaxed text-muted-foreground">
           The system schedules the touches and remembers everything — a human presses
           send.

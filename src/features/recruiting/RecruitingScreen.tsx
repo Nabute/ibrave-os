@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { motion } from "framer-motion";
 import { Plus, UserRoundPlus } from "lucide-react";
 import { useState } from "react";
 
@@ -72,7 +71,7 @@ export function RecruitingScreen() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-2xl">Recruiting</h1>
+        <h1>Recruiting</h1>
         <p className="text-sm leading-relaxed text-muted-foreground">
           The supply side, run with the same rigor as sales. Your cheapest hire is one
           you already interviewed.
@@ -293,9 +292,8 @@ function PipelineTab({
               </div>
               <div className="min-h-24 space-y-2 rounded-lg bg-muted/50 p-2">
                 {stageCandidates.map((c) => (
-                  <motion.button
+                  <button
                     key={c.id}
-                    layout
                     onClick={() => onOpen(c)}
                     className={cn(
                       "w-full rounded-lg border bg-card p-3 text-left shadow-card transition-shadow",
@@ -307,7 +305,7 @@ function PipelineTab({
                       {c.requisitions?.role_title ?? c.skills.slice(0, 3).join(", ")}
                       {c.seniority && ` · ${c.seniority}`}
                     </p>
-                  </motion.button>
+                  </button>
                 ))}
                 {stageCandidates.length === 0 && (
                   <p className="px-1 py-3 text-center text-xs text-muted-foreground">

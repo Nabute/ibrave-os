@@ -10,8 +10,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['"Inter Variable"', "ui-sans-serif", "system-ui", "sans-serif"],
-        display: ['"Fraunces Variable"', "ui-serif", "Georgia", "serif"],
+        sans: ['"Instrument Sans Variable"', "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ['"Newsreader Variable"', "ui-serif", "Georgia", "serif"],
+        mono: ['"Geist Mono Variable"', "ui-monospace", "monospace"],
       },
       colors: {
         sidebar: {
@@ -36,16 +37,32 @@ export default {
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
+          subtle: "hsl(var(--destructive-subtle))",
           foreground: "hsl(var(--destructive-foreground))",
         },
         success: {
           DEFAULT: "hsl(var(--success))",
+          subtle: "hsl(var(--success-subtle))",
           foreground: "hsl(var(--success-foreground))",
         },
         warning: {
           DEFAULT: "hsl(var(--warning))",
+          subtle: "hsl(var(--warning-subtle))",
           foreground: "hsl(var(--warning-foreground))",
         },
+        info: {
+          DEFAULT: "hsl(var(--info))",
+          subtle: "hsl(var(--info-subtle))",
+        },
+        brass: {
+          DEFAULT: "hsl(var(--brass))",
+          foreground: "hsl(var(--brass-foreground))",
+        },
+        grid: {
+          line: "hsl(var(--grid-line))",
+          weekend: "hsl(var(--grid-weekend))",
+        },
+        "invoice-brand": "hsl(var(--invoice-brand))",
         muted: {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
@@ -63,16 +80,28 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
       },
-      boxShadow: {
-        // layered, brand-tinted elevation (no flat shadow-md)
-        card: "0 1px 2px hsl(200 30% 10% / 0.05), 0 8px 24px -16px hsl(200 30% 10% / 0.18)",
-        float:
-          "0 2px 4px hsl(200 30% 10% / 0.06), 0 16px 40px -16px hsl(200 30% 10% / 0.28)",
-      },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        lg: "var(--radius-lg)",
+        md: "var(--radius)",
+        DEFAULT: "var(--radius)",
+        sm: "var(--radius-sm)",
+      },
+      boxShadow: {
+        // Ledger: three recipes total. Cards are hairline-only (no shadow);
+        // raise is for sticky headers, float for things that leave the page.
+        raise: "0 1px 2px hsl(25 20% 12% / 0.06)",
+        float:
+          "0 8px 24px -8px hsl(25 20% 12% / 0.16), 0 1px 3px hsl(25 20% 12% / 0.07)",
+        // legacy aliases so existing call sites degrade gracefully
+        card: "none",
+      },
+      transitionTimingFunction: {
+        ledger: "cubic-bezier(0.2, 0, 0, 1)",
+      },
+      transitionDuration: {
+        fast: "110ms",
+        base: "160ms",
+        slow: "220ms",
       },
       keyframes: {
         "accordion-down": {

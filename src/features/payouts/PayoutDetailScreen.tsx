@@ -75,7 +75,7 @@ export function PayoutDetailScreen() {
     <div className="space-y-4">
       <div className="no-print flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl">
+          <h1>
             {statement.profiles?.full_name}{" "}
             <Badge variant={PAYOUT_BADGE[statement.status]} className="align-middle">
               {statement.status}

@@ -42,7 +42,7 @@ export function StaffingScreen() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-2xl">Staffing</h1>
+        <h1>Staffing</h1>
         <p className="text-sm leading-relaxed text-muted-foreground">
           Who is available, who is billable, and who fits the next request.
         </p>

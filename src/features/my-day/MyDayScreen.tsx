@@ -1,6 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { motion } from "framer-motion";
 import { ArrowRight, BellOff } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -8,16 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatMinor } from "@/lib/money";
 import { useApi, useSession } from "@/lib/session";
-
-const MCard = motion(Card);
-const fadeUp = {
-  hidden: { opacity: 0, y: 16 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { type: "spring", stiffness: 80, damping: 20 },
-  },
-} as const;
 
 export function MyDayScreen() {
   const api = useApi();
@@ -35,7 +24,7 @@ export function MyDayScreen() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">
+        <h1>
           Good morning, {profile?.full_name?.split(" ")[0]}
         </h1>
         <p className="text-sm text-muted-foreground">
@@ -43,14 +32,9 @@ export function MyDayScreen() {
         </p>
       </div>
 
-      <motion.div
-        className="grid gap-4 md:grid-cols-2 xl:grid-cols-3"
-        initial="hidden"
-        animate="show"
-        variants={{ show: { transition: { staggerChildren: 0.06 } } }}
-      >
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {day?.timesheet && (
-          <MCard variants={fadeUp}>
+          <Card className="transition-shadow duration-fast ease-ledger">
             <CardHeader className="pb-2">
               <CardDescription>This week's timesheet</CardDescription>
               <CardTitle className="text-xl">
@@ -77,11 +61,11 @@ export function MyDayScreen() {
                 </Link>
               </Button>
             </CardContent>
-          </MCard>
+          </Card>
         )}
 
         {day?.tasks && day.tasks.due_today > 0 && (
-          <MCard variants={fadeUp}>
+          <Card className="transition-shadow duration-fast ease-ledger">
             <CardHeader className="pb-2">
               <CardDescription>Task queue</CardDescription>
               <CardTitle className="text-xl">
@@ -99,11 +83,11 @@ export function MyDayScreen() {
                 </Link>
               </Button>
             </CardContent>
-          </MCard>
+          </Card>
         )}
 
         {day?.approvals && day.approvals.pending_count > 0 && (
-          <MCard variants={fadeUp}>
+          <Card className="transition-shadow duration-fast ease-ledger">
             <CardHeader className="pb-2">
               <CardDescription>Approvals queue</CardDescription>
               <CardTitle className="text-xl">
@@ -122,11 +106,11 @@ export function MyDayScreen() {
                 </Link>
               </Button>
             </CardContent>
-          </MCard>
+          </Card>
         )}
 
         {day?.finance && (
-          <MCard variants={fadeUp}>
+          <Card className="transition-shadow duration-fast ease-ledger">
             <CardHeader className="pb-2">
               <CardDescription>Finance</CardDescription>
               <CardTitle className="text-xl">
@@ -157,11 +141,11 @@ export function MyDayScreen() {
                 )}
               </div>
             </CardContent>
-          </MCard>
+          </Card>
         )}
 
         {day?.pulse && (
-          <MCard variants={fadeUp}>
+          <Card className="transition-shadow duration-fast ease-ledger">
             <CardHeader className="pb-2">
               <CardDescription>Company pulse</CardDescription>
               <CardTitle className="text-xl">
@@ -177,9 +161,9 @@ export function MyDayScreen() {
                 submitted last week
               </p>
             </CardContent>
-          </MCard>
+          </Card>
         )}
-      </motion.div>
+      </div>
 
       <Card>
         <CardHeader className="pb-2">

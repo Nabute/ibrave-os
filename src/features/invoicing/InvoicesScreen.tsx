@@ -78,7 +78,7 @@ export function InvoicesScreen() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Invoices</h1>
+          <h1>Invoices</h1>
           <p className="text-sm text-muted-foreground">
             The system prepares drafts; you review and issue the ones that move money.
           </p>

@@ -162,7 +162,7 @@ export function InvoiceDetailScreen() {
     <div className="space-y-4">
       <div className="no-print flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold">
+          <h1>
             {invoice.number ?? "Draft invoice"}{" "}
             <Badge variant={INVOICE_BADGE[invoice.status]} className="align-middle">
               {invoice.status}

@@ -75,7 +75,7 @@ export function ApprovalsScreen() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-2xl font-semibold">Approvals</h1>
+        <h1>Approvals</h1>
         <p className="text-sm text-muted-foreground">
           Submitted timesheets on your projects. Approval is final — corrections
           afterwards are adjustment entries.

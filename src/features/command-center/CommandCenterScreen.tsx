@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { motion } from "framer-motion";
 import { Activity, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -29,15 +28,6 @@ import { formatMinor } from "@/lib/money";
 import { useApi } from "@/lib/session";
 import { cn } from "@/lib/utils";
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 14 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { type: "spring", stiffness: 80, damping: 20 },
-  },
-} as const;
-
 const HEALTH_DOT: Record<HealthLight, string> = {
   green: "bg-success-foreground",
   yellow: "bg-warning-foreground",
@@ -50,7 +40,7 @@ export function CommandCenterScreen() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-2xl">Command Center</h1>
+        <h1>Command Center</h1>
         <p className="text-sm leading-relaxed text-muted-foreground">
           Complete, drill-down transparency — every number links to the records that
           produced it. No dead ends.
@@ -156,14 +146,9 @@ function PulseTab() {
   ];
 
   return (
-    <motion.div
-      className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-      initial="hidden"
-      animate="show"
-      variants={{ show: { transition: { staggerChildren: 0.04 } } }}
-    >
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {tiles.map((t) => (
-        <motion.div key={t.label} variants={fadeUp}>
+        <div key={t.label}>
           <Link to={t.to} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg">
             <Card
               className={cn(
@@ -182,9 +167,9 @@ function PulseTab() {
               )}
             </Card>
           </Link>
-        </motion.div>
+        </div>
       ))}
-    </motion.div>
+    </div>
   );
 }
 

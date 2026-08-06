@@ -27,10 +27,10 @@ export function LoginScreen() {
         <div
           aria-hidden
           className="pointer-events-none absolute -right-40 -top-40 h-[32rem] w-[32rem] rounded-full opacity-25 blur-3xl"
-          style={{ background: "hsl(var(--sidebar-active))" }}
+          style={{ background: "hsl(var(--brass))" }}
         />
         <div className="relative flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sidebar-active font-display text-xl leading-none text-white">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brass font-display text-xl leading-none text-brass-foreground">
             i
           </div>
           <span className="font-display text-xl tracking-tight">iBrave&nbsp;OS</span>

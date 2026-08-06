@@ -239,7 +239,7 @@ export function AdminScreen() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-semibold">Admin</h1>
+      <h1>Admin</h1>
       {error && (
         <p className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {error}

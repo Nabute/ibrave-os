@@ -56,7 +56,7 @@ export function ReportsScreen() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-semibold">Reports</h1>
+      <h1>Reports</h1>
       <Tabs defaultValue="unbilled">
         <TabsList>
           <TabsTrigger value="unbilled">Unbilled work</TabsTrigger>

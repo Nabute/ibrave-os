@@ -40,6 +40,18 @@ in-app **calendar** handles scheduling (meetings, account check-ins, interview
 rounds); external attendees receive real ICS calendar invites by email. Users
 never need an outside mail client or calendar.
 
+## Design system — "Ledger"
+
+The UI follows the Ledger design proposal: warm paper + true ink with a single
+brass accent, hairline rules instead of shadows (elevation reserved for
+dialogs/popovers), Instrument Sans for UI, Newsreader for page titles, Geist
+Mono for every numeral (tabular, right-aligned), a 5-kind status-badge system
+(neutral/progress/positive/attention/critical, subtle emphasis), and CSS
+transitions under 220ms on one easing token. All of it lives in the CSS
+variables in `src/index.css` and `tailwind.config.js`. The invoice document
+keeps its own approved brand teal via `--invoice-brand`, independent of the
+UI theme.
+
 ## Architecture
 
 **Backend = Supabase.** Postgres is the single source of truth; RLS enforces the

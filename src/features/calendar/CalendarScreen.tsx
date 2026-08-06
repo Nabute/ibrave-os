@@ -67,7 +67,7 @@ export function CalendarScreen() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl">Calendar</h1>
+          <h1>Calendar</h1>
           <p className="text-sm leading-relaxed text-muted-foreground">
             Meetings, check-ins and interviews — scheduled here, invites emailed with a
             proper calendar attachment.

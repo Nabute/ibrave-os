@@ -1,73 +1,104 @@
-@import "@fontsource-variable/inter";
-@import "@fontsource-variable/fraunces";
+@import "@fontsource-variable/instrument-sans";
+@import "@fontsource-variable/newsreader";
+@import "@fontsource-variable/geist-mono";
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /*
- * iBrave OS theme — warm stone neutrals, deep teal primary, serif display.
- * Tokens follow the shadcn convention so every primitive inherits the look.
+ * "Ledger" — the quiet authority of a well-kept book (design proposal v1).
+ * Warm paper, true ink, one brass accent spent like money. Hairline rules do
+ * the work shadows used to; every number is monospaced. Tokens follow shadcn
+ * naming plus four additive families: brass, *-subtle, sidebar-*, grid-*.
  */
 @layer base {
   :root {
-    --background: 40 25% 97%;
-    --foreground: 205 30% 13%;
-    --card: 0 0% 100%;
-    --card-foreground: 205 30% 13%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 205 30% 13%;
-    --primary: 172 48% 21%;
-    --primary-foreground: 40 40% 97%;
-    --secondary: 42 25% 92%;
-    --secondary-foreground: 200 25% 18%;
-    --muted: 42 20% 93%;
-    --muted-foreground: 205 12% 42%;
-    --accent: 168 30% 90%;
-    --accent-foreground: 172 48% 18%;
-    --destructive: 0 62% 44%;
-    --destructive-foreground: 40 40% 97%;
-    --success: 160 45% 92%;
-    --success-foreground: 163 50% 22%;
-    --warning: 42 85% 91%;
-    --warning-foreground: 34 60% 30%;
-    --border: 40 15% 87%;
-    --input: 40 15% 84%;
-    --ring: 172 48% 30%;
-    --radius: 0.65rem;
-
-    /* fixed sidebar palette (same in both themes) */
-    --sidebar: 200 32% 10%;
-    --sidebar-foreground: 40 20% 88%;
-    --sidebar-muted: 202 15% 58%;
-    --sidebar-active: 168 42% 36%;
-    --sidebar-border: 201 25% 18%;
+    --background: 40 22% 96%;          /* paper */
+    --foreground: 25 15% 11%;          /* ink — 14.9:1 */
+    --card: 42 40% 98.5%;
+    --card-foreground: 25 15% 11%;
+    --popover: 42 45% 99.5%;
+    --popover-foreground: 25 15% 11%;
+    --muted: 38 18% 92%;
+    --muted-foreground: 28 8% 40%;     /* 6.4:1 */
+    --border: 34 16% 85%;
+    --input: 34 16% 82%;
+    --primary: 25 15% 11%;             /* ink fill */
+    --primary-foreground: 40 30% 96%;
+    --secondary: 38 18% 90%;
+    --secondary-foreground: 25 15% 11%;
+    --accent: 38 18% 93%;              /* row/menu hover */
+    --accent-foreground: 25 15% 11%;
+    --brass: 34 58% 44%;               /* the signal — one job */
+    --brass-foreground: 42 40% 98%;
+    --ring: 34 58% 44%;
+    --success: 152 32% 30%;
+    --success-subtle: 152 28% 92%;
+    --success-foreground: 152 32% 30%;
+    --warning: 32 70% 34%;
+    --warning-subtle: 38 70% 91%;
+    --warning-foreground: 32 70% 34%;
+    --destructive: 6 55% 40%;
+    --destructive-subtle: 6 60% 95%;
+    --destructive-foreground: 42 40% 98%;
+    --info: 214 32% 34%;
+    --info-subtle: 214 35% 93%;
+    --sidebar: 28 12% 12%;             /* warm charcoal slab, both themes */
+    --sidebar-foreground: 36 8% 66%;
+    --sidebar-active: 30 10% 17%;
+    --sidebar-border: 30 10% 18%;
+    --sidebar-muted: 36 8% 52%;
+    --grid-line: 34 16% 91%;
+    --grid-weekend: 38 16% 94%;
+    --invoice-brand: 187 33% 20%;      /* the approved invoice template teal */
+    --radius: 0.375rem;
+    --radius-sm: 0.25rem;
+    --radius-lg: 0.5rem;
+    --ease: cubic-bezier(0.2, 0, 0, 1);
+    --dur-fast: 110ms;
+    --dur-base: 160ms;
+    --dur-slow: 220ms;
   }
 
   .dark {
-    --background: 202 28% 8%;
-    --foreground: 40 25% 92%;
-    --card: 201 26% 11%;
-    --card-foreground: 40 25% 92%;
-    --popover: 201 26% 11%;
-    --popover-foreground: 40 25% 92%;
-    --primary: 168 45% 48%;
-    --primary-foreground: 202 30% 8%;
-    --secondary: 201 20% 16%;
-    --secondary-foreground: 40 25% 92%;
-    --muted: 201 20% 15%;
-    --muted-foreground: 202 12% 62%;
-    --accent: 172 30% 20%;
-    --accent-foreground: 168 40% 80%;
-    --destructive: 0 55% 42%;
-    --destructive-foreground: 40 25% 95%;
-    --success: 163 35% 18%;
-    --success-foreground: 160 40% 75%;
-    --warning: 38 45% 20%;
-    --warning-foreground: 42 70% 75%;
-    --border: 201 20% 18%;
-    --input: 201 20% 22%;
-    --ring: 168 45% 48%;
+    --background: 30 8% 9%;
+    --foreground: 40 18% 92%;
+    --card: 30 8% 12%;
+    --card-foreground: 40 18% 92%;
+    --popover: 30 8% 14%;
+    --popover-foreground: 40 18% 92%;
+    --muted: 30 7% 16%;
+    --muted-foreground: 36 8% 62%;
+    --border: 30 7% 21%;
+    --input: 30 7% 26%;
+    --primary: 40 20% 92%;
+    --primary-foreground: 30 10% 10%;
+    --secondary: 30 7% 18%;
+    --secondary-foreground: 40 18% 92%;
+    --accent: 30 7% 17%;
+    --accent-foreground: 40 18% 92%;
+    --brass: 38 62% 58%;
+    --brass-foreground: 30 10% 10%;
+    --ring: 38 62% 58%;
+    --success: 150 34% 62%;
+    --success-subtle: 152 22% 16%;
+    --success-foreground: 150 34% 62%;
+    --warning: 36 70% 62%;
+    --warning-subtle: 34 30% 16%;
+    --warning-foreground: 36 70% 62%;
+    --destructive: 8 62% 64%;
+    --destructive-subtle: 6 30% 17%;
+    --destructive-foreground: 30 10% 10%;
+    --info: 212 44% 68%;
+    --info-subtle: 214 26% 17%;
+    --sidebar: 28 10% 8%;
+    --sidebar-foreground: 36 8% 64%;
+    --sidebar-active: 30 10% 15%;
+    --sidebar-border: 30 10% 14%;
+    --sidebar-muted: 36 8% 46%;
+    --grid-line: 30 7% 18%;
+    --grid-weekend: 30 7% 12%;
   }
 }
 
@@ -77,19 +108,64 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-family: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
   }
+  /* Page titles: Newsreader 400 · 30/34 · -0.015em (display axis, dry cut) */
   h1 {
-    font-family: "Fraunces Variable", ui-serif, Georgia, serif;
-    font-variation-settings: "opsz" 40, "SOFT" 40;
+    font-family: "Newsreader Variable", ui-serif, Georgia, serif;
+    font-weight: 400;
+    font-size: 30px;
+    line-height: 34px;
     letter-spacing: -0.015em;
-    font-weight: 560;
+    font-variation-settings: "opsz" 18;
   }
   .font-display {
-    font-family: "Fraunces Variable", ui-serif, Georgia, serif;
-    font-variation-settings: "opsz" 40, "SOFT" 40;
+    font-family: "Newsreader Variable", ui-serif, Georgia, serif;
+    font-weight: 400;
     letter-spacing: -0.015em;
+  }
+  /* Every quantity is typeset: mono, tabular, right where it lives */
+  .num {
+    font-family: "Geist Mono Variable", ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+  /* Mono caps micro-labels (column heads, group labels, card descriptions) */
+  .label-caps {
+    font-family: "Geist Mono Variable", ui-monospace, monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  ::selection {
+    background: hsl(var(--brass) / 0.25);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      transition-duration: 1ms !important;
+      animation-duration: 1ms !important;
+    }
+  }
+}
+
+@layer utilities {
+  /* Ledger: every quantity is typeset. The app already marks numerics with
+     `tabular-nums`; widening that utility to Geist Mono monospaces every
+     number in one move (spec: mono tabular, right-aligned). */
+  .tabular-nums {
+    font-family: "Geist Mono Variable", ui-monospace, monospace;
+    font-size: 0.95em;
+  }
+
+  /* "Just saved" cell flash — brass 8% out over 480ms */
+  @keyframes saved-flash {
+    from { background-color: hsl(var(--brass) / 0.08); }
+    to { background-color: transparent; }
+  }
+  .saved-flash {
+    animation: saved-flash 480ms var(--ease);
   }
 }
 

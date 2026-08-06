@@ -81,7 +81,7 @@ export function PayoutsScreen() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl">Payouts</h1>
+          <h1>Payouts</h1>
           <p className="text-sm leading-relaxed text-muted-foreground">
             Statements are computed from the same approved hours your invoices bill —
             margin falls out for free.

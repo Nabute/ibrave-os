@@ -36,7 +36,7 @@ export function PeopleScreen() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-2xl">People</h1>
+        <h1>People</h1>
         <p className="text-sm leading-relaxed text-muted-foreground">
           Who we have, what they've done, and who can be placed tomorrow — one search
           away.

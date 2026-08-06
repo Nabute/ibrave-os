@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { motion } from "framer-motion";
 import { Plus, TrendingUp } from "lucide-react";
 import { useState } from "react";
 
@@ -105,7 +104,7 @@ export function SalesScreen() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl">Sales</h1>
+          <h1>Sales</h1>
           <p className="text-sm leading-relaxed text-muted-foreground">
             <TrendingUp className="mr-1 inline h-4 w-4 align-text-bottom" />
             Weighted pipeline {formatMinor(weighted, "USD")}
@@ -214,9 +213,8 @@ export function SalesScreen() {
                   </div>
                   <div className="space-y-2 rounded-lg bg-muted/50 p-2 min-h-24">
                     {stageLeads.map((lead) => (
-                      <motion.button
+                      <button
                         key={lead.id}
-                        layout
                         onClick={() => setOpenLead(lead)}
                         className={cn(
                           "w-full rounded-lg border bg-card p-3 text-left shadow-card transition-shadow",
@@ -235,7 +233,7 @@ export function SalesScreen() {
                             starts {lead.expected_start}
                           </p>
                         )}
-                      </motion.button>
+                      </button>
                     ))}
                     {stageLeads.length === 0 && (
                       <p className="px-1 py-3 text-center text-xs text-muted-foreground">empty</p>

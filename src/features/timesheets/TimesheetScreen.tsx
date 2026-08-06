@@ -180,7 +180,7 @@ export function TimesheetScreen() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold">My Timesheet</h1>
+          <h1>My Timesheet</h1>
           <p className="text-sm text-muted-foreground">
             0.25 h steps · drafts save on blur · submit locks the week for approval
           </p>
@@ -223,11 +223,19 @@ export function TimesheetScreen() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b text-left text-muted-foreground">
-                  <th className="w-64 py-2 pr-2 font-medium">Project / Task</th>
+                  <th className="label-caps w-64 py-2 pr-2 text-left">Project / Task</th>
                   {days.map((d, i) => (
-                    <th key={d} className="w-20 px-1 py-2 text-center font-medium">
+                    <th
+                      key={d}
+                      className={cn(
+                        "label-caps w-20 px-1 py-2 text-center",
+                        i >= 5 && "bg-grid-weekend"
+                      )}
+                    >
                       {DAY_LABELS[i]}
-                      <div className="text-xs font-normal">{d.slice(5)}</div>
+                      <div className="num mt-0.5 text-[10px] normal-case tracking-normal">
+                        {d.slice(5)}
+                      </div>
                     </th>
                   ))}
                   <th className="w-16 py-2 text-right font-medium">Σ</th>
@@ -247,11 +255,14 @@ export function TimesheetScreen() {
                           <div className="text-xs text-muted-foreground">{row.taskName}</div>
                         )}
                       </td>
-                      {days.map((d) => {
+                      {days.map((d, di) => {
                         const entry = entryAt(row, d);
                         const locked = entry && entry.status !== "draft";
                         return (
-                          <td key={d} className="px-1 py-1 text-center">
+                          <td
+                            key={d}
+                            className={cn("px-1 py-1 text-center", di >= 5 && "bg-grid-weekend")}
+                          >
                             <HourCell
                               value={entry ? Number(entry.hours) : 0}
                               locked={!!locked}
@@ -281,7 +292,7 @@ export function TimesheetScreen() {
                         key={d}
                         className={cn(
                           "py-2 text-center text-xs font-medium tabular-nums",
-                          total > 12 && "text-warning-foreground"
+                          total > 12 && "font-semibold text-warning"
                         )}
                       >
                         {total > 0 ? total : ""}
@@ -347,12 +358,16 @@ function HourCell({
   const [text, setText] = useState(value > 0 ? String(value) : "");
 
   if (locked) {
+    // Ledger cell states: a 2px left rail carries the state's kind color;
+    // the figure itself stays ink. Read-only, no hover.
     return (
       <span
         className={cn(
-          "inline-block w-14 rounded px-1 py-1 tabular-nums",
-          status === "approved" && "bg-success text-success-foreground",
-          status === "submitted" && "bg-warning text-warning-foreground"
+          "inline-block w-14 rounded-sm px-1 py-1 tabular-nums",
+          status === "approved" &&
+            "bg-success-subtle/60 shadow-[inset_2px_0_0_hsl(var(--success))]",
+          status === "submitted" &&
+            "bg-info-subtle/60 shadow-[inset_2px_0_0_hsl(var(--info))]"
         )}
         title={status}
       >
@@ -363,7 +378,7 @@ function HourCell({
 
   return (
     <input
-      className="w-14 rounded border border-transparent bg-transparent px-1 py-1 text-center tabular-nums outline-none transition-colors hover:border-input focus:border-ring focus:bg-background"
+      className="w-14 rounded-sm border border-transparent bg-transparent px-1 py-1 text-center tabular-nums outline-none transition-shadow duration-fast ease-ledger hover:border-grid-line focus:bg-popover focus:shadow-[inset_0_0_0_2px_hsl(var(--brass))]"
       value={text}
       inputMode="decimal"
       onChange={(e) => setText(e.target.value)}

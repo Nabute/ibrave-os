@@ -30,7 +30,7 @@ export function ProjectsScreen() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-semibold">Projects</h1>
+      <h1>Projects</h1>
       <Card>
         <CardContent className="pt-4">
           <Table>

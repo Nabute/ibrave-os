@@ -43,16 +43,16 @@ export function InvoiceDocument({
   return (
     <div className="rounded-lg border bg-card shadow-card print:rounded-none print:border-0 print:shadow-none">
       {/* Header band */}
-      <div className="flex items-start justify-between bg-sidebar px-8 py-6 text-sidebar-foreground print:-mx-0">
+      <div className="flex items-start justify-between bg-invoice-brand px-8 py-6 text-white/80 print:-mx-0">
         <div>
           <p className="font-display text-2xl font-semibold text-white">
             {settings?.company_name ?? "iBrave"}
           </p>
-          <p className="mt-0.5 text-sm text-sidebar-muted">{settings?.tagline}</p>
+          <p className="mt-0.5 text-sm text-white/60">{settings?.tagline}</p>
         </div>
         <div className="text-right">
           <p className="font-display text-3xl font-bold tracking-wide text-white">{title}</p>
-          <p className="mt-1 text-xs text-sidebar-muted">
+          <p className="mt-1 text-xs text-white/60">
             No. {invoice.number ?? "DRAFT"}
           </p>
         </div>
@@ -110,7 +110,7 @@ export function InvoiceDocument({
         {/* Line table */}
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-sidebar text-left text-sidebar-foreground">
+            <tr className="bg-invoice-brand text-left text-white/90">
               <th className="w-8 px-3 py-2 text-xs font-bold">#</th>
               <th className="px-3 py-2 text-xs font-bold">Description</th>
               <th className="px-3 py-2 text-right text-xs font-bold">Hours/Qty</th>
@@ -191,7 +191,7 @@ export function InvoiceDocument({
                   {money(invoice.tax_total_minor)}
                 </td>
               </tr>
-              <tr className="border bg-sidebar text-white">
+              <tr className="border bg-invoice-brand text-white">
                 <td className="px-3 py-2 text-right font-bold">Total due</td>
                 <td className="px-3 py-2 text-right font-bold tabular-nums">
                   {money(invoice.total_minor)}

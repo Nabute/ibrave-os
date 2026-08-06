@@ -82,7 +82,7 @@ export function ClientDetailScreen() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="flex items-center gap-3 text-2xl">
+          <h1 className="flex items-center gap-3">
             {client.name}
             <Badge variant="outline" className="uppercase">tier {client.tier}</Badge>
             {health && (
