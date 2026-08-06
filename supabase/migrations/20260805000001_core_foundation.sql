@@ -129,7 +129,7 @@ create trigger on_auth_user_created
 -- ----------------------------------------------------------------------------
 create table public.company_settings (
   id                     boolean primary key default true check (id), -- singleton
-  company_name           text not null default 'iBrave',
+  company_name           text not null default 'ibrave',
   legal_name             text,
   address                text,
   logo_url               text,

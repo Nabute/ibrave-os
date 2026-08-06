@@ -1,4 +1,4 @@
-# iBrave OS — Role & Permission Matrix
+# ibrave OS — Role & Permission Matrix
 
 Derived from the enforced sources of truth: RLS policies (`supabase/migrations/*`),
 the `workflow_transitions` FSM table, and `has_role()`. Nothing in this document

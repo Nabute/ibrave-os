@@ -28,9 +28,9 @@ create policy email_identities_admin on public.email_identities
 -- Demo defaults — replace with your real department addresses (the domain
 -- must be verified in Resend).
 insert into public.email_identities (email, display_name, kind, allowed_roles) values
-  ('talent@ibrave.co',  'iBrave Talent',  'department', array['recruiter']::public.app_role[]),
-  ('finance@ibrave.co', 'iBrave Finance', 'department', array['finance']::public.app_role[]),
-  ('sales@ibrave.co',   'iBrave Sales',   'department', array['sales', 'account_owner']::public.app_role[]);
+  ('talent@ibrave.co',  'ibrave Talent',  'department', array['recruiter']::public.app_role[]),
+  ('finance@ibrave.co', 'ibrave Finance', 'department', array['finance']::public.app_role[]),
+  ('sales@ibrave.co',   'ibrave Sales',   'department', array['sales', 'account_owner']::public.app_role[]);
 
 -- May p_user send as p_email? Their own login email always; a department
 -- identity when a role matches (owner/admin pass everything).

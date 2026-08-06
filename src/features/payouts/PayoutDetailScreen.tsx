@@ -121,7 +121,7 @@ export function PayoutDetailScreen() {
         <CardContent className="pt-6">
           <div className="mb-6 flex justify-between">
             <div>
-              <p className="font-display text-lg">iBrave</p>
+              <p className="font-display text-lg">ibrave</p>
               <p className="text-sm text-muted-foreground">Contractor payout statement</p>
             </div>
             <div className="text-right text-sm">

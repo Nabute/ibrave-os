@@ -89,7 +89,7 @@ const pmId = mePm.user.id;
   let { data: ident } = await owner.from("email_identities").select("*").eq("email", "talent@ibrave.co").maybeSingle();
   if (!ident) {
     const ins = await owner.from("email_identities").insert({
-      email: "talent@ibrave.co", display_name: "iBrave Talent", kind: "department",
+      email: "talent@ibrave.co", display_name: "ibrave Talent", kind: "department",
       allowed_roles: ["recruiter"], active: true,
     }).select().single();
     expectOk("create talent@ department identity", ins.error);

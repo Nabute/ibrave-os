@@ -105,7 +105,7 @@ function EmailIdentitiesTab() {
                 className="w-48"
                 value={form.display_name}
                 onChange={(e) => setForm({ ...form, display_name: e.target.value })}
-                placeholder="iBrave Talent"
+                placeholder="ibrave Talent"
               />
             </div>
             <div className="space-y-1">

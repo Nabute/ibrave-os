@@ -1,4 +1,4 @@
-// Server-side invoice PDF — mirrors the official iBrave template: teal header
+// Server-side invoice PDF — mirrors the official ibrave template: teal header
 // band, FROM/BILL TO boxes, meta grid, detailed line table, Total-due band,
 // payment instructions, issued-by block. All content is data-driven.
 import { PDFDocument, PDFFont, PDFPage, StandardFonts, rgb } from "npm:pdf-lib@1.17.1";

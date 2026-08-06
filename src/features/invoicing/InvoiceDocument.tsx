@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import type { CompanySettings, Invoice } from "@/lib/api";
 
 /**
- * The branded invoice document — mirrors the official iBrave template
+ * The branded invoice document — mirrors the official ibrave template
  * (teal header band, FROM/BILL TO boxes, meta grid, detailed line table,
  * totals with Total-due band, payment instructions, issued-by block).
  * Every field is data-driven: company_settings, clients, and the invoice.
@@ -47,7 +47,7 @@ export function InvoiceDocument({
       <div className="flex items-start justify-between bg-invoice-brand px-8 py-6 text-white/80 print:-mx-0">
         <div>
           <p className="font-display text-2xl font-semibold text-white">
-            {settings?.company_name ?? "iBrave"}
+            {settings?.company_name ?? "ibrave"}
           </p>
           <p className="mt-0.5 text-sm text-white/60">{settings?.tagline}</p>
         </div>

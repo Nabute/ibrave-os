@@ -64,7 +64,7 @@ Deno.serve(async (req) => {
   if (identErr || !allowed) {
     return json({ error: `You are not allowed to send as ${fromEmail}` }, 403);
   }
-  let fromName = payload.from_name ?? profile?.full_name ?? "iBrave";
+  let fromName = payload.from_name ?? profile?.full_name ?? "ibrave";
   if (payload.from_email && payload.from_email !== profile?.email) {
     const { data: ident } = await db
       .from("email_identities")
@@ -114,7 +114,7 @@ Deno.serve(async (req) => {
 
   const signedHtml = `${payload.html}
     <p style="color:#6b7280;font-size:13px;margin-top:24px">
-      ${profile?.full_name ?? "iBrave"} · iBrave</p>`;
+      ${profile?.full_name ?? "ibrave"} · ibrave</p>`;
 
   const result = await sendEmailRaw({
     from: `${fromName} <${fromEmail}>`,
@@ -203,7 +203,7 @@ function buildIcs(event: EventRow, organizerEmail: string): string {
   return [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//iBrave OS//EN",
+    "PRODID:-//ibrave OS//EN",
     "METHOD:REQUEST",
     "BEGIN:VEVENT",
     `UID:${event.id}@ibrave-os`,
@@ -213,7 +213,7 @@ function buildIcs(event: EventRow, organizerEmail: string): string {
     `SUMMARY:${esc(event.title)}`,
     event.description ? `DESCRIPTION:${esc(event.description)}` : "",
     event.location ? `LOCATION:${esc(event.location)}` : "",
-    `ORGANIZER;CN=iBrave:mailto:${organizerEmail}`,
+    `ORGANIZER;CN=ibrave:mailto:${organizerEmail}`,
     attendees,
     "END:VEVENT",
     "END:VCALENDAR",

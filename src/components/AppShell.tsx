@@ -164,7 +164,7 @@ export function AppShell() {
           )}
         >
           {!collapsed && (
-            <span className="font-display text-lg text-white">iBrave&nbsp;OS</span>
+            <span className="font-display text-lg text-white">ibrave&nbsp;OS</span>
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}

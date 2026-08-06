@@ -73,7 +73,7 @@ function Shell({ title, sub, children }: { title: string; sub: string; children:
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brass text-brass-foreground">
             <ShieldCheck className="h-5 w-5" />
           </div>
-          <span className="font-display text-xl tracking-tight">iBrave&nbsp;OS</span>
+          <span className="font-display text-xl tracking-tight">ibrave&nbsp;OS</span>
         </div>
         <h1 className="font-display text-2xl tracking-tight">{title}</h1>
         <p className="mb-6 mt-1.5 text-sm leading-relaxed text-muted-foreground">{sub}</p>

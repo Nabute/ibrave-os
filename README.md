@@ -1,4 +1,4 @@
-# iBrave OS — Outsourcing Business Automation Platform
+# ibrave OS — Outsourcing Business Automation Platform
 
 Internal platform for a 10–50 person outsourcing company. **All ten phases of
 the [blueprint](docs/outsourcing-automation-blueprint.md) are implemented:**

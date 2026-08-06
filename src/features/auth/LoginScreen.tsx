@@ -33,7 +33,7 @@ export function LoginScreen() {
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brass font-display text-xl leading-none text-brass-foreground">
             i
           </div>
-          <span className="font-display text-xl tracking-tight">iBrave&nbsp;OS</span>
+          <span className="font-display text-xl tracking-tight">ibrave&nbsp;OS</span>
         </div>
         <div className="relative max-w-md">
           <h1 className="font-display text-[44px] leading-[1.05] tracking-[-0.02em] text-white">
@@ -45,7 +45,7 @@ export function LoginScreen() {
           </p>
         </div>
         <p className="relative text-xs text-sidebar-muted">
-          © {new Date().getFullYear()} iBrave — internal platform
+          © {new Date().getFullYear()} ibrave — internal platform
         </p>
       </div>
 
@@ -53,7 +53,7 @@ export function LoginScreen() {
       <div className="flex flex-1 items-center justify-center bg-background p-6">
         <div className="w-full max-w-sm">
           <div className="mb-8 lg:hidden">
-            <span className="font-display text-2xl tracking-tight">iBrave&nbsp;OS</span>
+            <span className="font-display text-2xl tracking-tight">ibrave&nbsp;OS</span>
           </div>
           <h2 className="font-display text-2xl tracking-tight">Welcome back</h2>
           <p className="mb-8 mt-1.5 text-sm text-muted-foreground">

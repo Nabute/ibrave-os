@@ -254,7 +254,7 @@ export function CandidateDialog({
           open={emailing}
           onClose={() => setEmailing(false)}
           to={candidate.email ? [candidate.email] : []}
-          subject={`iBrave — next steps`}
+          subject={`ibrave — next steps`}
           related={{ candidate_id: candidate.id }}
           onSent={invalidate}
         />
@@ -617,7 +617,7 @@ function ScheduleInterviewDialog({
       if (form.emailCandidate && candidate.email) {
         await api.comms.sendEmail({
           to: [candidate.email],
-          subject: `Interview with iBrave — ${form.date} ${form.start}`,
+          subject: `Interview with ibrave — ${form.date} ${form.start}`,
           html: `<p>Hi ${candidate.full_name.split(" ")[0]},</p>
                  <p>Your interview (round ${round.round_no}) is scheduled for
                  <strong>${form.date}, ${form.start}–${form.end}</strong>${
