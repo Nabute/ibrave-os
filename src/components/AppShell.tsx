@@ -221,7 +221,9 @@ export function AppShell() {
       </aside>
 
       <main className="min-w-0 flex-1">
-        <div className="mx-auto max-w-6xl p-6 lg:p-10">
+        {/* Full-bleed workspace: a dense daily tool earns the whole monitor.
+            The soft cap only kicks in on ultrawides. */}
+        <div className="mx-auto w-full max-w-[1800px] p-6 lg:px-10 lg:py-8">
           <Outlet />
         </div>
       </main>

@@ -57,6 +57,8 @@ export function PersonDetailScreen() {
   const mySkills = (skills ?? []).filter((s) => s.user_id === personId);
   const myRates = (costRates ?? []).filter((r) => r.user_id === personId);
   const myTimeOff = (timeOff ?? []).filter((t) => t.user_id === personId);
+  const hasSideCards =
+    (hasRole("finance") && myRates.length > 0) || myTimeOff.length > 0;
 
   return (
     <div className="space-y-4">
@@ -124,8 +126,10 @@ export function PersonDetailScreen() {
         </CardContent>
       </Card>
 
+      {/* Utilization spans the free space when there are no side cards —
+          no half-empty rows on wide screens. */}
       <div className="no-print grid gap-4 lg:grid-cols-2">
-        <Card>
+        <Card className={!hasSideCards ? "lg:col-span-2" : ""}>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">Utilization (approved h)</CardTitle>
           </CardHeader>
@@ -148,6 +152,7 @@ export function PersonDetailScreen() {
           </CardContent>
         </Card>
 
+        {hasSideCards && (
         <div className="space-y-4">
           {hasRole("finance") && myRates.length > 0 && (
             <Card>
@@ -187,6 +192,7 @@ export function PersonDetailScreen() {
             </Card>
           )}
         </div>
+        )}
       </div>
     </div>
   );

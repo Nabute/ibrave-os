@@ -117,7 +117,7 @@ export function PayoutDetailScreen() {
         </p>
       )}
 
-      <Card className="print:border-0 print:shadow-none">
+      <Card className="mx-auto w-full max-w-[920px] print:max-w-none print:border-0 print:shadow-none">
         <CardContent className="pt-6">
           <div className="mb-6 flex justify-between">
             <div>

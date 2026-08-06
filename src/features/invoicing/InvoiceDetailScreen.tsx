@@ -4,6 +4,7 @@ import { Mail, Plus, Printer, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 import { EmailComposer } from "@/components/EmailComposer";
+import { KpiTile } from "@/components/KpiTile";
 import { InvoiceDocument } from "./InvoiceDocument";
 
 import { Badge } from "@/components/ui/badge";
@@ -205,27 +206,38 @@ export function InvoiceDetailScreen() {
         </p>
       )}
 
-      {/* The branded invoice document (screen + print) */}
-      <InvoiceDocument
-        invoice={invoice}
-        settings={settings}
-        isDraft={isDraft}
-        onDeleteLine={(lineId) => deleteLineMutation.mutate(lineId)}
-      />
-
-      {isDraft && (
-        <div className="no-print">
-          <Button variant="ghost" size="sm" onClick={() => setShowManualLine(true)}>
-            <Plus className="h-4 w-4" /> Manual line (discount, fee, credit)
-          </Button>
+      {/* Wide screens: document at paper width + a live rail beside it. */}
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,920px)_minmax(320px,1fr)] xl:items-start">
+        <div className="space-y-2">
+          <InvoiceDocument
+            invoice={invoice}
+            settings={settings}
+            isDraft={isDraft}
+            onDeleteLine={(lineId) => deleteLineMutation.mutate(lineId)}
+          />
+          {isDraft && (
+            <div className="no-print">
+              <Button variant="ghost" size="sm" onClick={() => setShowManualLine(true)}>
+                <Plus className="h-4 w-4" /> Manual line (discount, fee, credit)
+              </Button>
+            </div>
+          )}
         </div>
-      )}
 
-      {paidTotal > 0 && (
-        <p className="no-print text-right text-sm text-muted-foreground">
-          Paid so far: <span className="tabular-nums">{formatMinor(paidTotal, invoice.currency)}</span>
-        </p>
-      )}
+        <div className="no-print space-y-4">
+          {paidTotal > 0 && (
+            <KpiTile
+              label="Paid so far"
+              value={formatMinor(paidTotal, invoice.currency)}
+              sub={`of ${formatMinor(invoice.total_minor, invoice.currency)}`}
+              kind={paidTotal >= invoice.total_minor ? "positive" : "default"}
+              meterPct={
+                invoice.total_minor > 0
+                  ? Math.round((100 * paidTotal) / invoice.total_minor)
+                  : undefined
+              }
+            />
+          )}
 
       {(invoice.payments ?? []).length > 0 && (
         <Card className="no-print">
@@ -267,6 +279,8 @@ export function InvoiceDetailScreen() {
           </CardContent>
         </Card>
       )}
+        </div>
+      </div>
 
       {/* Action dialog: comment / payment / credit-note input */}
       <Dialog open={!!pendingAction} onOpenChange={(open) => !open && setPendingAction(null)}>

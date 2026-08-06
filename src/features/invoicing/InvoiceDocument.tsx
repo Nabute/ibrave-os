@@ -41,7 +41,8 @@ export function InvoiceDocument({
   const boxLabel = "mb-1.5 text-[11px] font-bold uppercase tracking-wide text-primary";
 
   return (
-    <div className="rounded-lg border bg-card shadow-card print:rounded-none print:border-0 print:shadow-none">
+    // Documents keep paper width even in the full-bleed workspace.
+    <div className="mx-auto w-full max-w-[920px] rounded-lg border bg-card print:max-w-none print:rounded-none print:border-0">
       {/* Header band */}
       <div className="flex items-start justify-between bg-invoice-brand px-8 py-6 text-white/80 print:-mx-0">
         <div>
