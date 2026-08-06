@@ -10,6 +10,8 @@ import {
   Contact,
   HandCoins,
   Handshake,
+  Moon,
+  Sun,
   Target,
   UserRoundSearch,
   Users,
@@ -102,6 +104,14 @@ export function AppShell() {
   const { profile, roles, hasRole, signOut, api, userId } = useSession();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [unread, setUnread] = useState(0);
+  const [dark, setDark] = useState(
+    () => localStorage.getItem("theme") === "dark"
+  );
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", dark);
+    localStorage.setItem("theme", dark ? "dark" : "light");
+  }, [dark]);
 
   useEffect(() => {
     if (!userId) return;
@@ -191,9 +201,18 @@ export function AppShell() {
               </p>
             </div>
             <button
+              onClick={() => setDark(!dark)}
+              title={dark ? "Light mode" : "Dark mode"}
+              aria-label="Toggle theme"
+              className="rounded-md p-2 text-sidebar-muted transition-colors duration-fast hover:bg-sidebar-active hover:text-white"
+            >
+              {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
+            <button
               onClick={() => void signOut()}
               title="Sign out"
-              className="rounded-md p-2 text-sidebar-muted transition-colors hover:bg-white/10 hover:text-white"
+              aria-label="Sign out"
+              className="rounded-md p-2 text-sidebar-muted transition-colors duration-fast hover:bg-sidebar-active hover:text-white"
             >
               <LogOut className="h-4 w-4" />
             </button>

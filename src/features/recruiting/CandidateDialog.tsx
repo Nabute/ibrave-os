@@ -4,6 +4,7 @@ import { CalendarPlus, Mail, Star } from "lucide-react";
 import { useState } from "react";
 
 import { EmailComposer } from "@/components/EmailComposer";
+import { WorkspaceActions } from "@/components/WorkspaceActions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -109,52 +110,31 @@ export function CandidateDialog({
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+      {/* Ledger dialog workspace: 880px, header rule, scrolling body, sticky
+          action footer (≤1 primary + ghosts, overflow → More). */}
+      <DialogContent className="flex max-h-[85vh] w-[880px] max-w-[92vw] flex-col gap-0 p-0">
+        <DialogHeader className="border-b px-6 py-4">
+          <DialogTitle className="flex items-center gap-3 font-display text-2xl font-normal">
             {candidate.full_name}
             <Badge variant={CANDIDATE_BADGE[candidate.stage]}>
               {candidate.stage.replace("_", " ")}
             </Badge>
           </DialogTitle>
+          <p className="text-sm text-muted-foreground">
+            {candidate.email} · {candidate.skills.join(", ")}
+            {candidate.seniority && ` · ${candidate.seniority}`}
+            {candidate.expected_rate_minor != null &&
+              ` · expects ${formatMinor(candidate.expected_rate_minor, "USD")}/h`}
+            {candidate.available_from && ` · available ${candidate.available_from}`}
+          </p>
         </DialogHeader>
 
-        <p className="text-sm text-muted-foreground">
-          {candidate.email} · {candidate.skills.join(", ")}
-          {candidate.seniority && ` · ${candidate.seniority}`}
-          {candidate.expected_rate_minor != null &&
-            ` · expects ${formatMinor(candidate.expected_rate_minor, "USD")}/h`}
-          {candidate.available_from && ` · available ${candidate.available_from}`}
-        </p>
-
+        <div className="flex-1 space-y-4 overflow-y-auto px-6 py-4">
         {error && (
           <p className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
             {error}
           </p>
         )}
-
-        <div className="flex flex-wrap gap-2">
-          {actionList(actions).map((a) => (
-            <Button
-              key={a.action}
-              size="sm"
-              variant={
-                a.destructive ? "destructive" : a.action === "hire" ? "default" : "outline"
-              }
-              onClick={() => onAction(a)}
-              disabled={actionMutation.isPending || hireMutation.isPending}
-            >
-              {a.label}
-            </Button>
-          ))}
-          {candidate.email && (
-            <Button size="sm" variant="ghost" onClick={() => setEmailing(true)}>
-              <Mail className="h-4 w-4" /> Email
-            </Button>
-          )}
-        </div>
-
-        <Separator />
 
         <RoundsSection
           candidate={candidate}
@@ -206,6 +186,21 @@ export function CandidateDialog({
             ))}
           </ul>
         </div>
+        </div>
+
+        <WorkspaceActions
+          actions={actionList(actions)}
+          onAction={onAction}
+          primaryAction="hire"
+          busy={actionMutation.isPending || hireMutation.isPending}
+          extra={
+            candidate.email ? (
+              <Button size="sm" variant="ghost" onClick={() => setEmailing(true)}>
+                <Mail className="h-4 w-4" /> Email
+              </Button>
+            ) : undefined
+          }
+        />
 
         {/* Reject dialog */}
         <Dialog open={rejecting} onOpenChange={setRejecting}>
