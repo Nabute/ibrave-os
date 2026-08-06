@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Activity, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { KpiTile } from "@/components/KpiTile";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -85,33 +86,39 @@ function PulseTab() {
   if (!pulse) return null;
 
   const money = (n: number) => formatMinor(n, "USD");
-  const tiles: {
-    label: string;
-    value: string;
-    to: string;
-    sub?: string;
-    alert?: boolean;
-  }[] = [
+  const collectRate =
+    pulse.issued_mtd_minor > 0
+      ? Math.round((100 * pulse.collected_mtd_minor) / pulse.issued_mtd_minor)
+      : undefined;
+
+  const tiles: Parameters<typeof KpiTile>[0][] = [
     { label: "Issued this month", value: money(pulse.issued_mtd_minor), to: "/invoices" },
-    { label: "Cash collected", value: money(pulse.collected_mtd_minor), to: "/invoices" },
+    {
+      label: "Cash collected",
+      value: money(pulse.collected_mtd_minor),
+      to: "/invoices",
+      sub: collectRate != null ? `${collectRate}% of issued` : undefined,
+      meterPct: collectRate,
+    },
     { label: "Gross margin (MTD)", value: money(pulse.margin_mtd_minor), to: "/reports" },
     {
       label: "Overdue AR",
       value: money(pulse.overdue_ar_minor),
       to: "/reports",
-      alert: pulse.overdue_ar_minor > 0,
+      kind: pulse.overdue_ar_minor > 0 ? "critical" : "default",
     },
     { label: "Unbilled work", value: money(pulse.unbilled_minor), to: "/reports" },
     {
       label: "Utilization (MTD)",
       value: pulse.utilization_pct != null ? `${pulse.utilization_pct}%` : "—",
       to: "/reports",
+      meterPct: pulse.utilization_pct ?? undefined,
     },
     {
       label: "Bench cost / week",
       value: money(pulse.bench_cost_weekly_minor),
       to: "/staffing",
-      alert: pulse.bench_cost_weekly_minor > 0,
+      kind: pulse.bench_cost_weekly_minor > 0 ? "attention" : "default",
     },
     {
       label: "Weighted pipeline",
@@ -121,53 +128,36 @@ function PulseTab() {
     },
     {
       label: "Hiring",
-      value: `${pulse.open_requisitions} open reqs`,
+      value: String(pulse.open_requisitions),
       to: "/recruiting",
-      sub: `${pulse.candidates_in_pipeline} candidates in pipeline`,
+      sub: `open reqs · ${pulse.candidates_in_pipeline} candidates in pipeline`,
     },
     {
       label: "Account health",
-      value: `${pulse.red_accounts} red · ${pulse.yellow_accounts} yellow`,
+      value: `${pulse.red_accounts}·${pulse.yellow_accounts}`,
       to: "/clients",
-      alert: pulse.red_accounts > 0,
+      sub: "red · yellow accounts",
+      kind: pulse.red_accounts > 0 ? "critical" : "positive",
     },
     {
       label: "Unsubmitted timesheets",
-      value: `${pulse.unsubmitted_people} people`,
+      value: String(pulse.unsubmitted_people),
       to: "/approvals",
-      alert: pulse.unsubmitted_people > 0,
+      sub: "people, last week",
+      kind: pulse.unsubmitted_people > 0 ? "attention" : "default",
     },
     {
       label: "Open escalations",
       value: String(pulse.open_escalations),
       to: "/clients",
-      alert: pulse.open_escalations > 0,
+      kind: pulse.open_escalations > 0 ? "attention" : "default",
     },
   ];
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {tiles.map((t) => (
-        <div key={t.label}>
-          <Link to={t.to} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg">
-            <Card
-              className={cn(
-                "transition-shadow hover:shadow-float",
-                t.alert && "border-warning-foreground/40"
-              )}
-            >
-              <CardHeader className="pb-1">
-                <CardDescription>{t.label}</CardDescription>
-                <CardTitle className="text-xl tabular-nums">{t.value}</CardTitle>
-              </CardHeader>
-              {t.sub && (
-                <CardContent className="pt-0 text-sm text-muted-foreground">
-                  {t.sub}
-                </CardContent>
-              )}
-            </Card>
-          </Link>
-        </div>
+        <KpiTile key={t.label} {...t} />
       ))}
     </div>
   );

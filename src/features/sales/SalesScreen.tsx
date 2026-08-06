@@ -217,8 +217,14 @@ export function SalesScreen() {
                         key={lead.id}
                         onClick={() => setOpenLead(lead)}
                         className={cn(
-                          "w-full rounded-lg border bg-card p-3 text-left shadow-card transition-shadow",
-                          "hover:shadow-float focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          // Ledger kanban card: 3px left rail carries the
+                          // stage's kind color; ≤5 elements, hover floats.
+                          "w-full rounded-md border border-l-[3px] bg-card p-3 text-left transition-shadow duration-fast ease-ledger",
+                          stage.key === "lead" && "border-l-border",
+                          stage.key === "qualified" && "border-l-info",
+                          (stage.key === "proposal_sent" || stage.key === "negotiation") &&
+                            "border-l-warning",
+                          "hover:shadow-float focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/30"
                         )}
                       >
                         <p className="font-medium leading-tight">{lead.company}</p>

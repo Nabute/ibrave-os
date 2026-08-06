@@ -4,6 +4,7 @@ import { AlertTriangle, MessageSquarePlus, Star } from "lucide-react";
 import { useState } from "react";
 
 import { EmailComposer } from "@/components/EmailComposer";
+import { KpiTile } from "@/components/KpiTile";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -118,24 +119,24 @@ export function ClientDetailScreen() {
 
       {/* Live stat tiles */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatTile label="Hours this month" value={`${acc?.hours_this_month ?? 0} h`} />
-        <StatTile
+        <KpiTile label="Hours this month" value={`${acc?.hours_this_month ?? 0}h`} />
+        <KpiTile
           label="Open AR"
           value={formatMinor(acc?.open_ar_minor ?? 0, client.currency)}
-          alert={(acc?.overdue_ar_minor ?? 0) > 0}
+          kind={(acc?.overdue_ar_minor ?? 0) > 0 ? "critical" : "default"}
           sub={
             (acc?.overdue_ar_minor ?? 0) > 0
               ? `${formatMinor(acc!.overdue_ar_minor, client.currency)} overdue`
               : undefined
           }
         />
-        <StatTile
+        <KpiTile
           label="Next renewal"
-          value={acc?.next_renewal ?? "—"}
-          alert={renewalDays != null && renewalDays <= 60}
-          sub={renewalDays != null ? `${renewalDays} days` : undefined}
+          value={renewalDays != null ? `${renewalDays}d` : "—"}
+          kind={renewalDays != null && renewalDays <= 60 ? "attention" : "default"}
+          sub={acc?.next_renewal ?? undefined}
         />
-        <StatTile
+        <KpiTile
           label="Open opportunities"
           value={formatMinor(acc?.open_opportunities_minor ?? 0, client.currency)}
         />
@@ -331,30 +332,6 @@ function BillingDetailsCard({ clientId }: { clientId: string }) {
           Save billing details
         </Button>
       </CardContent>
-    </Card>
-  );
-}
-
-function StatTile({
-  label,
-  value,
-  sub,
-  alert,
-}: {
-  label: string;
-  value: string;
-  sub?: string;
-  alert?: boolean;
-}) {
-  return (
-    <Card className={alert ? "border-warning-foreground/40" : ""}>
-      <CardHeader className="pb-1">
-        <CardDescription>{label}</CardDescription>
-        <CardTitle className="text-xl tabular-nums">{value}</CardTitle>
-      </CardHeader>
-      {sub && (
-        <CardContent className="pt-0 text-sm text-muted-foreground">{sub}</CardContent>
-      )}
     </Card>
   );
 }

@@ -296,8 +296,14 @@ function PipelineTab({
                     key={c.id}
                     onClick={() => onOpen(c)}
                     className={cn(
-                      "w-full rounded-lg border bg-card p-3 text-left shadow-card transition-shadow",
-                      "hover:shadow-float focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      "w-full rounded-md border border-l-[3px] bg-card p-3 text-left transition-shadow duration-fast ease-ledger",
+                      stage.key === "sourced" && "border-l-border",
+                      stage.key === "screening" && "border-l-info",
+                      (stage.key === "interview" ||
+                        stage.key === "assessment" ||
+                        stage.key === "offer") &&
+                        "border-l-warning",
+                      "hover:shadow-float focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/30"
                     )}
                   >
                     <p className="font-medium leading-tight">{c.full_name}</p>
