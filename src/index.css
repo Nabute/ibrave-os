@@ -212,3 +212,72 @@
     --grid-weekend: 38 16% 94%;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Product tour (driver.js) — restyle the popover to Ledger.
+--------------------------------------------------------------------------- */
+.driver-popover.ledger-tour {
+  background: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 32px -8px hsl(var(--foreground) / 0.18);
+  padding: 18px 20px 14px;
+}
+.driver-popover.ledger-tour .driver-popover-title {
+  font-family: "Newsreader Variable", Georgia, serif;
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.driver-popover.ledger-tour .driver-popover-description {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: hsl(var(--muted-foreground));
+}
+.driver-popover.ledger-tour .driver-popover-progress-text {
+  font-family: "Geist Mono Variable", monospace;
+  font-size: 11px;
+  color: hsl(var(--muted-foreground));
+}
+.driver-popover.ledger-tour button {
+  transition: background-color var(--dur-fast) var(--ease);
+}
+.driver-popover.ledger-tour .driver-popover-footer button {
+  border-radius: var(--radius);
+  border: 1px solid hsl(var(--border));
+  background: transparent;
+  color: hsl(var(--foreground));
+  font-family: "Instrument Sans Variable", ui-sans-serif, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 5px 12px;
+  text-shadow: none;
+}
+.driver-popover.ledger-tour .driver-popover-next-btn {
+  background: hsl(var(--primary));
+  border-color: transparent;
+  color: hsl(var(--primary-foreground));
+}
+.driver-popover.ledger-tour .driver-popover-next-btn:hover {
+  background: hsl(var(--primary) / 0.9);
+}
+.driver-popover.ledger-tour .driver-popover-skip-btn {
+  margin-right: auto;
+  border: none !important;
+  color: hsl(var(--muted-foreground)) !important;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.driver-popover.ledger-tour .driver-popover-arrow-side-right {
+  border-right-color: hsl(var(--card));
+}
+.driver-popover.ledger-tour .driver-popover-arrow-side-left {
+  border-left-color: hsl(var(--card));
+}
+.driver-popover.ledger-tour .driver-popover-arrow-side-top {
+  border-top-color: hsl(var(--card));
+}
+.driver-popover.ledger-tour .driver-popover-arrow-side-bottom {
+  border-bottom-color: hsl(var(--card));
+}

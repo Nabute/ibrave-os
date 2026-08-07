@@ -1,6 +1,7 @@
 import { ShieldCheck } from "lucide-react";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 
+import { SplashScreen } from "@/components/SplashScreen";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -49,11 +50,7 @@ export function MfaGate({ children }: { children: ReactNode }) {
   }, [evaluate]);
 
   if (state.kind === "checking") {
-    return (
-      <div className="flex min-h-screen items-center justify-center text-muted-foreground">
-        Checking security…
-      </div>
-    );
+    return <SplashScreen label="Checking security…" />;
   }
   if (state.kind === "verify") {
     return <VerifyStep factorId={state.factorId} onDone={() => setState({ kind: "open" })} />;

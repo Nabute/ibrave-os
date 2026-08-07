@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, Moon, ShieldCheck, Sun } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
+import { Check, Compass, Moon, ShieldCheck, Sun } from "lucide-react";
 import { useState } from "react";
 
 import { EnrollStep } from "@/features/auth/MfaGate";
@@ -14,6 +15,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toDisplayMessage, type UserPreferences } from "@/lib/api";
+import { resetTour } from "@/lib/onboarding";
 import { useSession } from "@/lib/session";
 import { supabase } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
@@ -252,6 +254,8 @@ export function PreferencesScreen() {
 
         <SecurityCard />
 
+        <TourCard />
+
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">
@@ -368,6 +372,30 @@ function SecurityCard() {
           />
         </DialogContent>
       </Dialog>
+    </Card>
+  );
+}
+
+/** Replay the first-run walkthrough on demand. */
+function TourCard() {
+  const navigate = useNavigate();
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg">Product tour</CardTitle>
+        <CardDescription>A one-minute walkthrough of the basics</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Button
+          variant="outline"
+          onClick={() => {
+            resetTour();
+            void navigate({ to: "/" });
+          }}
+        >
+          <Compass className="h-4 w-4" /> Take the tour again
+        </Button>
+      </CardContent>
     </Card>
   );
 }

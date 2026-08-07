@@ -36,6 +36,8 @@ interface NavItem {
   label: string;
   icon: typeof Clock;
   roles?: AppRole[]; // undefined = everyone
+  /** Stable product-tour anchor (data-tour attribute). */
+  tour?: string;
 }
 
 interface NavSection {
@@ -48,7 +50,7 @@ const NAV: NavSection[] = [
     title: null,
     items: [
       { to: "/", label: "My Day", icon: LayoutDashboard },
-      { to: "/timesheet", label: "My Timesheet", icon: Clock },
+      { to: "/timesheet", label: "My Timesheet", icon: Clock, tour: "timesheet-link" },
       { to: "/calendar", label: "Calendar", icon: CalendarDays },
     ],
   },
@@ -102,7 +104,7 @@ const NAV: NavSection[] = [
   {
     title: "System",
     items: [
-      { to: "/settings", label: "Preferences", icon: SlidersHorizontal },
+      { to: "/settings", label: "Preferences", icon: SlidersHorizontal, tour: "preferences-link" },
       {
         to: "/templates",
         label: "Email templates",
@@ -174,6 +176,7 @@ export function AppShell() {
             <span className="font-display text-lg text-white">ibrave&nbsp;OS</span>
           )}
           <button
+            data-tour="collapse"
             onClick={() => setCollapsed(!collapsed)}
             title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -187,7 +190,7 @@ export function AppShell() {
           </button>
         </div>
 
-        <nav className="flex-1 space-y-6 overflow-y-auto py-4">
+        <nav data-tour="nav" className="flex-1 space-y-6 overflow-y-auto py-4">
           {NAV.map((section) => {
             const visible = section.items.filter(
               (item) => !item.roles || item.roles.some(hasRole)
@@ -208,6 +211,7 @@ export function AppShell() {
                       <Link
                         key={item.to}
                         to={item.to}
+                        data-tour={item.tour}
                         title={collapsed ? item.label : undefined}
                         className={cn(
                           // Active = 2px brass rail + one step lighter surface.

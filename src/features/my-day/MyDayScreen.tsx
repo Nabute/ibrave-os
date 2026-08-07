@@ -1,11 +1,13 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, BellOff } from "lucide-react";
+import { useEffect } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatMinor } from "@/lib/money";
+import { hasSeenCurrentTour, startTour, tourTargetsReady } from "@/lib/onboarding";
 import { useApi, useSession } from "@/lib/session";
 
 export function MyDayScreen() {
@@ -19,11 +21,32 @@ export function MyDayScreen() {
     queryFn: () => api.workspace.notifications(),
   });
 
+  // First-visit product tour: only after the dashboard data (and therefore
+  // the tour's target elements) has rendered. Retries across a few frames in
+  // case a card mounts a beat later; never runs once seen/skipped.
+  useEffect(() => {
+    if (!day || hasSeenCurrentTour()) return;
+    let attempts = 0;
+    let raf = 0;
+    const tryStart = () => {
+      if (hasSeenCurrentTour()) return;
+      if (tourTargetsReady()) {
+        startTour();
+      } else if (attempts++ < 30) {
+        raf = requestAnimationFrame(tryStart);
+      } else {
+        startTour(); // partial tour beats no tour — missing steps are filtered
+      }
+    };
+    raf = requestAnimationFrame(tryStart);
+    return () => cancelAnimationFrame(raf);
+  }, [day]);
+
   const unread = (notifications ?? []).filter((n) => !n.read_at);
 
   return (
     <div className="space-y-6">
-      <div>
+      <div data-tour="my-day-header">
         <h1>
           Good morning, {profile?.full_name?.split(" ")[0]}
         </h1>
@@ -32,7 +55,7 @@ export function MyDayScreen() {
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <div data-tour="my-day-cards" className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {day?.timesheet && (
           <Card className="transition-shadow duration-fast ease-ledger">
             <CardHeader className="pb-2">

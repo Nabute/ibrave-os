@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-router";
 
 import { AppShell } from "@/components/AppShell";
+import { SplashScreen } from "@/components/SplashScreen";
 import { LoginScreen } from "@/features/auth/LoginScreen";
 import { MfaGate } from "@/features/auth/MfaGate";
 import { useSession } from "@/lib/session";
@@ -15,16 +16,12 @@ function Root() {
   return <Outlet />;
 }
 
-/** Auth gate (meqenet LoginGate pattern): no session → login screen. */
+/** Auth gate (meqenet LoginGate pattern): no session → login screen.
+ *  The splash holds the screen until auth is RESOLVED, so neither login nor
+ *  dashboard ever flashes while the session restores. */
 function AuthenticatedLayout() {
   const { ready, userId } = useSession();
-  if (!ready) {
-    return (
-      <div className="flex min-h-screen items-center justify-center text-muted-foreground">
-        Loading…
-      </div>
-    );
-  }
+  if (!ready) return <SplashScreen />;
   if (!userId) return <LoginScreen />;
   return (
     <MfaGate>
