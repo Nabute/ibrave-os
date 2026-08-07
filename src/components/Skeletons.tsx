@@ -6,6 +6,9 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
+const TABLE_WIDTHS = ["max-w-[76px]", "max-w-[92px]", "max-w-[108px]", "max-w-[84px]"];
+const LIST_WIDTHS = ["max-w-[220px]", "max-w-[260px]", "max-w-[300px]", "max-w-[340px]"];
+
 export function TableSkeleton({
   rows = 6,
   cols = 5,
@@ -28,9 +31,11 @@ export function TableSkeleton({
           {Array.from({ length: cols }, (_, c) => (
             <Skeleton
               key={c}
-              className={cn("h-3.5", c === 0 ? "w-40" : "flex-1 max-w-28")}
-              // stagger widths a touch so it reads as content, not stripes
-              style={c === 0 ? undefined : { maxWidth: `${72 + ((r * 37 + c * 53) % 48)}px` }}
+              className={cn(
+                "h-3.5",
+                c === 0 ? "w-40" : "flex-1",
+                c > 0 && TABLE_WIDTHS[(r + c) % TABLE_WIDTHS.length]
+              )}
             />
           ))}
         </div>
@@ -136,7 +141,7 @@ export function ListSkeleton({ rows = 5 }: { rows?: number }) {
         <div key={i} className="flex items-start gap-3 border-b pb-3 last:border-b-0">
           <Skeleton className="h-8 w-8 rounded-full" />
           <div className="flex-1 space-y-1.5">
-            <Skeleton className="h-3.5" style={{ maxWidth: `${220 + ((i * 67) % 120)}px` }} />
+            <Skeleton className={cn("h-3.5", LIST_WIDTHS[i % LIST_WIDTHS.length])} />
             <Skeleton className="h-3 w-32" />
           </div>
         </div>

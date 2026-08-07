@@ -27,8 +27,7 @@ export function LoginScreen() {
       <div className="relative hidden flex-1 flex-col justify-between overflow-hidden bg-sidebar p-12 text-sidebar-foreground lg:flex">
         <div
           aria-hidden
-          className="pointer-events-none absolute -right-40 -top-40 h-[32rem] w-[32rem] rounded-full opacity-25 blur-3xl"
-          style={{ background: "hsl(var(--brass))" }}
+          className="pointer-events-none absolute -right-40 -top-40 h-[32rem] w-[32rem] rounded-full bg-brass opacity-25 blur-3xl"
         />
         <div className="relative flex items-center gap-2.5">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brass font-display text-xl leading-none text-brass-foreground">

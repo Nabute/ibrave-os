@@ -32,68 +32,7 @@
 
     <!-- internal tool: keep link previews for the team, keep crawlers out -->
     <meta name="robots" content="noindex, nofollow" />
-    <style>
-      /* Static splash — visible instantly while the JS bundle loads. It lives
-         INSIDE #root, so React's first render replaces it automatically. */
-      #splash {
-        position: fixed;
-        inset: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 24px;
-        background: #f4f1ec;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          Helvetica, Arial, sans-serif;
-      }
-      #splash .brand {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-      #splash .mark {
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
-        background: #b0762a;
-        color: #fdf9f0;
-        font-family: Georgia, "Times New Roman", serif;
-        font-size: 26px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      #splash .word {
-        font-family: Georgia, "Times New Roman", serif;
-        font-size: 30px;
-        letter-spacing: -0.01em;
-        color: #211d18;
-      }
-      #splash .track {
-        width: 144px;
-        height: 2px;
-        border-radius: 999px;
-        background: #e2ddd3;
-        overflow: hidden;
-      }
-      #splash .bar {
-        width: 33%;
-        height: 100%;
-        border-radius: 999px;
-        background: #b0762a;
-        animation: splash-slide 1.1s ease-in-out infinite;
-      }
-      @keyframes splash-slide {
-        0% { transform: translateX(-100%); }
-        100% { transform: translateX(400%); }
-      }
-      @media (prefers-color-scheme: dark) {
-        #splash { background: #17140f; }
-        #splash .word { color: #ece7dd; }
-        #splash .track { background: #322d26; }
-      }
-    </style>
+    <link rel="stylesheet" href="/splash.css" />
   </head>
   <body>
     <div id="root">

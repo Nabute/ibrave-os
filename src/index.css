@@ -167,6 +167,36 @@
   .saved-flash {
     animation: saved-flash 480ms var(--ease);
   }
+
+  .kpi-meter {
+    display: block;
+    width: 100%;
+    height: 3px;
+    appearance: none;
+    border: 0;
+    background: hsl(var(--muted));
+  }
+  .kpi-meter::-webkit-progress-bar {
+    background: hsl(var(--muted));
+  }
+  .kpi-meter::-webkit-progress-value {
+    background: hsl(var(--brass));
+  }
+  .kpi-meter::-moz-progress-bar {
+    background: hsl(var(--brass));
+  }
+  .kpi-meter-warning::-webkit-progress-value {
+    background: hsl(var(--warning));
+  }
+  .kpi-meter-warning::-moz-progress-bar {
+    background: hsl(var(--warning));
+  }
+  .kpi-meter-critical::-webkit-progress-value {
+    background: hsl(var(--destructive));
+  }
+  .kpi-meter-critical::-moz-progress-bar {
+    background: hsl(var(--destructive));
+  }
 }
 
 @media print {

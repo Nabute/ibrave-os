@@ -55,19 +55,19 @@ export function KpiTile({
       {sub && <p className="mt-1.5 text-[13px] text-muted-foreground">{sub}</p>}
       {meterPct != null && (
         <div className="mt-auto pt-3">
-          <div className="h-[3px] w-full bg-muted">
-            <div
-              className={cn(
-                "h-full",
-                kind === "critical"
-                  ? "bg-destructive"
-                  : kind === "attention"
-                    ? "bg-warning"
-                    : "bg-brass"
-              )}
-              style={{ width: `${Math.min(100, Math.max(0, meterPct))}%` }}
-            />
-          </div>
+          <progress
+            className={cn(
+              "kpi-meter",
+              kind === "critical"
+                ? "kpi-meter-critical"
+                : kind === "attention"
+                  ? "kpi-meter-warning"
+                  : "kpi-meter-brass"
+            )}
+            value={Math.min(100, Math.max(0, meterPct))}
+            max={100}
+            aria-label={`${label} meter`}
+          />
         </div>
       )}
     </div>

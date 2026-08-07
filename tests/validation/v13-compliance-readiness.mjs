@@ -46,6 +46,10 @@ check(
   "security headers: csp no broad https image source",
   !headerMap.get("content-security-policy")?.includes("img-src 'self' data: blob: https:")
 );
+check(
+  "security headers: csp disallows inline styles",
+  !headerMap.get("content-security-policy")?.includes("'unsafe-inline'")
+);
 check("supply chain: audit script", pkg.scripts["security:audit"]?.includes("npm audit"));
 check("supply chain: sbom script", pkg.scripts["security:sbom"]?.includes("npm sbom"));
 check("supply chain: aggregate check", pkg.scripts["security:check"]?.includes("security:static"));
@@ -79,9 +83,12 @@ const notice = read("src/features/privacy/PrivacyNoticeScreen.tsx");
 const center = read("src/features/privacy/PrivacyCenterScreen.tsx");
 const threatModel = read("docs/security-threat-model.md");
 const scorecard = read("docs/owasp-scorecard.md");
+const indexHtml = read("index.html");
 check("privacy notice: storage disclosure", notice.includes("browser storage"));
 check("privacy center: export action", center.includes("Export my data"));
 check("privacy center: request workflow", center.includes("Submit a request"));
+check("html: no inline style block", !indexHtml.includes("<style>"));
+check("html: external splash css", indexHtml.includes('href="/splash.css"'));
 check("docs: threat model abuse cases", threatModel.includes("Abuse Cases"));
 check("docs: owasp scorecard", scorecard.includes("OWASP Top 10:2025"));
 
