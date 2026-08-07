@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="ibrave OS">
+  <rect width="64" height="64" rx="15" fill="#b0762a"/>
+  <text x="32" y="47" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="42"
+        fill="#fdf9f0">i</text>
+</svg>

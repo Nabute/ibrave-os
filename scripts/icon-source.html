@@ -1,0 +1,18 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+  html,body{margin:0;padding:0;background:transparent}
+  .mark{display:flex;align-items:center;justify-content:center;
+        background:#b0762a;color:#fdf9f0;
+        font-family:Georgia,'Times New Roman',serif;line-height:1;}
+</style></head><body>
+  <div class="mark" id="m"></div>
+  <script>
+    const p = new URLSearchParams(location.search);
+    const s = +p.get("s"), pad = p.get("pad") === "1";
+    const m = document.getElementById("m");
+    m.style.width = s + "px"; m.style.height = s + "px";
+    m.style.borderRadius = pad ? "0" : Math.round(s * 0.234) + "px";
+    m.style.fontSize = Math.round(s * 0.62) + "px";
+    m.style.paddingBottom = Math.round(s * 0.06) + "px";
+    m.textContent = "i";
+  </script>
+</body></html>
