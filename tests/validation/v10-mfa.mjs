@@ -47,13 +47,13 @@ async function login(email, password) {
 }
 
 // ---- 1. owner logs in with NO MFA gate (not mandated) ----------------------
-await login("owner@ibrave.dev", "password123");
+await login("owner@ibrave.co", "password123");
 check("owner (not mandated) goes straight to workspace", await page.locator("aside").count() > 0);
 
 // ---- 2. admin: reset test user's password + require MFA --------------------
 await page.goto(BASE + "/admin");
 await page.waitForTimeout(1500);
-const row = page.locator("tr", { hasText: "test.contractor@ibrave.dev" });
+const row = page.locator("tr", { hasText: "test.contractor@ibrave.co" });
 await row.getByRole("button", { name: "Reset password" }).click();
 await page.waitForSelector("code", { timeout: 20000 });
 const tempPw = (await page.locator("code").first().textContent()).trim();
@@ -72,7 +72,7 @@ await page.getByRole("button", { name: "Sign out" }).click();
 await page.waitForTimeout(1500);
 
 // ---- 3. mandated user hits the enrollment gate ------------------------------
-await login("test.contractor@ibrave.dev", tempPw);
+await login("test.contractor@ibrave.co", tempPw);
 const gateTitle = await page.locator("h1").first().textContent();
 check("mandated user is blocked at MFA enrollment", gateTitle?.includes("two-factor"),
   `h1=${gateTitle}`);
@@ -90,7 +90,7 @@ check("after activation the workspace opens", await page.locator("aside").count(
 // ---- 4. next login requires the code ---------------------------------------
 await page.getByRole("button", { name: "Sign out" }).click();
 await page.waitForTimeout(1500);
-await login("test.contractor@ibrave.dev", tempPw);
+await login("test.contractor@ibrave.co", tempPw);
 const verifyTitle = await page.locator("h1").first().textContent();
 check("second login is challenged for a code", verifyTitle?.includes("Two-factor"),
   `h1=${verifyTitle}`);

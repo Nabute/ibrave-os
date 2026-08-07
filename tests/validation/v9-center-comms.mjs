@@ -97,7 +97,7 @@ const pmId = mePm.user.id;
   }
 
   const { data: d1Ids } = await dev1.rpc("my_email_identities");
-  check("dev1 sees only own email", d1Ids?.length === 1 && d1Ids[0].email === "dev1@ibrave.dev",
+  check("dev1 sees only own email", d1Ids?.length === 1 && d1Ids[0].email === "dev1@ibrave.co",
     JSON.stringify(d1Ids));
 
   const { data: ownIds } = await owner.rpc("my_email_identities");
@@ -107,7 +107,7 @@ const pmId = mePm.user.id;
 
   const c1 = await owner.rpc("can_use_email_identity", { p_user_id: dev1Id, p_email: "talent@ibrave.co" });
   check("server denies dev1 sending as talent@", c1.data === false, `got=${c1.data}`);
-  const c2 = await owner.rpc("can_use_email_identity", { p_user_id: dev1Id, p_email: "dev1@ibrave.dev" });
+  const c2 = await owner.rpc("can_use_email_identity", { p_user_id: dev1Id, p_email: "dev1@ibrave.co" });
   check("server allows dev1 sending as self", c2.data === true, `got=${c2.data}`);
   const c3 = await owner.rpc("can_use_email_identity", { p_user_id: dev1Id, p_email: "noreply@evil.test" });
   check("server denies arbitrary From", c3.data === false, `got=${c3.data}`);

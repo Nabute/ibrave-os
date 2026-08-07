@@ -104,7 +104,7 @@ serveJson(async (req) => {
       .eq("id", payload.event_id)
       .single();
     if (event) {
-      const ics = buildIcs(event, profile?.email ?? "noreply@ibrave.dev");
+      const ics = buildIcs(event, profile?.email ?? "noreply@ibrave.co");
       attachments = [
         ...(attachments ?? []),
         { filename: "invite.ics", content: btoa(ics) },

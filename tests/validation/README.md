@@ -22,4 +22,4 @@ node tests/validation/v10-mfa.mjs           # MFA end-to-end (needs dev server :
 
 Each prints PASS/FAIL per check and exits non-zero on failure.
 Caveats: v2 is not fully idempotent (numbering advances per run); v10 drives
-the UI via Playwright and enrolls a TOTP factor for test.contractor@ibrave.dev.
+the UI via Playwright and enrolls a TOTP factor for test.contractor@ibrave.co.

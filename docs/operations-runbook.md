@@ -262,8 +262,9 @@ Three distinct paths — know which one is misbehaving before debugging:
    suppressed by the user's Preferences switch and for deactivated users.
 
 Prerequisite: **`ibrave.co` must be a verified domain in Resend** — until it
-is, sends fail (visible in function logs) or land in spam. Demo `@ibrave.dev`
-recipients always bounce; that is expected in staging.
+is, sends fail (visible in function logs) or land in spam. Demo accounts use
+`@ibrave.co` addresses whose mailboxes don't exist — deliveries to them bounce
+at the recipient side; that is expected in staging.
 
 ## 11. Backups and disaster recovery
 

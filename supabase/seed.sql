@@ -1,10 +1,10 @@
 -- ============================================================================
 -- SEED — local/dev demo data. All demo passwords are "password123".
---   owner@ibrave.dev   (owner, admin)
---   pm@ibrave.dev      (pm, employee)
---   finance@ibrave.dev (finance)
---   dev1@ibrave.dev    (employee)
---   dev2@ibrave.dev    (employee, contractor)
+--   owner@ibrave.co   (owner, admin)
+--   pm@ibrave.co      (pm, employee)
+--   finance@ibrave.co (finance)
+--   dev1@ibrave.co    (employee)
+--   dev2@ibrave.co    (employee, contractor)
 -- ============================================================================
 
 -- Seed runs as superuser; allow status values on direct inserts.
@@ -19,27 +19,27 @@ insert into auth.users
    confirmation_token, recovery_token, email_change, email_change_token_new)
 values
   ('00000000-0000-0000-0000-000000000000', '11111111-1111-1111-1111-111111111111',
-   'authenticated', 'authenticated', 'owner@ibrave.dev',
+   'authenticated', 'authenticated', 'owner@ibrave.co',
    crypt('password123', gen_salt('bf')), now(),
    '{"provider":"email","providers":["email"]}', '{"full_name":"Dana Owner"}',
    now(), now(), '', '', '', ''),
   ('00000000-0000-0000-0000-000000000000', '22222222-2222-2222-2222-222222222222',
-   'authenticated', 'authenticated', 'pm@ibrave.dev',
+   'authenticated', 'authenticated', 'pm@ibrave.co',
    crypt('password123', gen_salt('bf')), now(),
    '{"provider":"email","providers":["email"]}', '{"full_name":"Petra Manager"}',
    now(), now(), '', '', '', ''),
   ('00000000-0000-0000-0000-000000000000', '33333333-3333-3333-3333-333333333333',
-   'authenticated', 'authenticated', 'finance@ibrave.dev',
+   'authenticated', 'authenticated', 'finance@ibrave.co',
    crypt('password123', gen_salt('bf')), now(),
    '{"provider":"email","providers":["email"]}', '{"full_name":"Fikir Finance"}',
    now(), now(), '', '', '', ''),
   ('00000000-0000-0000-0000-000000000000', '44444444-4444-4444-4444-444444444444',
-   'authenticated', 'authenticated', 'dev1@ibrave.dev',
+   'authenticated', 'authenticated', 'dev1@ibrave.co',
    crypt('password123', gen_salt('bf')), now(),
    '{"provider":"email","providers":["email"]}', '{"full_name":"Selam Developer"}',
    now(), now(), '', '', '', ''),
   ('00000000-0000-0000-0000-000000000000', '55555555-5555-5555-5555-555555555555',
-   'authenticated', 'authenticated', 'dev2@ibrave.dev',
+   'authenticated', 'authenticated', 'dev2@ibrave.co',
    crypt('password123', gen_salt('bf')), now(),
    '{"provider":"email","providers":["email"]}', '{"full_name":"Kal Contractor"}',
    now(), now(), '', '', '', '');

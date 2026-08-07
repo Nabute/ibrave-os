@@ -60,7 +60,7 @@ export interface EmailMessage {
  */
 export async function sendEmailRaw(msg: EmailMessage): Promise<{ ok: boolean; detail: string }> {
   const apiKey = Deno.env.get("RESEND_API_KEY");
-  const from = msg.from ?? Deno.env.get("EMAIL_FROM") ?? "ibrave OS <noreply@ibrave.dev>";
+  const from = msg.from ?? Deno.env.get("EMAIL_FROM") ?? "ibrave OS <noreply@ibrave.co>";
   if (!apiKey) {
     console.log(`[email skipped — no RESEND_API_KEY] to=${msg.to.join(",")} subject=${msg.subject}`);
     return { ok: true, detail: "skipped (no RESEND_API_KEY)" };

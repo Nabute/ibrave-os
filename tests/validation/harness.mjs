@@ -16,7 +16,7 @@ export async function as(who) {
   if (clients.has(who)) return clients.get(who);
   const c = createClient(URL, KEY, { auth: { persistSession: false } });
   const { error } = await c.auth.signInWithPassword({
-    email: `${who}@ibrave.dev`,
+    email: `${who}@ibrave.co`,
     password: "password123",
   });
   if (error) throw new Error(`login ${who}: ${error.message}`);

@@ -90,8 +90,8 @@ export function LoginScreen() {
           </form>
           {import.meta.env.DEV && (
             <p className="mt-8 rounded-lg border border-dashed px-4 py-3 text-xs leading-relaxed text-muted-foreground">
-              Demo: owner@ibrave.dev · pm@ibrave.dev · finance@ibrave.dev ·
-              dev1@ibrave.dev — password <code>password123</code>
+              Demo: owner@ibrave.co · pm@ibrave.co · finance@ibrave.co ·
+              dev1@ibrave.co — password <code>password123</code>
             </p>
           )}
         </div>
