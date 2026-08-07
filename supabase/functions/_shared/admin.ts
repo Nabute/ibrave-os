@@ -2,6 +2,39 @@
 // (function secrets) — never in the frontend.
 import { createClient } from "npm:@supabase/supabase-js@2";
 
+/** CORS headers for browser-called functions. Auth is the JWT (validated by
+ *  the gateway and again in-function), so a permissive origin is safe. */
+export const CORS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, content-type, apikey, x-client-info",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+} as const;
+
+export function jsonResponse(body: unknown, status = 200): Response {
+  return new Response(body === null ? null : JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json", ...CORS },
+  });
+}
+
+/**
+ * Standard server wrapper: answers preflight before any auth check and turns
+ * uncaught errors (bad JSON body, invalid UUIDs, provider outages) into a
+ * CORS-carrying 500 — otherwise the browser reports them as CORS failures
+ * and hides the real message.
+ */
+export function serveJson(handler: (req: Request) => Promise<Response> | Response): void {
+  Deno.serve(async (req) => {
+    if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
+    try {
+      return await handler(req);
+    } catch (e) {
+      console.error("unhandled function error:", e);
+      return jsonResponse({ error: e instanceof Error ? e.message : String(e) }, 500);
+    }
+  });
+}
+
 export function adminClient() {
   return createClient(
     Deno.env.get("SUPABASE_URL")!,

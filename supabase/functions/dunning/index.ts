@@ -3,7 +3,7 @@
 // in-app SQL job reads — so the pause rules (manual pause, open escalation
 // beyond courtesy, G-6) can never diverge between email and in-app legs.
 // Idempotent per (invoice, stage, day) via automation_runs.
-import { adminClient, authorize, sendEmail } from "../_shared/admin.ts";
+import { adminClient, authorize, jsonResponse as json, sendEmail, serveJson } from "../_shared/admin.ts";
 
 const TONE: Record<string, string> = {
   courtesy: "friendly reminder that the invoice below is due soon",
@@ -24,7 +24,7 @@ interface QueueRow {
   stage: string;
 }
 
-Deno.serve(async (req) => {
+serveJson(async (req) => {
   const denied = authorize(req);
   if (denied) return denied;
 
@@ -64,9 +64,3 @@ Deno.serve(async (req) => {
   return json(results);
 });
 
-function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}

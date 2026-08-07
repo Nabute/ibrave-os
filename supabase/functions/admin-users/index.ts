@@ -3,7 +3,7 @@
 // with the caller's JWT (gateway verifies it); the caller must hold the admin
 // or owner role — checked server-side, never trusted from the client.
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { adminClient } from "../_shared/admin.ts";
+import { adminClient, jsonResponse as json, serveJson } from "../_shared/admin.ts";
 
 type Action =
   | {
@@ -24,8 +24,7 @@ function tempPassword(): string {
   return [...bytes].map((b) => alphabet[b % alphabet.length]).join("");
 }
 
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return json(null, 204);
+serveJson(async (req) => {
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
 
   // Identify the caller from their JWT.
@@ -130,13 +129,3 @@ Deno.serve(async (req) => {
   }
 });
 
-function json(body: unknown, status = 200): Response {
-  return new Response(body === null ? null : JSON.stringify(body), {
-    status,
-    headers: {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Headers": "authorization, content-type, apikey, x-client-info",
-    },
-  });
-}

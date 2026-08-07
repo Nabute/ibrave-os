@@ -4,7 +4,7 @@
 // When event_id is set, an ICS calendar invite is attached so external
 // attendees get a real invite without anyone leaving the app.
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { adminClient, sendEmailRaw } from "../_shared/admin.ts";
+import { adminClient, jsonResponse as json, sendEmailRaw, serveJson } from "../_shared/admin.ts";
 import { buildInvoicePdf } from "../_shared/invoicePdf.ts";
 
 interface SendPayload {
@@ -26,7 +26,7 @@ interface SendPayload {
   event_id?: string;
 }
 
-Deno.serve(async (req) => {
+serveJson(async (req) => {
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
 
   // Identify the caller from their JWT.
@@ -222,9 +222,3 @@ function buildIcs(event: EventRow, organizerEmail: string): string {
     .join("\r\n");
 }
 
-function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}

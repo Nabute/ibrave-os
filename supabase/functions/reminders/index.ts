@@ -3,7 +3,7 @@
 // automation_runs), then emails every not-yet-emailed unread notification as
 // ONE digest per user. `emailed_at` makes the email leg idempotent — a
 // notification is emailed exactly once, however often the job runs.
-import { adminClient, authorize, sendEmail } from "../_shared/admin.ts";
+import { adminClient, authorize, jsonResponse as json, sendEmail, serveJson } from "../_shared/admin.ts";
 
 interface PendingRow {
   id: number;
@@ -20,7 +20,7 @@ interface PendingRow {
   } | null;
 }
 
-Deno.serve(async (req) => {
+serveJson(async (req) => {
   const denied = authorize(req);
   if (denied) return denied;
 
@@ -104,9 +104,3 @@ function escapeHtml(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}
