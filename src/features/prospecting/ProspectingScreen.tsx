@@ -1,4 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { BulkActionBar, RowCheckbox, TableToolbar } from "@/components/TableToolbar";
+import { useTableControls } from "@/lib/useTableControls";
 import { useUrlTab } from "@/lib/useUrlTab";
 import { ListSkeleton, TableSkeleton } from "@/components/Skeletons";
 import { CalendarCheck2, CheckCircle2, Plus, Star } from "lucide-react";
@@ -45,7 +47,7 @@ export function ProspectingScreen() {
       <div>
         <h1>Prospecting</h1>
         <p className="text-sm leading-relaxed text-muted-foreground">
-          The system schedules the touches and remembers everything — a human presses
+          The system schedules the touches and remembers everything, a human presses
           send.
         </p>
       </div>
@@ -115,7 +117,7 @@ function TodayTab() {
           {due.length === 0 && (
             <EmptyState
               icon={CalendarCheck2}
-              sentence="Nothing due — genuinely done for the day"
+              sentence="Nothing due, genuinely done for the day"
               description="Cadence touches and account check-ins appear here on their day. Start a cadence on a prospect to fill tomorrow."
             />
           )}
@@ -142,7 +144,7 @@ function TodayTab() {
           </ul>
           {upcoming.length > 0 && (
             <p className="mt-4 text-xs text-muted-foreground">
-              {upcoming.length} upcoming: next on {upcoming[0].due_date} —{" "}
+              {upcoming.length} upcoming: next on {upcoming[0].due_date} -{" "}
               {upcoming[0].description}
             </p>
           )}
@@ -203,6 +205,15 @@ function ProspectsTab() {
   const { data: prospects, isLoading: prospectsLoading } = useQuery({
     queryKey: ["prospects"],
     queryFn: () => api.prospecting.prospects(),
+  });
+  const controls = useTableControls(prospects ?? [], {
+    getId: (p) => p.id,
+    haystack: (p) => `${p.company} ${p.contact_name ?? ""} ${p.email ?? ""} ${p.status} ${p.source}`,
+    facets: [
+      { key: "status", label: "Status", get: (p) => p.status },
+      { key: "source", label: "Source", get: (p) => p.source },
+      { key: "fit", label: "Fit", get: (p) => String(p.fit_score) },
+    ],
   });
   const { data: cadences } = useQuery({
     queryKey: ["cadences"],
@@ -372,6 +383,15 @@ function ProspectsTab() {
           {prospectsLoading ? (
             <TableSkeleton rows={6} cols={6} />
           ) : (
+          <>
+          <TableToolbar
+            query={controls.query}
+            onQuery={controls.setQuery}
+            facets={controls.facets}
+            count={controls.rows.length}
+            total={(prospects ?? []).length}
+            placeholder="Search company or contact"
+          />
           <Table>
             <TableHeader>
               <TableRow>
@@ -383,7 +403,7 @@ function ProspectsTab() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {(prospects ?? []).map((p) => {
+              {controls.rows.map((p) => {
                 const run = activeRunByProspect.get(p.id);
                 return (
                   <TableRow key={p.id}>
@@ -448,6 +468,7 @@ function ProspectsTab() {
               })}
             </TableBody>
           </Table>
+          </>
           )}
         </CardContent>
       </Card>
@@ -455,7 +476,7 @@ function ProspectsTab() {
       <Dialog open={!!starting} onOpenChange={(o) => !o && setStarting(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Start cadence — {starting?.company}</DialogTitle>
+            <DialogTitle>Start cadence · {starting?.company}</DialogTitle>
           </DialogHeader>
           <Select value={cadenceId} onValueChange={setCadenceId}>
             <SelectTrigger>
@@ -476,7 +497,7 @@ function ProspectsTab() {
               disabled={!cadenceId || startMutation.isPending}
               onClick={() => startMutation.mutate()}
             >
-              Start — first touch lands in Today
+              Start, first touch lands in Today
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -546,7 +567,7 @@ function CadencesTab() {
                 <Input value={name} onChange={(e) => setName(e.target.value)} />
               </div>
               <div className="space-y-1">
-                <Label>Steps — one per line: “day kind note…”</Label>
+                <Label>Steps, one per line: “day kind note…”</Label>
                 <Textarea
                   rows={5}
                   value={stepsText}
@@ -574,7 +595,7 @@ function CadencesTab() {
               <ol className="space-y-1 text-sm text-muted-foreground">
                 {c.steps.map((s, i) => (
                   <li key={i}>
-                    Day {s.day_offset} — <Badge variant="outline">{s.kind}</Badge>{" "}
+                    Day {s.day_offset} · <Badge variant="outline">{s.kind}</Badge>{" "}
                     {s.note}
                   </li>
                 ))}
@@ -622,7 +643,7 @@ function FunnelTab() {
           </TableBody>
         </Table>
         <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-          Which channels actually produce clients — prospects → conversations →
+          Which channels actually produce clients, prospects → conversations →
           qualified leads → won, by source.
         </p>
       </CardContent>

@@ -443,11 +443,11 @@ function WinWizard({
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Win handoff — {lead.company}</DialogTitle>
+          <DialogTitle>Win handoff · {lead.company}</DialogTitle>
         </DialogHeader>
         <p className="text-sm leading-relaxed text-muted-foreground">
           One step creates the client, the contract (from the accepted quote when there is
-          one), the project, and a staffing request — no retyping.
+          one), the project, and a staffing request, no retyping.
         </p>
         <div className="grid grid-cols-2 gap-3">
           <div className="col-span-2 space-y-1">

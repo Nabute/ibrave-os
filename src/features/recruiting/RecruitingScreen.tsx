@@ -245,7 +245,7 @@ function PipelineTab({
                   onValueChange={(v) => setForm({ ...form, seniority: v })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="—" />
+                    <SelectValue placeholder="-" />
                   </SelectTrigger>
                   <SelectContent>
                     {["junior", "mid", "senior"].map((s) => (
@@ -283,7 +283,7 @@ function PipelineTab({
                   onValueChange={(v) => setForm({ ...form, requisition_id: v })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="—" />
+                    <SelectValue placeholder="-" />
                   </SelectTrigger>
                   <SelectContent>
                     {(requisitions ?? [])
@@ -405,7 +405,7 @@ function PoolTab({
     <Card>
       <CardContent className="pt-4">
         <p className="mb-3 text-sm leading-relaxed text-muted-foreground">
-          Strong candidates parked for later — searched first when a requisition opens
+          Strong candidates parked for later, searched first when a requisition opens
           (H-4).
         </p>
         <Table>
@@ -430,8 +430,8 @@ function PoolTab({
                     ))}
                   </div>
                 </TableCell>
-                <TableCell>{c.seniority ?? "—"}</TableCell>
-                <TableCell>{c.available_from ?? "—"}</TableCell>
+                <TableCell>{c.seniority ?? "-"}</TableCell>
+                <TableCell>{c.available_from ?? "-"}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -440,7 +440,7 @@ function PoolTab({
           <EmptyState
             icon={Archive}
             sentence="The talent pool is empty"
-            description="Park strong-but-not-now candidates here instead of rejecting them — the pool is your cheapest sourcing channel."
+            description="Park strong-but-not-now candidates here instead of rejecting them, the pool is your cheapest sourcing channel."
           />
         )}
       </CardContent>
@@ -708,7 +708,7 @@ function AnalyticsTab() {
           </TableBody>
         </Table>
         <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-          {hired.length} hired of {offers.length} taken to offer/decision — comparable
+          {hired.length} hired of {offers.length} taken to offer/decision, comparable
           scorecards make these numbers trustworthy.
         </p>
       </CardContent>

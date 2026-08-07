@@ -1,10 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Banknote, FilePlus2 } from "lucide-react";
+import { Banknote, Download, FilePlus2 } from "lucide-react";
 import { format, startOfMonth, subMonths } from "date-fns";
 import { useMemo, useState } from "react";
 
 import { SortHead } from "@/components/SortHead";
+import { BulkActionBar, RowCheckbox, TableToolbar } from "@/components/TableToolbar";
+import { useTableControls } from "@/lib/useTableControls";
 import { EmptyState } from "@/components/EmptyState";
 import { TableSkeleton } from "@/components/Skeletons";
 import { useSort } from "@/lib/useSort";
@@ -44,6 +46,23 @@ import { useApi } from "@/lib/session";
 import { BankImportDialog } from "./BankImportDialog";
 import { INVOICE_BADGE } from "./status";
 
+/** Bulk export: the selected invoices as a flat CSV for finance. */
+function downloadInvoicesCsv(rows: { number: string | null; client_name: string; status: string; total_minor: number; currency: string; due_date: string | null }[]) {
+  if (rows.length === 0) return;
+  const csv = [
+    "number,client,status,total,currency,due_date",
+    ...rows.map((r) =>
+      [r.number ?? "draft", `"${r.client_name}"`, r.status, (r.total_minor / 100).toFixed(2), r.currency, r.due_date ?? ""].join(",")
+    ),
+  ].join("\n");
+  const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "invoices.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export function InvoicesScreen() {
   const api = useApi();
   const qc = useQueryClient();
@@ -70,7 +89,15 @@ export function InvoicesScreen() {
       })),
     [invoices]
   );
-  const sort = useSort(sortableRows, "created_at");
+  const controls = useTableControls(sortableRows, {
+    getId: (i) => i.id,
+    haystack: (i) => `${i.number ?? "draft"} ${i.client_name} ${i.status} ${i.kind}`,
+    facets: [
+      { key: "status", label: "Status", get: (i) => i.status },
+      { key: "kind", label: "Kind", get: (i) => i.kind },
+    ],
+  });
+  const sort = useSort(controls.rows, "created_at");
   const { data: clients } = useQuery({
     queryKey: ["clients"],
     queryFn: () => api.clients.list(),
@@ -173,14 +200,43 @@ export function InvoicesScreen() {
             <EmptyState
               icon={Banknote}
               sentence="No invoices yet"
-              description="Generate a draft from approved, un-invoiced work — the system prices every entry from the rate card effective on its work date."
+              description="Generate a draft from approved, un-invoiced work, the system prices every entry from the rate card effective on its work date."
               action="Generate draft"
               onAction={() => setOpen(true)}
             />
           ) : (
+          <>
+          <TableToolbar
+            query={controls.query}
+            onQuery={controls.setQuery}
+            facets={controls.facets}
+            count={controls.rows.length}
+            total={sortableRows.length}
+            placeholder="Search number, client, status"
+          />
+          <BulkActionBar
+            count={controls.selection.count}
+            onClear={controls.selection.clear}
+            noun="invoice"
+          >
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => downloadInvoicesCsv(controls.selection.rows)}
+            >
+              <Download className="h-4 w-4" /> Export CSV
+            </Button>
+          </BulkActionBar>
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-8">
+                  <RowCheckbox
+                    checked={controls.selection.allVisible}
+                    onChange={controls.selection.toggleAll}
+                    label="Select all invoices"
+                  />
+                </TableHead>
                 <SortHead sortKey="number" current={sort.sortKey} dir={sort.dir} onSort={sort.toggle}>
                   Number
                 </SortHead>
@@ -202,7 +258,17 @@ export function InvoicesScreen() {
             </TableHeader>
             <TableBody>
               {sort.rows.map((inv) => (
-                <TableRow key={inv.id}>
+                <TableRow
+                  key={inv.id}
+                  className={controls.selection.has(inv.id) ? "bg-brass/5 shadow-[inset_2px_0_0_0_hsl(var(--brass))]" : ""}
+                >
+                  <TableCell className="w-8">
+                    <RowCheckbox
+                      checked={controls.selection.has(inv.id)}
+                      onChange={() => controls.selection.toggle(inv.id)}
+                      label={`Select ${inv.number ?? "draft"}`}
+                    />
+                  </TableCell>
                   <TableCell>
                     <Link
                       to="/invoices/$invoiceId"
@@ -217,7 +283,7 @@ export function InvoicesScreen() {
                     {inv.kind === "credit_note" ? "credit note" : "invoice"}
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    {inv.period_start ? `${inv.period_start} → ${inv.period_end}` : "—"}
+                    {inv.period_start ? `${inv.period_start} → ${inv.period_end}` : "-"}
                   </TableCell>
                   <TableCell>
                     <Badge variant={INVOICE_BADGE[inv.status]}>{inv.status}</Badge>
@@ -225,11 +291,12 @@ export function InvoicesScreen() {
                   <TableCell className="text-right tabular-nums">
                     {formatMinor(inv.total_minor, inv.currency)}
                   </TableCell>
-                  <TableCell>{inv.due_date ?? "—"}</TableCell>
+                  <TableCell>{inv.due_date ?? "-"}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
+          </>
           )}
         </CardContent>
       </Card>

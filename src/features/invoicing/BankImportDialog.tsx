@@ -155,7 +155,7 @@ export function BankImportDialog() {
                   <TableCell className="text-right tabular-nums">
                     {row.amountMinor != null
                       ? formatMinor(row.amountMinor, row.match?.currency ?? "USD")
-                      : "—"}
+                      : "-"}
                   </TableCell>
                   <TableCell>
                     {row.match ? (

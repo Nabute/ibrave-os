@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-/** Ledger shimmer block — the only loading primitive. Size it with classes. */
+/** Ledger shimmer block, the only loading primitive. Size it with classes. */
 export function Skeleton({
   className,
   style,

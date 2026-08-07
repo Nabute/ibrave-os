@@ -1,4 +1,4 @@
-// Branded, email-client-safe HTML template used by every outgoing email —
+// Branded, email-client-safe HTML template used by every outgoing email -
 // user-composed mail, notification digests and dunning letters. Everything is
 // inline-styled tables (the only thing that renders consistently across
 // Outlook/Gmail/Apple Mail); no external fonts, images or CSS.
@@ -19,7 +19,7 @@ export interface EmailTemplateOpts {
   preheader?: string;
   /** Optional headline inside the card, above the body. */
   heading?: string;
-  /** The message content — already-safe HTML fragments. */
+  /** The message content, already-safe HTML fragments. */
   bodyHtml: string;
   /** Optional brass button under the body. */
   cta?: { label: string; url: string };
@@ -87,7 +87,7 @@ ${
       <tr>
         <td style="padding:18px 28px;font-family:${FONT};font-size:12px;
                    line-height:1.6;color:${MUTED};">
-          ${companyLine ? esc(companyLine) : "ibrave — one system, from first hello to final invoice"}
+          ${companyLine ? esc(companyLine) : "ibrave, one system, from first hello to final invoice"}
           ${footerNote ? `<br/>${esc(footerNote)}` : ""}
         </td>
       </tr>

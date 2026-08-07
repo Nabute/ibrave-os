@@ -10,17 +10,17 @@ const badgeVariants = cva(
     // decided by semantics at the call site, never re-tinted ad hoc.
     variants: {
       variant: {
-        /** progress — submitted, in review, sent, in flight */
+        /** progress, submitted, in review, sent, in flight */
         default: "border-transparent bg-info-subtle text-info",
-        /** neutral — draft, new, unassigned, archived */
+        /** neutral, draft, new, unassigned, archived */
         secondary: "border-transparent bg-muted text-muted-foreground",
-        /** critical — overdue, rejected, lost, escalated */
+        /** critical, overdue, rejected, lost, escalated */
         destructive: "border-transparent bg-destructive-subtle text-destructive",
         /** neutral hairline */
         outline: "text-muted-foreground",
-        /** positive — approved, paid, won, healthy */
+        /** positive, approved, paid, won, healthy */
         success: "border-transparent bg-success-subtle text-success",
-        /** attention — due soon, at risk, over 12h */
+        /** attention, due soon, at risk, over 12h */
         warning: "border-transparent bg-warning-subtle text-warning",
       },
     },

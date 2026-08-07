@@ -21,7 +21,7 @@ import { useSession } from "@/lib/session";
 import { supabase } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 
-/** A common-office shortlist plus free entry — Intl validates the rest. */
+/** A common-office shortlist plus free entry, Intl validates the rest. */
 const TIMEZONES = [
   "Africa/Addis_Ababa",
   "Europe/Berlin",
@@ -164,7 +164,7 @@ export function PreferencesScreen() {
               </datalist>
             </div>
             <p className="text-xs text-muted-foreground">
-              Signed in as <span className="font-medium">{profile?.email}</span> — the
+              Signed in as <span className="font-medium">{profile?.email}</span>, the
               login email can only be changed by an admin.
             </p>
             <Button
@@ -335,8 +335,8 @@ function SecurityCard() {
         <CardTitle className="text-lg">Two-factor authentication</CardTitle>
         <CardDescription>
           {required
-            ? "Mandatory for your role — you cannot disable it"
-            : "Optional — an authenticator app adds a second lock on your account"}
+            ? "Mandatory for your role, you cannot disable it"
+            : "Optional, an authenticator app adds a second lock on your account"}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">

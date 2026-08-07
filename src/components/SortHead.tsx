@@ -5,7 +5,7 @@ import { TableHead } from "@/components/ui/table";
 import type { SortDir } from "@/lib/useSort";
 import { cn } from "@/lib/utils";
 
-/** Sortable column head — the sort arrow appears in brass (Ledger spec). */
+/** Sortable column head, the sort arrow appears in brass (Ledger spec). */
 export function SortHead({
   children,
   sortKey,

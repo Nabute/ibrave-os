@@ -34,7 +34,7 @@ interface EmailComposerProps {
   body?: string;
   /** Values for {{placeholders}} when the sender applies a saved template. */
   templateVars?: Record<string, string | undefined>;
-  /** Entity links — the send is logged into these timelines automatically. */
+  /** Entity links, the send is logged into these timelines automatically. */
   related?: Pick<
     SendEmailPayload,
     | "client_id"
@@ -75,7 +75,7 @@ export function EmailComposer({
     enabled: open,
   });
   // Personal + department identities can share an address (e.g. a lead whose
-  // login IS the department mailbox) — offer each address once.
+  // login IS the department mailbox), offer each address once.
   const identities = (identitiesRaw ?? []).filter(
     (i, idx, arr) => arr.findIndex((x) => x.email === i.email) === idx
   );

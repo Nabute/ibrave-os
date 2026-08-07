@@ -94,7 +94,7 @@ export function ApprovalsScreen() {
       <div>
         <h1>Approvals</h1>
         <p className="text-sm text-muted-foreground">
-          Submitted timesheets on your projects. Approval is final — corrections
+          Submitted timesheets on your projects. Approval is final, corrections
           afterwards are adjustment entries.
         </p>
       </div>
@@ -118,7 +118,7 @@ export function ApprovalsScreen() {
           <CardContent>
             <EmptyState
               icon={CheckCheck}
-              sentence="Queue is empty — nothing waiting on you"
+              sentence="Queue is empty, nothing waiting on you"
               description="Submitted timesheets from your projects land here. Approval is final; corrections afterwards are adjustment entries."
             />
           </CardContent>
@@ -211,7 +211,7 @@ export function ApprovalsScreen() {
                       <TableCell>{row.work_date}</TableCell>
                       <TableCell>{row.project_name}</TableCell>
                       <TableCell className="text-muted-foreground">
-                        {row.task_name ?? "—"}
+                        {row.task_name ?? "-"}
                       </TableCell>
                       <TableCell className="text-right tabular-nums">{row.hours}</TableCell>
                       <TableCell className="max-w-48 truncate text-muted-foreground">

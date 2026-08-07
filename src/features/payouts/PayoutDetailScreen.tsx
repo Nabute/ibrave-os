@@ -21,7 +21,7 @@ import { formatMinor } from "@/lib/money";
 import { useApi, useSession } from "@/lib/session";
 import { PAYOUT_BADGE } from "./PayoutsScreen";
 
-/** Statement workspace — HATEOAS-driven confirm / mark-paid, print view. */
+/** Statement workspace, HATEOAS-driven confirm / mark-paid, print view. */
 export function PayoutDetailScreen() {
   const { payoutId } = useParams({ strict: false }) as { payoutId: string };
   const api = useApi();

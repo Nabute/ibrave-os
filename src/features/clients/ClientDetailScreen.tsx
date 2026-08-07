@@ -114,7 +114,7 @@ export function ClientDetailScreen() {
           <CardContent className="pt-4">
             <p className="mb-1 text-sm font-semibold">
               <AlertTriangle className="mr-1 inline h-4 w-4 align-text-bottom" />
-              Health factors (explainable — every penalty named)
+              Health factors (explainable, every penalty named)
             </p>
             <ul className="space-y-0.5 text-sm text-muted-foreground">
               {health.factors.map((f) => (
@@ -142,7 +142,7 @@ export function ClientDetailScreen() {
         />
         <KpiTile
           label="Next renewal"
-          value={renewalDays != null ? `${renewalDays}d` : "—"}
+          value={renewalDays != null ? `${renewalDays}d` : "-"}
           kind={renewalDays != null && renewalDays <= 60 ? "attention" : "default"}
           sub={acc?.next_renewal ?? undefined}
         />
@@ -265,7 +265,7 @@ export function ClientDetailScreen() {
                         <TableCell className="text-right tabular-nums">
                           {formatMinor(inv.total_minor, inv.currency)}
                         </TableCell>
-                        <TableCell>{inv.due_date ?? "—"}</TableCell>
+                        <TableCell>{inv.due_date ?? "-"}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -462,10 +462,10 @@ function TimelineTab({ clientId }: { clientId: string }) {
             to={(contacts ?? [])
               .filter((c) => c.email && !c.opted_out)
               .map((c) => c.email!)}
-            subject={`Delivery summary — ${digestQuery.data.month}`}
+            subject={`Delivery summary · ${digestQuery.data.month}`}
             body={`Hello,\n\nHere is the delivery summary for ${digestQuery.data.month}:\n\n${digestQuery.data.rows
-              .map((r) => `• ${r.project} — ${r.person} (${r.task}): ${r.hours} h`)
-              .join("\n")}\n\nTotal approved hours: ${digestQuery.data.total_hours} h\n\nAll hours are backed by approved timesheets — happy to share the detail.\n\nBest regards,`}
+              .map((r) => `• ${r.project} · ${r.person} (${r.task}): ${r.hours} h`)
+              .join("\n")}\n\nTotal approved hours: ${digestQuery.data.total_hours} h\n\nAll hours are backed by approved timesheets, happy to share the detail.\n\nBest regards,`}
             related={{ client_id: clientId }}
             onSent={() => {
               setDigesting(false);
@@ -492,7 +492,7 @@ function TimelineTab({ clientId }: { clientId: string }) {
           ))}
           {(activities ?? []).length === 0 && (
             <p className="text-muted-foreground">
-              No activity yet — log the first call or meeting.
+              No activity yet, log the first call or meeting.
             </p>
           )}
         </ul>
@@ -569,9 +569,9 @@ function OpportunitiesTab({ clientId, currency }: { clientId: string; currency: 
                 <TableRow key={o.id}>
                   <TableCell>{o.description}</TableCell>
                   <TableCell className="text-right tabular-nums">
-                    {o.value_minor != null ? formatMinor(o.value_minor, currency) : "—"}
+                    {o.value_minor != null ? formatMinor(o.value_minor, currency) : "-"}
                   </TableCell>
-                  <TableCell>{o.expected_start ?? "—"}</TableCell>
+                  <TableCell>{o.expected_start ?? "-"}</TableCell>
                   <TableCell>
                     <Select
                       value={o.stage}
@@ -689,7 +689,7 @@ function EscalationsTab({ clientId }: { clientId: string }) {
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <p className="text-sm leading-relaxed text-muted-foreground">
-          An open escalation pauses dunning escalation beyond the courtesy reminder —
+          An open escalation pauses dunning escalation beyond the courtesy reminder -
           collections pressure never lands mid-firefight.
         </p>
         <Button onClick={() => setOpen(true)}>Open escalation</Button>
@@ -832,7 +832,7 @@ function FeedbackTab({
         <CardHeader className="pb-2">
           <CardTitle className="text-lg">Record a pulse</CardTitle>
           <CardDescription>
-            A 1–5 after each check-in — feeds the health score.
+            A 1–5 after each check-in, feeds the health score.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -900,7 +900,7 @@ function FeedbackTab({
                   {p.projects?.name && (
                     <span className="ml-2 text-muted-foreground">{p.projects.name}</span>
                   )}
-                  {p.comment && <span className="ml-2">— {p.comment}</span>}
+                  {p.comment && <span className="ml-2">- {p.comment}</span>}
                 </span>
                 <span className="text-xs text-muted-foreground">
                   {new Date(p.at).toLocaleDateString()}

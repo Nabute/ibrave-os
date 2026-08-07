@@ -19,9 +19,9 @@ const LABEL_FG: Record<KpiKind, string> = {
 };
 
 /**
- * Ledger KPI tile — fixed anatomy: mono-caps label → 34px mono figure → one
+ * Ledger KPI tile, fixed anatomy: mono-caps label → 34px mono figure → one
  * line of context → optional 3px meter. Alarm state is a 2px top rule in the
- * kind color plus a recolored label; the figure itself never changes color —
+ * kind color plus a recolored label; the figure itself never changes color -
  * only its frame does. Tiles never carry shadow.
  */
 export function KpiTile({

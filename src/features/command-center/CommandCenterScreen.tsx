@@ -46,7 +46,7 @@ export function CommandCenterScreen() {
       <div>
         <h1>Command Center</h1>
         <p className="text-sm leading-relaxed text-muted-foreground">
-          Complete, drill-down transparency — every number links to the records that
+          Complete, drill-down transparency, every number links to the records that
           produced it. No dead ends.
         </p>
       </div>
@@ -113,7 +113,7 @@ function PulseTab() {
     { label: "Unbilled work", value: money(pulse.unbilled_minor), to: "/reports" },
     {
       label: "Utilization (MTD)",
-      value: pulse.utilization_pct != null ? `${pulse.utilization_pct}%` : "—",
+      value: pulse.utilization_pct != null ? `${pulse.utilization_pct}%` : "-",
       to: "/reports",
       meterPct: pulse.utilization_pct ?? undefined,
     },
@@ -197,7 +197,7 @@ function FeedTab() {
         <div className="mb-3 flex items-center justify-between">
           <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <Activity className="h-4 w-4" />
-            What happened while you were away — live via Realtime.
+            What happened while you were away, live via Realtime.
           </p>
           <Select value={filter} onValueChange={setFilter}>
             <SelectTrigger className="w-40">
@@ -361,7 +361,7 @@ function TwoSidedPipelineTab() {
         <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
           Demand = quoted hours on open deals × probability. Supply = free capacity plus
           candidates at offer/hired (~160 h/mo from their start month). The single most
-          important owner decision — sell harder or hire faster — answered with live
+          important owner decision, sell harder or hire faster, answered with live
           data.
         </p>
       </CardContent>

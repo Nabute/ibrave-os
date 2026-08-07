@@ -1,4 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { BulkActionBar, RowCheckbox, TableToolbar } from "@/components/TableToolbar";
+import { useTableControls } from "@/lib/useTableControls";
 import { Link } from "@tanstack/react-router";
 import { Building2, Plus } from "lucide-react";
 import { useState } from "react";
@@ -41,6 +43,23 @@ export function ClientsScreen() {
   const { data: clients, isLoading } = useQuery({
     queryKey: ["clients"],
     queryFn: () => api.clients.list(),
+  });
+  const controls = useTableControls(clients ?? [], {
+    getId: (c) => c.id,
+    haystack: (c) => `${c.name} ${c.code ?? ""} ${c.currency} ${c.tier}`,
+    facets: [
+      { key: "tier", label: "Tier", get: (c) => c.tier },
+      { key: "currency", label: "Currency", get: (c) => c.currency },
+      {
+        key: "active",
+        label: "Status",
+        get: (c) => (c.active ? "active" : "inactive"),
+        options: [
+          { value: "active", label: "active" },
+          { value: "inactive", label: "inactive" },
+        ],
+      },
+    ],
   });
   const { data: health } = useQuery({
     queryKey: ["account-health"],
@@ -127,6 +146,15 @@ export function ClientsScreen() {
               onAction={() => setOpen(true)}
             />
           ) : (
+          <>
+          <TableToolbar
+            query={controls.query}
+            onQuery={controls.setQuery}
+            facets={controls.facets}
+            count={controls.rows.length}
+            total={(clients ?? []).length}
+            placeholder="Search clients, code, currency"
+          />
           <Table>
             <TableHeader>
               <TableRow>
@@ -140,7 +168,7 @@ export function ClientsScreen() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {(clients ?? []).map((c) => (
+              {controls.rows.map((c) => (
                 <TableRow key={c.id}>
                   <TableCell>
                     <Link
@@ -159,7 +187,7 @@ export function ClientsScreen() {
                           {h.light} · {h.score}
                         </Badge>
                       ) : (
-                        <span className="text-muted-foreground">—</span>
+                        <span className="text-muted-foreground">-</span>
                       );
                     })()}
                   </TableCell>
@@ -167,7 +195,7 @@ export function ClientsScreen() {
                     {c.timezone ? (
                       <LocalClock timezone={c.timezone} />
                     ) : (
-                      <span className="text-muted-foreground">—</span>
+                      <span className="text-muted-foreground">-</span>
                     )}
                   </TableCell>
                   <TableCell className="uppercase text-muted-foreground">{c.tier}</TableCell>
@@ -182,6 +210,7 @@ export function ClientsScreen() {
               ))}
             </TableBody>
           </Table>
+          </>
           )}
         </CardContent>
       </Card>

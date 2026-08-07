@@ -1,5 +1,5 @@
 -- ============================================================================
--- SEED — local/dev demo data. All demo passwords are "password123".
+-- SEED, local/dev demo data. All demo passwords are "password123".
 --   owner@ibrave.co   (owner, admin)
 --   pm@ibrave.co      (pm, employee)
 --   finance@ibrave.co (finance)
@@ -46,10 +46,12 @@ values
 
 insert into auth.identities
   (provider_id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
-select id::text, id,
-       jsonb_build_object('sub', id::text, 'email', email, 'email_verified', true),
+select u.id::text, u.id,
+       jsonb_build_object('sub', u.id::text, 'email', u.email, 'email_verified', true),
        'email', now(), now(), now()
-from auth.users;
+from auth.users u
+-- QA scenario users already have identities from their migration.
+where not exists (select 1 from auth.identities i where i.user_id = u.id);
 
 -- Profiles were auto-created by the on_auth_user_created trigger; enrich them.
 update public.profiles set title = 'CEO' where id = '11111111-1111-1111-1111-111111111111';
@@ -160,7 +162,8 @@ insert into public.skills (id, name) values
   ('eeee5555-0000-0000-0000-000000000002', 'node'),
   ('eeee5555-0000-0000-0000-000000000003', 'qa-automation'),
   ('eeee5555-0000-0000-0000-000000000004', 'postgres'),
-  ('eeee5555-0000-0000-0000-000000000005', 'project-management');
+  ('eeee5555-0000-0000-0000-000000000005', 'project-management')
+on conflict (name) do nothing;
 
 insert into public.person_skills (user_id, skill_id, level) values
   ('44444444-4444-4444-4444-444444444444', 'eeee5555-0000-0000-0000-000000000001', 'senior'),
@@ -192,13 +195,13 @@ insert into public.leads
 values
   ('ffff6666-0000-0000-0000-000000000001', 'Initech', 'Bill Lumbergh', 'bill@initech.example',
    'referral', 'lead', 3000000, 20, current_date + 45,
-   '11111111-1111-1111-1111-111111111111', 'Referred by Acme — needs a support team'),
+   '11111111-1111-1111-1111-111111111111', 'Referred by Acme, needs a support team'),
   ('ffff6666-0000-0000-0000-000000000002', 'Umbrella Corp', 'Alice Chan', 'alice@umbrella.example',
    'event', 'proposal_sent', 9000000, 60, current_date + 30,
    '11111111-1111-1111-1111-111111111111', 'Met at DevCon; wants 2 senior devs for 6 months');
 
 insert into public.lead_activities (lead_id, kind, body, actor_id) values
-  ('ffff6666-0000-0000-0000-000000000002', 'meeting', 'Intro call — scoping 2 senior devs',
+  ('ffff6666-0000-0000-0000-000000000002', 'meeting', 'Intro call, scoping 2 senior devs',
    '11111111-1111-1111-1111-111111111111'),
   ('ffff6666-0000-0000-0000-000000000002', 'email', 'Sent proposal v1',
    '11111111-1111-1111-1111-111111111111');
@@ -218,7 +221,7 @@ values
 -- An active contract nearing renewal (for the watchdog)
 insert into public.contracts (client_id, start_date, end_date, notes) values
   ('aaaa1111-0000-0000-0000-000000000002', current_date - 305, current_date + 60,
-   'Globex support retainer — annual');
+   'Globex support retainer, annual');
 
 -- ----------------------------------------------------------------------------
 -- Accounts (Phase 6): tiers, owners, activities, opportunity, escalation
@@ -232,9 +235,9 @@ insert into public.user_roles (user_id, role) values
   ('11111111-1111-1111-1111-111111111111', 'account_owner');
 
 insert into public.account_activities (client_id, kind, body, actor_id, at) values
-  ('aaaa1111-0000-0000-0000-000000000001', 'meeting', 'Quarterly review — very happy with velocity',
+  ('aaaa1111-0000-0000-0000-000000000001', 'meeting', 'Quarterly review, very happy with velocity',
    '11111111-1111-1111-1111-111111111111', now() - interval '10 days'),
-  ('aaaa1111-0000-0000-0000-000000000002', 'call', 'Support check-in — response times raised',
+  ('aaaa1111-0000-0000-0000-000000000002', 'call', 'Support check-in, response times raised',
    '11111111-1111-1111-1111-111111111111', now() - interval '45 days');
 
 insert into public.opportunities (client_id, description, value_minor, stage, expected_start, owner_id) values
@@ -257,12 +260,12 @@ insert into public.cadences (id, name, steps) values
   ('ffff8888-0000-0000-0000-000000000001', 'Standard outbound', '[
     {"day_offset": 0,  "kind": "email",    "note": "Intro + relevant case study"},
     {"day_offset": 3,  "kind": "linkedin", "note": "Connect with a short note"},
-    {"day_offset": 7,  "kind": "call",     "note": "Call — reference the case study"},
+    {"day_offset": 7,  "kind": "call",     "note": "Call, reference the case study"},
     {"day_offset": 14, "kind": "email",    "note": "Break-up email"}
   ]'::jsonb),
   ('ffff8888-0000-0000-0000-000000000002', 'Event follow-up', '[
     {"day_offset": 0, "kind": "email", "note": "Great meeting you at the event"},
-    {"day_offset": 4, "kind": "call",  "note": "Follow-up call — propose intro meeting"}
+    {"day_offset": 4, "kind": "call",  "note": "Follow-up call, propose intro meeting"}
   ]'::jsonb);
 
 insert into public.prospects
@@ -276,7 +279,7 @@ values
    '11111111-1111-1111-1111-111111111111', 'Met at DevCon booth'),
   ('ffff9999-0000-0000-0000-000000000003', 'Tyrell Corp', 'Biotech', '50-200', 'EU',
    'outbound', 2, null, null,
-   '11111111-1111-1111-1111-111111111111', 'Cold list — low fit');
+   '11111111-1111-1111-1111-111111111111', 'Cold list, low fit');
 
 -- ----------------------------------------------------------------------------
 -- Talent (Phase 8): requisition, candidates, scorecards, offer

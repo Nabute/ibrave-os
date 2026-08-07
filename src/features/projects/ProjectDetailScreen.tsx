@@ -72,7 +72,7 @@ export function ProjectDetailScreen() {
                   <TableRow key={m.id}>
                     <TableCell>{m.profiles?.full_name}</TableCell>
                     <TableCell className="text-muted-foreground">
-                      {m.role_on_project ?? "—"}
+                      {m.role_on_project ?? "-"}
                     </TableCell>
                     <TableCell className="text-right">{m.allocation_pct}%</TableCell>
                     <TableCell>{m.start_date}</TableCell>
@@ -99,7 +99,7 @@ export function ProjectDetailScreen() {
               ))}
               {(tasks ?? []).length === 0 && (
                 <p className="text-sm text-muted-foreground">
-                  No task list — entries log directly to the project.
+                  No task list, entries log directly to the project.
                 </p>
               )}
             </ul>
@@ -142,7 +142,7 @@ export function ProjectDetailScreen() {
               ))}
               {(rateCards ?? []).length === 0 && (
                 <p className="text-sm text-muted-foreground">
-                  No rate card yet — configure one on the client before invoicing.
+                  No rate card yet, configure one on the client before invoicing.
                 </p>
               )}
             </CardContent>

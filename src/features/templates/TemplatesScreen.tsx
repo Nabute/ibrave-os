@@ -35,7 +35,7 @@ const DEPARTMENTS: {
 /**
  * Department-scoped email template editor. Everyone can read (the composer
  * offers templates to all senders); editing is enforced by RLS per
- * department — the UI mirrors that so buttons match reality.
+ * department, the UI mirrors that so buttons match reality.
  */
 export function TemplatesScreen() {
   const api = useApi();
@@ -141,7 +141,7 @@ function EditTemplateDialog({
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-xl">
         <DialogHeader>
-          <DialogTitle>Edit template — {template.name}</DialogTitle>
+          <DialogTitle>Edit template · {template.name}</DialogTitle>
           <DialogDescription>
             Blank line = new paragraph. Placeholders are replaced with real
             values at send time; the branded header, details block and footer

@@ -26,7 +26,7 @@ const STEPS: DriveStep[] = [
     popover: {
       title: "Welcome to ibrave OS",
       description:
-        "My Day is your landing page. Everything shown here needs your action or decision — an empty screen means you're done for the day.",
+        "My Day is your landing page. Everything shown here needs your action or decision, an empty screen means you're done for the day.",
     },
   },
   {
@@ -42,7 +42,7 @@ const STEPS: DriveStep[] = [
     popover: {
       title: "Navigation",
       description:
-        "The sidebar shows only what your roles allow. If a section is missing, that's permissions — not a bug.",
+        "The sidebar shows only what your roles allow. If a section is missing, that's permissions, not a bug.",
       side: "right",
     },
   },
@@ -51,7 +51,7 @@ const STEPS: DriveStep[] = [
     popover: {
       title: "Your timesheet",
       description:
-        "Log hours in 0.25h steps and submit your week. Approved hours flow into invoices, payouts and margin — logging on time keeps everything downstream honest.",
+        "Log hours in 0.25h steps and submit your week. Approved hours flow into invoices, payouts and margin, logging on time keeps everything downstream honest.",
       side: "right",
     },
   },
@@ -69,7 +69,7 @@ const STEPS: DriveStep[] = [
     popover: {
       title: "More room to work",
       description:
-        "Collapse the sidebar to an icon rail whenever you want the whole screen. That's it — enjoy!",
+        "Collapse the sidebar to an icon rail whenever you want the whole screen. That's it, enjoy!",
       side: "bottom",
     },
   },
@@ -98,7 +98,7 @@ export function startTour(): void {
 
   const finish = () => {
     // Completing OR skipping counts as seen for this version. Marked
-    // explicitly in the button handlers — driver's destroy hooks are not
+    // explicitly in the button handlers, driver's destroy hooks are not
     // reliable across re-mounts.
     markTourSeen();
     tour.destroy();

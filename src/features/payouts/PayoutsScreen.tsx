@@ -1,4 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { BulkActionBar, RowCheckbox, TableToolbar } from "@/components/TableToolbar";
+import { useTableControls } from "@/lib/useTableControls";
 import { TableSkeleton } from "@/components/Skeletons";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { format, endOfMonth, startOfMonth, subMonths } from "date-fns";
@@ -56,6 +58,11 @@ export function PayoutsScreen() {
     queryKey: ["payouts"],
     queryFn: () => api.payouts.list(),
   });
+  const controls = useTableControls(statements ?? [], {
+    getId: (s) => s.id,
+    haystack: (s) => `${s.profiles?.full_name ?? ""} ${s.status} ${s.period_start}`,
+    facets: [{ key: "status", label: "Status", get: (s) => s.status }],
+  });
   const { data: reconciliation } = useQuery({
     queryKey: ["payout-reconciliation"],
     queryFn: () => api.payouts.reconciliation(),
@@ -85,7 +92,7 @@ export function PayoutsScreen() {
         <div>
           <h1>Payouts</h1>
           <p className="text-sm leading-relaxed text-muted-foreground">
-            Statements are computed from the same approved hours your invoices bill —
+            Statements are computed from the same approved hours your invoices bill -
             margin falls out for free.
           </p>
         </div>
@@ -100,7 +107,7 @@ export function PayoutsScreen() {
               <DialogTitle>Draft payout statements</DialogTitle>
               <DialogDescription>
                 One draft per person with approved, not-yet-paid hours in the period.
-                People without a cost rate are skipped — check the reconciliation
+                People without a cost rate are skipped, check the reconciliation
                 panel below.
               </DialogDescription>
             </DialogHeader>
@@ -140,6 +147,15 @@ export function PayoutsScreen() {
           {isLoading ? (
             <TableSkeleton rows={5} cols={6} />
           ) : (
+          <>
+          <TableToolbar
+            query={controls.query}
+            onQuery={controls.setQuery}
+            facets={controls.facets}
+            count={controls.rows.length}
+            total={(statements ?? []).length}
+            placeholder="Search person or period"
+          />
           <Table>
             <TableHeader>
               <TableRow>
@@ -151,7 +167,7 @@ export function PayoutsScreen() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {(statements ?? []).map((s) => (
+              {controls.rows.map((s) => (
                 <TableRow key={s.id}>
                   <TableCell>
                     <Link
@@ -175,17 +191,18 @@ export function PayoutsScreen() {
                     {formatMinor(s.total_minor, s.currency)}
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    {s.confirmed_at ? new Date(s.confirmed_at).toLocaleDateString() : "—"}
+                    {s.confirmed_at ? new Date(s.confirmed_at).toLocaleDateString() : "-"}
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
+          </>
           )}
           {(statements ?? []).length === 0 && (
             <EmptyState
               icon={HandCoins}
-              description="Statements are computed from approved hours × cost rates — the same records that back the invoices."
+              description="Statements are computed from approved hours × cost rates, the same records that back the invoices."
               sentence="No payout statements yet"
               action="Draft statements for a period"
               onAction={() => setOpen(true)}
@@ -198,7 +215,7 @@ export function PayoutsScreen() {
         <CardHeader className="pb-2">
           <CardTitle className="text-lg">Reconciliation guard</CardTitle>
           <p className="text-sm leading-relaxed text-muted-foreground">
-            Hours billed vs hours paid out must reconcile — differences are shown, never
+            Hours billed vs hours paid out must reconcile, differences are shown, never
             hidden.
           </p>
         </CardHeader>

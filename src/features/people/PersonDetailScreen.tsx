@@ -67,7 +67,7 @@ export function PersonDetailScreen() {
         <div>
           <h1>{person.full_name}</h1>
           <p className="text-sm text-muted-foreground">
-            {person.title ?? "—"} · {person.employment_type} ·{" "}
+            {person.title ?? "-"} · {person.employment_type} ·{" "}
             {person.weekly_capacity_hours} h/week capacity
           </p>
         </div>
@@ -91,7 +91,7 @@ export function PersonDetailScreen() {
         <CardHeader className="pb-2">
           <CardTitle className="text-lg">Engagement history</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Derived from assignments + approved hours — always current, maintained by
+            Derived from assignments + approved hours, always current, maintained by
             nobody.
           </p>
         </CardHeader>
@@ -112,7 +112,7 @@ export function PersonDetailScreen() {
                   <TableCell className="font-medium">{e.project_name}</TableCell>
                   <TableCell>{e.client_name}</TableCell>
                   <TableCell className="text-muted-foreground">
-                    {e.role_on_project ?? "—"}
+                    {e.role_on_project ?? "-"}
                   </TableCell>
                   <TableCell className="text-muted-foreground">
                     {e.start_date} → {e.end_date ?? "ongoing"}
@@ -127,7 +127,7 @@ export function PersonDetailScreen() {
         </CardContent>
       </Card>
 
-      {/* Utilization spans the free space when there are no side cards —
+      {/* Utilization spans the free space when there are no side cards -
           no half-empty rows on wide screens. */}
       <div className="no-print grid gap-4 lg:grid-cols-2">
         <Card className={!hasSideCards ? "lg:col-span-2" : ""}>

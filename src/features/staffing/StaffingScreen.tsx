@@ -1,4 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { BulkActionBar, RowCheckbox, TableToolbar } from "@/components/TableToolbar";
+import { useTableControls } from "@/lib/useTableControls";
 import { useUrlTab } from "@/lib/useUrlTab";
 import { format } from "date-fns";
 import { CalendarOff, UserPlus, Users } from "lucide-react";
@@ -83,8 +85,24 @@ function BenchTab() {
     queryKey: ["bench"],
     queryFn: () => api.staffing.bench(),
   });
+  const controls = useTableControls(bench ?? [], {
+    getId: (r) => r.user_id,
+    haystack: (r) => `${r.full_name} ${r.title ?? ""} ${r.skills.join(" ")}`,
+    facets: [
+      {
+        key: "under",
+        label: "Availability",
+        get: (r) => (r.under_allocated ? "available" : "committed"),
+        options: [
+          { value: "available", label: "under 80% allocated" },
+          { value: "committed", label: "fully committed" },
+        ],
+      },
+      { key: "employment_type", label: "Type", get: (r) => r.employment_type },
+    ],
+  });
   const showCost = (bench ?? []).some((r) => r.weekly_bench_cost_minor != null);
-  const sort = useSort(bench ?? [], "bench_pct");
+  const sort = useSort(controls.rows, "bench_pct");
 
   return (
     <Card>
@@ -92,6 +110,15 @@ function BenchTab() {
         {isLoading ? (
           <TableSkeleton rows={5} cols={6} />
         ) : (
+        <>
+        <TableToolbar
+          query={controls.query}
+          onQuery={controls.setQuery}
+          facets={controls.facets}
+          count={controls.rows.length}
+          total={(bench ?? []).length}
+          placeholder="Search people or skills"
+        />
         <Table>
           <TableHeader>
             <TableRow>
@@ -142,19 +169,20 @@ function BenchTab() {
                   )}
                 </TableCell>
                 <TableCell className="text-muted-foreground">
-                  {r.time_off_days > 0 ? `${r.time_off_days} d` : "—"}
+                  {r.time_off_days > 0 ? `${r.time_off_days} d` : "-"}
                 </TableCell>
                 {showCost && (
                   <TableCell className="text-right tabular-nums">
                     {r.weekly_bench_cost_minor != null && r.weekly_bench_cost_minor > 0
                       ? formatMinor(r.weekly_bench_cost_minor, "USD")
-                      : "—"}
+                      : "-"}
                   </TableCell>
                 )}
               </TableRow>
             ))}
           </TableBody>
         </Table>
+        </>
         )}
         <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
           Anyone under 80% allocated is flagged. Bench cost = free capacity × cost rate
@@ -499,7 +527,7 @@ function RequestsTab() {
             <EmptyState
               icon={Users}
               sentence="No staffing requests open"
-              description="Requests open here when a PM needs a person or sales wins a deal with roles attached — suggested candidates are ranked skills-first."
+              description="Requests open here when a PM needs a person or sales wins a deal with roles attached, suggested candidates are ranked skills-first."
             />
           </CardContent>
         </Card>
@@ -563,14 +591,14 @@ function CapacityTab() {
                 <TableCell className="text-right tabular-nums">{m.time_off_hours}</TableCell>
                 <TableCell className="text-right tabular-nums">{m.free_hours}</TableCell>
                 <TableCell className="text-right tabular-nums">
-                  {m.utilization_pct != null ? `${m.utilization_pct}%` : "—"}
+                  {m.utilization_pct != null ? `${m.utilization_pct}%` : "-"}
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
         <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-          Committed allocations vs total capacity — "do we hire or do we sell?" Weighted
+          Committed allocations vs total capacity, "do we hire or do we sell?" Weighted
           pipeline demand joins this view when the Sales module lands.
         </p>
       </CardContent>

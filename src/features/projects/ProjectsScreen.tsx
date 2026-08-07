@@ -1,4 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
+import { BulkActionBar, RowCheckbox, TableToolbar } from "@/components/TableToolbar";
+import { useTableControls } from "@/lib/useTableControls";
 import { TableSkeleton } from "@/components/Skeletons";
 import { Link } from "@tanstack/react-router";
 
@@ -22,6 +24,14 @@ export function ProjectsScreen() {
     queryKey: ["projects"],
     queryFn: () => api.projects.list(),
   });
+  const controls = useTableControls(projects ?? [], {
+    getId: (p) => p.id,
+    haystack: (p) => `${p.name} ${p.code ?? ""} ${p.clients?.name ?? ""} ${p.status} ${p.billing_model}`,
+    facets: [
+      { key: "status", label: "Status", get: (p) => p.status },
+      { key: "billing_model", label: "Billing", get: (p) => p.billing_model },
+    ],
+  });
   const { data: burn } = useQuery({
     queryKey: ["project-burn"],
     queryFn: () => api.projects.burn(),
@@ -37,6 +47,15 @@ export function ProjectsScreen() {
           {isLoading ? (
             <TableSkeleton rows={5} cols={6} />
           ) : (
+          <>
+          <TableToolbar
+            query={controls.query}
+            onQuery={controls.setQuery}
+            facets={controls.facets}
+            count={controls.rows.length}
+            total={(projects ?? []).length}
+            placeholder="Search projects, client, code"
+          />
           <Table>
             <TableHeader>
               <TableRow>
@@ -49,7 +68,7 @@ export function ProjectsScreen() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {(projects ?? []).map((p) => {
+              {controls.rows.map((p) => {
                 const b = burnByProject.get(p.id);
                 return (
                   <TableRow key={p.id}>
@@ -89,7 +108,7 @@ export function ProjectsScreen() {
                           {b.burn_pct}%
                         </span>
                       ) : (
-                        "—"
+                        "-"
                       )}
                     </TableCell>
                   </TableRow>
@@ -97,6 +116,7 @@ export function ProjectsScreen() {
               })}
             </TableBody>
           </Table>
+          </>
           )}
         </CardContent>
       </Card>

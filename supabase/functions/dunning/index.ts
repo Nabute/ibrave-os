@@ -1,6 +1,6 @@
 // Dunning emails (D-3): courtesy at due-3, escalating at due+7 / +14 / +30.
-// The queue comes from the dunning_queue() DB function — the same source the
-// in-app SQL job reads — so the pause rules (manual pause, open escalation
+// The queue comes from the dunning_queue() DB function, the same source the
+// in-app SQL job reads, so the pause rules (manual pause, open escalation
 // beyond courtesy, G-6) can never diverge between email and in-app legs.
 // Idempotent per (invoice, stage, day) via automation_runs. The letter text
 // comes from the email_templates table (editable in-app by finance/admin);
@@ -90,7 +90,7 @@ serveJson(async (req) => {
       to: [inv.billing_email],
       subject,
       html: renderEmail({
-        preheader: `${inv.invoice_number} — ${amount} ${inv.currency}, due ${inv.due_date}`,
+        preheader: `${inv.invoice_number} · ${amount} ${inv.currency}, due ${inv.due_date}`,
         heading: subject,
         bodyHtml: `${textToHtml(fillTemplate(t.body, vars))}
           ${detailTable([

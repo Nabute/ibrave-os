@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import type { CompanySettings, Invoice } from "@/lib/api";
 
 /**
- * The branded invoice document — mirrors the official ibrave template
+ * The branded invoice document, mirrors the official ibrave template
  * (teal header band, FROM/BILL TO boxes, meta grid, detailed line table,
  * totals with Total-due band, payment instructions, issued-by block).
  * Every field is data-driven: company_settings, clients, and the invoice.
@@ -35,7 +35,7 @@ export function InvoiceDocument({
           year: "numeric",
           ...opts,
         })
-      : "—";
+      : "-";
 
   const box = "border bg-muted/30 p-4";
   const boxLabel = "mb-1.5 text-[11px] font-bold uppercase tracking-wide text-primary";
@@ -87,12 +87,12 @@ export function InvoiceDocument({
         {/* Meta grid */}
         <div className="grid grid-cols-2 border text-sm sm:grid-cols-4">
           {[
-            ["Invoice date", invoice.issued_at ? fmtDate(invoice.issued_at) : "— (draft)"],
+            ["Invoice date", invoice.issued_at ? fmtDate(invoice.issued_at) : "- (draft)"],
             [
               "Service period",
               invoice.period_start
                 ? `${fmtDate(invoice.period_start, { month: "short" })} – ${fmtDate(invoice.period_end, { month: "short" })}`
-                : "—",
+                : "-",
             ],
             ["Due date", fmtDate(invoice.due_date)],
             ["Payment terms", `Net ${client?.payment_terms_days ?? 30} days`],

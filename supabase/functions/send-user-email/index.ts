@@ -1,5 +1,5 @@
 // In-app email sending. Called by the FRONTEND with the user's JWT (the
-// gateway verifies it) — every message a user sends goes through here, is
+// gateway verifies it), every message a user sends goes through here, is
 // written to email_log, and mirrored into the related entity's timeline.
 // When event_id is set, an ICS calendar invite is attached so external
 // attendees get a real invite without anyone leaving the app.
@@ -13,7 +13,7 @@ interface SendPayload {
   cc?: string[];
   subject: string;
   html: string;
-  /** The validated sender address — the user's own email or a department
+  /** The validated sender address, the user's own email or a department
    *  identity their role entitles them to. Defaults to the user's email. */
   from_email?: string;
   from_name?: string;
@@ -123,7 +123,7 @@ serveJson(async (req) => {
         ${profile?.full_name ?? "ibrave"}${fromEmail !== profile?.email ? ` · ${fromName}` : ""} · ibrave<br/>
         <a href="mailto:${profile?.email ?? fromEmail}" style="color:#b0762a;">${profile?.email ?? fromEmail}</a>
       </p>`,
-    companyLine: "ibrave — Software Engineering & Outsourcing Services",
+    companyLine: "ibrave, Software Engineering & Outsourcing Services",
   });
 
   const result = await sendEmailRaw({

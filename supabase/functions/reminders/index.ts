@@ -1,7 +1,7 @@
 // Timesheet + approval reminders (Module F) and the notification email leg.
 // Runs the idempotent SQL jobs (which write in-app notifications +
 // automation_runs), then emails every not-yet-emailed unread notification as
-// ONE digest per user. `emailed_at` makes the email leg idempotent — a
+// ONE digest per user. `emailed_at` makes the email leg idempotent, a
 // notification is emailed exactly once, however often the job runs.
 import { adminClient, authorize, jsonResponse as json, sendEmail, serveJson } from "../_shared/admin.ts";
 import { esc, renderEmail } from "../_shared/email.ts";
@@ -58,7 +58,7 @@ serveJson(async (req) => {
     const profile = items[0].profiles;
     const ids = items.map((n) => n.id);
     if (!profile?.email || profile.active === false) {
-      // Never emailable — stamp so they don't pile up in the query forever.
+      // Never emailable, stamp so they don't pile up in the query forever.
       await db.from("notifications").update({ emailed_at: new Date().toISOString() }).in("id", ids);
       skipped++;
       continue;

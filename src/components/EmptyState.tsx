@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 /**
- * Ledger empty state — illustration → title → supporting line → one action.
+ * Ledger empty state, illustration → title → supporting line → one action.
  *
  * The "illustration" is typographic, not clipart: the icon sits on a paper
  * coin with a hairline ring and one brass quarter-arc (the same
@@ -22,7 +22,7 @@ export function EmptyState({
 }: {
   /** Lucide icon that sets the scene (adds the illustrated variant). */
   icon?: LucideIcon;
-  /** The headline — kept short, reads as a statement, not an apology. */
+  /** The headline, kept short, reads as a statement, not an apology. */
   sentence: string;
   /** Supporting line under the headline (illustrated variant). */
   description?: string;

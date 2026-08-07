@@ -40,12 +40,12 @@ export function LoginScreen() {
             One system, from first hello to final invoice.
           </h1>
           <p className="mt-4 text-[15px] leading-relaxed text-sidebar-muted">
-            Hours logged once drive approvals, invoices, payouts and margin —
+            Hours logged once drive approvals, invoices, payouts and margin -
             every number traceable to the record that produced it.
           </p>
         </div>
         <p className="relative text-xs text-sidebar-muted">
-          © {new Date().getFullYear()} ibrave — internal platform
+          © {new Date().getFullYear()} ibrave, internal platform
         </p>
       </div>
 
@@ -91,7 +91,7 @@ export function LoginScreen() {
           {import.meta.env.DEV && (
             <p className="mt-8 rounded-lg border border-dashed px-4 py-3 text-xs leading-relaxed text-muted-foreground">
               Demo: owner@ibrave.co · pm@ibrave.co · finance@ibrave.co ·
-              dev1@ibrave.co — password <code>password123</code>
+              dev1@ibrave.co, password <code>password123</code>
             </p>
           )}
         </div>

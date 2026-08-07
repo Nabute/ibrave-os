@@ -47,7 +47,7 @@ export function LocalClock({
       weekday: "short",
     }).format(now);
   } catch {
-    return <span className={cn("text-muted-foreground", className)}>—</span>;
+    return <span className={cn("text-muted-foreground", className)}>-</span>;
   }
 
   const city = timezone.split("/").pop()?.replace(/_/g, " ");

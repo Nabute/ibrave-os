@@ -2,7 +2,7 @@
  * The repository factory (meqenet pattern): one function assembles every
  * repository from one config. `Api = ReturnType<typeof createApi>` means
  * adding a repository here automatically widens the type every consumer is
- * typed against — no second file to update.
+ * typed against, no second file to update.
  */
 import type { ApiConfig } from "./base";
 import { AccountsRepository } from "./modules/accounts";

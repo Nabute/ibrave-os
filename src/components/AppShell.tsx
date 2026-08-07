@@ -215,7 +215,7 @@ export function AppShell() {
                         title={collapsed ? item.label : undefined}
                         className={cn(
                           // Active = 2px brass rail + one step lighter surface.
-                          // No fill pill, no rounding — the rail is the signal.
+                          // No fill pill, no rounding, the rail is the signal.
                           "group flex items-center gap-3 py-2 text-[13.5px] font-medium transition-colors duration-fast ease-ledger",
                           collapsed ? "justify-center px-0" : "px-5",
                           active

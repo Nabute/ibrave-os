@@ -3,7 +3,7 @@ import { useNavigate, useRouterState } from "@tanstack/react-router";
 /**
  * Tab state that lives in the URL (?tab=…) instead of component state, so a
  * refresh, back/forward, or a shared link lands on the tab you were on.
- * Uses replace-navigation — switching tabs doesn't pollute history.
+ * Uses replace-navigation, switching tabs doesn't pollute history.
  *
  * Usage: const [tab, setTab] = useUrlTab("bench");
  *        <Tabs value={tab} onValueChange={setTab}>

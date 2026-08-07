@@ -41,7 +41,7 @@ import { INVOICE_BADGE } from "./status";
 
 /**
  * Invoice workspace. Action buttons are rendered from the server's HATEOAS
- * map (invoice_actions RPC) — hidden means absent, not disabled; the server
+ * map (invoice_actions RPC), hidden means absent, not disabled; the server
  * re-validates every action on execution.
  */
 export function InvoiceDetailScreen() {
@@ -250,7 +250,7 @@ export function InvoiceDetailScreen() {
               {(invoice.payments ?? []).map((p) => (
                 <li key={p.id} className="flex justify-between">
                   <span>
-                    {p.paid_at} · {p.method ?? "—"} {p.note && `· ${p.note}`}
+                    {p.paid_at} · {p.method ?? "-"} {p.note && `· ${p.note}`}
                   </span>
                   <span className="tabular-nums">
                     {formatMinor(p.amount_minor, invoice.currency)}
@@ -271,7 +271,7 @@ export function InvoiceDetailScreen() {
             <ul className="space-y-1 text-sm text-muted-foreground">
               {(history ?? []).map((h) => (
                 <li key={h.id}>
-                  {new Date(h.at).toLocaleString()} — <strong>{h.action}</strong>:{" "}
+                  {new Date(h.at).toLocaleString()} · <strong>{h.action}</strong>:{" "}
                   {h.from_state} → {h.to_state}
                   {h.comment && ` (“${h.comment}”)`}
                 </li>
@@ -352,7 +352,7 @@ export function InvoiceDetailScreen() {
         </DialogContent>
       </Dialog>
 
-      {/* In-app invoice sending (D-2) — logged to the client timeline */}
+      {/* In-app invoice sending (D-2), logged to the client timeline */}
       <EmailComposer
         open={emailing}
         onClose={() => setEmailing(false)}
@@ -364,7 +364,7 @@ export function InvoiceDetailScreen() {
           currency: invoice.currency,
           due_date: invoice.due_date ?? undefined,
         }}
-        subject={`Invoice ${invoice.number} — ${formatMinor(invoice.total_minor, invoice.currency)}`}
+        subject={`Invoice ${invoice.number} · ${formatMinor(invoice.total_minor, invoice.currency)}`}
         body={`Dear ${invoice.clients?.name},\n\nPlease find invoice ${invoice.number} for ${formatMinor(invoice.total_minor, invoice.currency)}, due ${invoice.due_date}.\n\n${(invoice.invoice_lines ?? [])
           .map((l) => `• ${l.description}: ${formatMinor(l.amount_minor, invoice.currency)}`)
           .join("\n")}\n\nThank you for your business.`}

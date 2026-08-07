@@ -355,10 +355,10 @@ export function SalesScreen() {
                         <TableCell className="text-right tabular-nums">
                           {l.expected_value_minor != null
                             ? formatMinor(l.expected_value_minor, l.currency)
-                            : "—"}
+                            : "-"}
                         </TableCell>
                         <TableCell className="text-muted-foreground">
-                          {l.stage === "lost" ? (l.lost_reason ?? "—") : "handed off to delivery"}
+                          {l.stage === "lost" ? (l.lost_reason ?? "-") : "handed off to delivery"}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -420,7 +420,7 @@ function ContractsTab() {
                   <TableCell>{c.end_date ?? "open-ended"}</TableCell>
                   <TableCell>
                     {left == null || c.status !== "active" ? (
-                      <span className="text-muted-foreground">—</span>
+                      <span className="text-muted-foreground">-</span>
                     ) : left <= 60 ? (
                       <Badge variant={left <= 30 ? "destructive" : "warning"}>
                         {left} days left

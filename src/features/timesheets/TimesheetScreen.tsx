@@ -446,7 +446,7 @@ function AddRowPicker({
         for (const t of tasks) {
           opts.push({
             key: `${a.project_id}:${t.id}`,
-            label: `${a.projects.name} — ${t.name}`,
+            label: `${a.projects.name} · ${t.name}`,
             projectId: a.project_id,
             taskId: t.id,
           });

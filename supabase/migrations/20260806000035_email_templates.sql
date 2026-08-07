@@ -3,7 +3,7 @@
 -- billing/dunning letters, sales its outreach, recruiting its candidate mail,
 -- and admin everything (incl. the 'general' set). Templates are plain text
 -- with {{placeholders}}; the composer and the dunning/invite senders fill
--- them at send time. Deleting a template is not allowed — senders fall back
+-- them at send time. Deleting a template is not allowed, senders fall back
 -- to built-in copy only when a key has never been seeded.
 -- ----------------------------------------------------------------------------
 create table public.email_templates (
@@ -66,37 +66,37 @@ create trigger email_templates_stamp before insert or update on public.email_tem
   for each row execute function public.tg_email_templates_stamp();
 
 -- ----------------------------------------------------------------------------
--- Seed defaults (idempotent) — the copy the departments start from.
+-- Seed defaults (idempotent), the copy the departments start from.
 -- ----------------------------------------------------------------------------
 insert into public.email_templates (key, name, department, subject, body, variables) values
   ('invoice-send', 'Invoice delivery', 'finance',
-   'Invoice {{invoice_number}} — {{amount}} {{currency}}',
+   'Invoice {{invoice_number}}, {{amount}} {{currency}}',
    E'Dear {{client_name}},\n\nPlease find invoice {{invoice_number}} for {{amount}} {{currency}}, due {{due_date}}, attached as PDF.\n\nThank you for your business.',
    array['client_name', 'invoice_number', 'amount', 'currency', 'due_date']),
 
-  ('dunning-courtesy', 'Dunning — courtesy (due in 3 days)', 'finance',
+  ('dunning-courtesy', 'Dunning, courtesy (due in 3 days)', 'finance',
    'Upcoming invoice {{invoice_number}}',
    E'Dear {{client_name}},\n\nThis is a friendly reminder that the invoice below is due soon.\n\nIf payment has already been made, please disregard this message.',
    array['client_name', 'invoice_number', 'amount', 'currency', 'due_date']),
 
-  ('dunning-overdue-7', 'Dunning — 7 days overdue', 'finance',
+  ('dunning-overdue-7', 'Dunning, 7 days overdue', 'finance',
    'Overdue invoice {{invoice_number}}',
    E'Dear {{client_name}},\n\nA gentle reminder that the invoice below is now {{days_overdue}} days past due.\n\nIf payment has already been made, please disregard this message.',
    array['client_name', 'invoice_number', 'amount', 'currency', 'due_date', 'days_overdue']),
 
-  ('dunning-overdue-14', 'Dunning — 14 days overdue', 'finance',
+  ('dunning-overdue-14', 'Dunning, 14 days overdue', 'finance',
    'Second notice: invoice {{invoice_number}}',
    E'Dear {{client_name}},\n\nSecond notice: the invoice below remains unpaid, {{days_overdue}} days past due.\n\nPlease arrange payment at your earliest convenience, or let us know if something is blocking it.',
    array['client_name', 'invoice_number', 'amount', 'currency', 'due_date', 'days_overdue']),
 
-  ('dunning-overdue-30', 'Dunning — 30 days overdue (final)', 'finance',
+  ('dunning-overdue-30', 'Dunning, 30 days overdue (final)', 'finance',
    'Final notice: invoice {{invoice_number}}',
    E'Dear {{client_name}},\n\nFinal notice before escalation: the invoice below is {{days_overdue}} days overdue.\n\nPlease treat this as urgent.',
    array['client_name', 'invoice_number', 'amount', 'currency', 'due_date', 'days_overdue']),
 
   ('prospect-intro', 'Prospect introduction', 'sales',
    'Engineering capacity for {{company}}',
-   E'Hi {{contact_name}},\n\nI''m reaching out from ibrave — we provide senior software engineering teams to companies like {{company}}.\n\nWould you be open to a short call this week?',
+   E'Hi {{contact_name}},\n\nI''m reaching out from ibrave, we provide senior software engineering teams to companies like {{company}}.\n\nWould you be open to a short call this week?',
    array['contact_name', 'company']),
 
   ('quote-followup', 'Quote follow-up', 'sales',
@@ -105,17 +105,17 @@ insert into public.email_templates (key, name, department, subject, body, variab
    array['contact_name', 'company']),
 
   ('candidate-outreach', 'Candidate outreach', 'talent',
-   'Opportunity at ibrave — {{role_title}}',
+   'Opportunity at ibrave, {{role_title}}',
    E'Hi {{candidate_name}},\n\nYour profile stood out to us for a {{role_title}} position at ibrave.\n\nWould you be open to a short conversation?',
    array['candidate_name', 'role_title']),
 
   ('interview-invite', 'Interview invitation', 'talent',
-   'Interview invitation — ibrave',
+   'Interview invitation, ibrave',
    E'Hi {{candidate_name}},\n\nWe''d like to invite you to an interview. The attached calendar invite has the details.\n\nLooking forward to speaking with you.',
    array['candidate_name', 'role_title']),
 
   ('event-invite', 'Calendar event invitation', 'general',
-   'Invitation: {{title}} — {{date}} {{time}}',
+   'Invitation: {{title}}, {{date}} {{time}}',
    E'You''re invited to {{title}}.\n\n{{date}}, {{time}}{{location}}\n\nThe attached invite adds it to your calendar.',
    array['title', 'date', 'time', 'location'])
 on conflict (key) do nothing;

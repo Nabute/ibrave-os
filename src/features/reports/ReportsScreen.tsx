@@ -28,7 +28,7 @@ import { useSort } from "@/lib/useSort";
 
 /** Ledger: zero renders as a muted em-dash, never "0.00". */
 const orDash = (isZero: boolean, formatted: string) =>
-  isZero ? <span className="text-muted-foreground">—</span> : formatted;
+  isZero ? <span className="text-muted-foreground">-</span> : formatted;
 
 function downloadCsv(filename: string, rows: Record<string, unknown>[]) {
   if (rows.length === 0) return;
@@ -283,7 +283,7 @@ export function ReportsScreen() {
                       <TableCell>{r.client_name}</TableCell>
                       <TableCell className="text-right tabular-nums">{r.approved_hours}</TableCell>
                       <TableCell className="text-right tabular-nums">
-                        {r.budget_hours ?? "—"}
+                        {r.budget_hours ?? "-"}
                       </TableCell>
                       <TableCell className="text-right tabular-nums">
                         {r.burn_pct != null ? (
@@ -295,7 +295,7 @@ export function ReportsScreen() {
                             {r.burn_pct}%
                           </span>
                         ) : (
-                          "—"
+                          "-"
                         )}
                       </TableCell>
                     </TableRow>
@@ -363,7 +363,7 @@ export function ReportsScreen() {
                         {formatMinor(r.margin_minor, r.currency)}
                       </TableCell>
                       <TableCell className="text-right tabular-nums">
-                        {r.margin_pct != null ? `${r.margin_pct}%` : "—"}
+                        {r.margin_pct != null ? `${r.margin_pct}%` : "-"}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -417,7 +417,7 @@ export function ReportsScreen() {
   );
 }
 
-/** D-5: the monthly journal for your accountant — map account codes once in
+/** D-5: the monthly journal for your accountant, map account codes once in
  *  Admin → Company settings, reuse forever. */
 function AccountingTab() {
   const api = useApi();

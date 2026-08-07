@@ -7,7 +7,7 @@ import type {
   TwoSidedPipelineRow,
 } from "../types";
 
-/** Owner Command Center (Module I). Owner-only — the RPCs enforce it. */
+/** Owner Command Center (Module I). Owner-only, the RPCs enforce it. */
 export class CommandCenterRepository extends BaseRepository {
   pulse(): Promise<CommandCenterPulse> {
     return this.rpc("command_center");

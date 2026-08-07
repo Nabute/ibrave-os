@@ -1,4 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
+import { BulkActionBar, RowCheckbox, TableToolbar } from "@/components/TableToolbar";
+import { useTableControls } from "@/lib/useTableControls";
 import { TableSkeleton } from "@/components/Skeletons";
 import { Link } from "@tanstack/react-router";
 
@@ -14,12 +16,28 @@ import {
 } from "@/components/ui/table";
 import { useApi } from "@/lib/session";
 
-/** Who do we have — the entry point into every person's Talent 360. */
+/** Who do we have, the entry point into every person's Talent 360. */
 export function PeopleScreen() {
   const api = useApi();
   const { data: people, isLoading } = useQuery({
     queryKey: ["people"],
     queryFn: () => api.talent.people(),
+  });
+  const controls = useTableControls(people ?? [], {
+    getId: (p) => p.id,
+    haystack: (p) => `${p.full_name} ${p.title ?? ""} ${p.email ?? ""} ${p.employment_type}`,
+    facets: [
+      { key: "employment_type", label: "Type", get: (p) => p.employment_type },
+      {
+        key: "active",
+        label: "Status",
+        get: (p) => (p.active ? "active" : "inactive"),
+        options: [
+          { value: "active", label: "active" },
+          { value: "inactive", label: "inactive" },
+        ],
+      },
+    ],
   });
   const { data: skills } = useQuery({
     queryKey: ["person-skills-all"],
@@ -39,7 +57,7 @@ export function PeopleScreen() {
       <div>
         <h1>People</h1>
         <p className="text-sm leading-relaxed text-muted-foreground">
-          Who we have, what they've done, and who can be placed tomorrow — one search
+          Who we have, what they've done, and who can be placed tomorrow, one search
           away.
         </p>
       </div>
@@ -48,6 +66,15 @@ export function PeopleScreen() {
           {isLoading ? (
             <TableSkeleton rows={6} cols={5} />
           ) : (
+          <>
+          <TableToolbar
+            query={controls.query}
+            onQuery={controls.setQuery}
+            facets={controls.facets}
+            count={controls.rows.length}
+            total={(people ?? []).length}
+            placeholder="Search people, title, email"
+          />
           <Table>
             <TableHeader>
               <TableRow>
@@ -58,7 +85,7 @@ export function PeopleScreen() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {(people ?? []).map((p) => (
+              {controls.rows.map((p) => (
                 <TableRow key={p.id}>
                   <TableCell>
                     <Link
@@ -69,7 +96,7 @@ export function PeopleScreen() {
                       {p.full_name}
                     </Link>
                   </TableCell>
-                  <TableCell className="text-muted-foreground">{p.title ?? "—"}</TableCell>
+                  <TableCell className="text-muted-foreground">{p.title ?? "-"}</TableCell>
                   <TableCell>{p.employment_type}</TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
@@ -84,6 +111,7 @@ export function PeopleScreen() {
               ))}
             </TableBody>
           </Table>
+          </>
           )}
         </CardContent>
       </Card>

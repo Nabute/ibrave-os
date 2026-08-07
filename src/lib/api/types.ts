@@ -1,5 +1,5 @@
 /**
- * Backend DTOs — mirror of the Supabase schema (see supabase/migrations).
+ * Backend DTOs, mirror of the Supabase schema (see supabase/migrations).
  * Money is integer minor units (cents) + currency; never floats.
  * `src/types/database.ts` (generated) is the machine-checked source of truth;
  * these interfaces are the app-facing subset with joins spelled out.

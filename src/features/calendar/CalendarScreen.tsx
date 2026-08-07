@@ -112,7 +112,7 @@ export function CalendarScreen() {
         <div>
           <h1>Calendar</h1>
           <p className="text-sm leading-relaxed text-muted-foreground">
-            Meetings, check-ins and interviews — scheduled here, invites emailed with a
+            Meetings, check-ins and interviews, scheduled here, invites emailed with a
             proper calendar attachment.
           </p>
         </div>
@@ -451,7 +451,7 @@ function WeekGrid({
                 </button>
               ))}
               {dayEvents.length === 0 && (
-                <p className="py-3 text-center text-[11px] text-muted-foreground">—</p>
+                <p className="py-3 text-center text-[11px] text-muted-foreground">-</p>
               )}
             </div>
           </div>
@@ -498,11 +498,11 @@ function NewEventDialog({
         attendee_user_ids: form.attendees,
         external,
       });
-      // Email the invite (with ICS) to external attendees — in-app, logged.
+      // Email the invite (with ICS) to external attendees, in-app, logged.
       if (form.emailInvites && external.length > 0) {
         await api.comms.sendEmail({
           to: external.map((e) => e.email),
-          subject: `Invitation: ${form.title} — ${form.date} ${form.start}`,
+          subject: `Invitation: ${form.title} · ${form.date} ${form.start}`,
           html: `<p>You're invited to <strong>${form.title}</strong>.</p>
                  <p>${form.date}, ${form.start}–${form.end}${form.location ? ` · ${form.location}` : ""}</p>
                  ${form.description ? `<p>${form.description}</p>` : ""}

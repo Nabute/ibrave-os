@@ -100,7 +100,7 @@ export function useSession(): SessionState {
   return ctx;
 }
 
-/** Repository access hook — the factory-made Api object. */
+/** Repository access hook, the factory-made Api object. */
 export function useApi(): Api {
   return useSession().api;
 }

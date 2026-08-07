@@ -1,4 +1,4 @@
-// Server-side invoice PDF — mirrors the official ibrave template: teal header
+// Server-side invoice PDF, mirrors the official ibrave template: teal header
 // band, FROM/BILL TO boxes, meta grid, detailed line table, Total-due band,
 // payment instructions, issued-by block. All content is data-driven.
 import { PDFDocument, PDFFont, PDFPage, StandardFonts, rgb } from "npm:pdf-lib@1.17.1";
@@ -71,7 +71,7 @@ export async function buildInvoicePdf(
   const fmtDate = (d: string | null) =>
     d
       ? new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
-      : "—";
+      : "-";
 
   const text = (
     s: string, x: number, y: number,
@@ -156,7 +156,7 @@ export async function buildInvoicePdf(
   const period =
     inv.period_start && inv.period_end
       ? `${fmtDate(inv.period_start)} - ${fmtDate(inv.period_end)}`
-      : "—";
+      : "-";
   metaRow([["Invoice date", fmtDate(inv.issued_at)], ["Service period", period]], y);
   y -= 20;
   metaRow(

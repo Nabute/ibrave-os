@@ -1,5 +1,5 @@
 // Shared helpers for Edge Functions. The service_role key lives ONLY here
-// (function secrets) — never in the frontend.
+// (function secrets), never in the frontend.
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 /** CORS headers for browser-called functions. Auth is the JWT (validated by
@@ -20,7 +20,7 @@ export function jsonResponse(body: unknown, status = 200): Response {
 /**
  * Standard server wrapper: answers preflight before any auth check and turns
  * uncaught errors (bad JSON body, invalid UUIDs, provider outages) into a
- * CORS-carrying 500 — otherwise the browser reports them as CORS failures
+ * CORS-carrying 500, otherwise the browser reports them as CORS failures
  * and hides the real message.
  */
 export function serveJson(handler: (req: Request) => Promise<Response> | Response): void {
@@ -62,7 +62,7 @@ export async function sendEmailRaw(msg: EmailMessage): Promise<{ ok: boolean; de
   const apiKey = Deno.env.get("RESEND_API_KEY");
   const from = msg.from ?? Deno.env.get("EMAIL_FROM") ?? "ibrave OS <noreply@ibrave.co>";
   if (!apiKey) {
-    console.log(`[email skipped — no RESEND_API_KEY] to=${msg.to.join(",")} subject=${msg.subject}`);
+    console.log(`[email skipped, no RESEND_API_KEY] to=${msg.to.join(",")} subject=${msg.subject}`);
     return { ok: true, detail: "skipped (no RESEND_API_KEY)" };
   }
   const res = await fetch("https://api.resend.com/emails", {

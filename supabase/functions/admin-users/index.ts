@@ -1,7 +1,7 @@
 // User lifecycle operations that need the service role: creating auth users,
 // banning/unbanning on deactivate, resetting passwords. Called by the FRONTEND
 // with the caller's JWT (gateway verifies it); the caller must hold the admin
-// or owner role — checked server-side, never trusted from the client.
+// or owner role, checked server-side, never trusted from the client.
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { adminClient, jsonResponse as json, serveJson } from "../_shared/admin.ts";
 
@@ -17,7 +17,7 @@ type Action =
   | { action: "set_active"; user_id: string; active: boolean }
   | { action: "reset_password"; user_id: string };
 
-/** 16 chars from a safe alphabet — handed to the admin once, never emailed. */
+/** 16 chars from a safe alphabet, handed to the admin once, never emailed. */
 function tempPassword(): string {
   const alphabet = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789";
   const bytes = crypto.getRandomValues(new Uint8Array(16));
@@ -92,7 +92,7 @@ serveJson(async (req) => {
           email: payload.email,
           roles,
         });
-        // The temp password is returned to the admin ONCE — not emailed, not stored.
+        // The temp password is returned to the admin ONCE, not emailed, not stored.
         return json({ user_id: userId, temp_password: password });
       }
 

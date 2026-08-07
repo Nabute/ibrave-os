@@ -153,7 +153,7 @@ export function CandidateDialog({
                 {(offers ?? []).map((o) => (
                   <li key={o.id}>
                     {formatMinor(o.rate_minor, "USD")}/{o.rate_period}
-                    {o.start_date && `, starting ${o.start_date}`} —{" "}
+                    {o.start_date && `, starting ${o.start_date}`} -{" "}
                     <Badge
                       variant={
                         o.status === "accepted"
@@ -209,7 +209,7 @@ export function CandidateDialog({
               <DialogTitle>Reject candidate</DialogTitle>
             </DialogHeader>
             <Textarea
-              placeholder="Reason (required — shared honestly, kept internally)"
+              placeholder="Reason (required, shared honestly, kept internally)"
               value={rejectComment}
               onChange={(e) => setRejectComment(e.target.value)}
             />
@@ -258,7 +258,7 @@ export function CandidateDialog({
             candidate_name: candidate.full_name,
             role_title: candidate.requisitions?.role_title ?? "an engineering role",
           }}
-          subject={`ibrave — next steps`}
+          subject={`ibrave, next steps`}
           related={{ candidate_id: candidate.id }}
           onSent={invalidate}
         />
@@ -344,7 +344,7 @@ function RoundsSection({
               <ul className="mt-1.5 space-y-0.5 text-xs text-muted-foreground">
                 {r.scorecard.map((s, i) => (
                   <li key={i}>
-                    {s.criterion}: {"★".repeat(s.score_1_5)} {s.notes && `— ${s.notes}`}
+                    {s.criterion}: {"★".repeat(s.score_1_5)} {s.notes && `- ${s.notes}`}
                   </li>
                 ))}
               </ul>
@@ -422,7 +422,7 @@ function ScorecardDialog({
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Scorecard — round {round.round_no}</DialogTitle>
+          <DialogTitle>Scorecard, round {round.round_no}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
           {rows.map((row, i) => (
@@ -465,7 +465,7 @@ function ScorecardDialog({
             <Label>Recommendation</Label>
             <Select value={recommendation} onValueChange={setRecommendation}>
               <SelectTrigger>
-                <SelectValue placeholder="—" />
+                <SelectValue placeholder="-" />
               </SelectTrigger>
               <SelectContent>
                 {["strong_yes", "yes", "no", "strong_no"].map((r) => (
@@ -533,7 +533,7 @@ function OfferDialog({
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Record offer — {candidate.full_name}</DialogTitle>
+          <DialogTitle>Record offer · {candidate.full_name}</DialogTitle>
         </DialogHeader>
         <div className="grid grid-cols-3 gap-3">
           <div className="space-y-1">
@@ -582,7 +582,7 @@ function OfferDialog({
 }
 
 /** In-app interview scheduling: calendar event linked to the round; candidate
- *  gets the invite (ICS) by email — nobody opens an external calendar. */
+ *  gets the invite (ICS) by email, nobody opens an external calendar. */
 function ScheduleInterviewDialog({
   candidate,
   round,
@@ -621,7 +621,7 @@ function ScheduleInterviewDialog({
       if (form.emailCandidate && candidate.email) {
         await api.comms.sendEmail({
           to: [candidate.email],
-          subject: `Interview with ibrave — ${form.date} ${form.start}`,
+          subject: `Interview with ibrave · ${form.date} ${form.start}`,
           html: `<p>Hi ${candidate.full_name.split(" ")[0]},</p>
                  <p>Your interview (round ${round.round_no}) is scheduled for
                  <strong>${form.date}, ${form.start}–${form.end}</strong>${
@@ -641,7 +641,7 @@ function ScheduleInterviewDialog({
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Schedule interview — round {round.round_no}</DialogTitle>
+          <DialogTitle>Schedule interview, round {round.round_no}</DialogTitle>
         </DialogHeader>
         <div className="grid grid-cols-3 gap-3">
           <div className="space-y-1">

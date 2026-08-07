@@ -10,8 +10,8 @@ export interface ApiConfig {
 /**
  * Base repository: owns the Supabase client and error translation so
  * concrete repositories never touch raw responses. Two verbs:
- *   query(...)  — unwrap a PostgREST builder result
- *   rpc(...)    — call a Postgres function (all workflow actions go here;
+ *   query(...) , unwrap a PostgREST builder result
+ *   rpc(...)   , call a Postgres function (all workflow actions go here;
  *                 the frontend never performs financial state changes as
  *                 multi-step client writes)
  */

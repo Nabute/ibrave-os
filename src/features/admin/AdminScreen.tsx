@@ -1,4 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { BulkActionBar, RowCheckbox, TableToolbar } from "@/components/TableToolbar";
+import { useTableControls } from "@/lib/useTableControls";
 import { useUrlTab } from "@/lib/useUrlTab";
 import { TableSkeleton } from "@/components/Skeletons";
 import { Copy, KeyRound, Pencil, UserRoundPlus } from "lucide-react";
@@ -226,6 +228,22 @@ export function AdminScreen() {
     queryKey: ["admin-people"],
     queryFn: () => api.admin.people(),
   });
+  const controls = useTableControls(people ?? [], {
+    getId: (p) => p.id,
+    haystack: (p) => `${p.full_name} ${p.email} ${p.title ?? ""} ${p.user_roles.map((r) => r.role).join(" ")}`,
+    facets: [
+      { key: "employment_type", label: "Type", get: (p) => p.employment_type },
+      {
+        key: "active",
+        label: "Status",
+        get: (p) => (p.active ? "active" : "deactivated"),
+        options: [
+          { value: "active", label: "active" },
+          { value: "deactivated", label: "deactivated" },
+        ],
+      },
+    ],
+  });
   const { data: settings } = useQuery({
     queryKey: ["admin-settings"],
     queryFn: () => api.admin.settings(),
@@ -297,9 +315,45 @@ export function AdminScreen() {
               {peopleLoading ? (
                 <TableSkeleton rows={6} cols={7} />
               ) : (
+              <>
+              <TableToolbar
+                query={controls.query}
+                onQuery={controls.setQuery}
+                facets={controls.facets}
+                count={controls.rows.length}
+                total={(people ?? []).length}
+                placeholder="Search name, email, role"
+              />
+              <BulkActionBar
+                count={controls.selection.count}
+                onClear={controls.selection.clear}
+                noun="person"
+              >
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-destructive"
+                  disabled={activeMutation.isPending}
+                  onClick={() => {
+                    controls.selection.rows
+                      .filter((p) => p.active && p.id !== userId)
+                      .forEach((p) => activeMutation.mutate({ id: p.id, active: false }));
+                    controls.selection.clear();
+                  }}
+                >
+                  Deactivate selected
+                </Button>
+              </BulkActionBar>
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-8">
+                      <RowCheckbox
+                        checked={controls.selection.allVisible}
+                        onChange={controls.selection.toggleAll}
+                        label="Select all people"
+                      />
+                    </TableHead>
                     <TableHead>Person</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Type</TableHead>
@@ -310,8 +364,18 @@ export function AdminScreen() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {(people ?? []).map((p) => (
-                    <TableRow key={p.id} className={p.active ? "" : "opacity-60"}>
+                  {controls.rows.map((p) => (
+                    <TableRow
+                      key={p.id}
+                      className={`${p.active ? "" : "opacity-60"} ${controls.selection.has(p.id) ? "bg-brass/5 shadow-[inset_2px_0_0_0_hsl(var(--brass))]" : ""}`}
+                    >
+                      <TableCell className="w-8">
+                        <RowCheckbox
+                          checked={controls.selection.has(p.id)}
+                          onChange={() => controls.selection.toggle(p.id)}
+                          label={`Select ${p.full_name}`}
+                        />
+                      </TableCell>
                       <TableCell className="font-medium">
                         {p.full_name}
                         {p.title && (
@@ -422,6 +486,7 @@ export function AdminScreen() {
                   ))}
                 </TableBody>
               </Table>
+              </>
               )}
             </CardContent>
           </Card>
@@ -454,9 +519,9 @@ export function AdminScreen() {
         <TabsContent value="settings">
           <Card className="mb-4">
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Security — two-factor authentication</CardTitle>
+              <CardTitle className="text-lg">Security, two-factor authentication</CardTitle>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                MFA is off by default. Pick the roles for which it is mandatory — anyone
+                MFA is off by default. Pick the roles for which it is mandatory, anyone
                 holding one of them must enroll an authenticator app at next sign-in.
                 Individual people can also be mandated from the People tab (edit ✎).
               </p>
@@ -599,7 +664,7 @@ function InvitePersonDialog({
           <DialogTitle>Add person</DialogTitle>
           <DialogDescription>
             Creates the account immediately. You hand over the temporary password
-            yourself — it is shown once and never emailed.
+            yourself, it is shown once and never emailed.
           </DialogDescription>
         </DialogHeader>
         <div className="grid grid-cols-2 gap-3">

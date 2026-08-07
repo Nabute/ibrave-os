@@ -36,7 +36,7 @@ export function MyDayScreen() {
       } else if (attempts++ < 30) {
         raf = requestAnimationFrame(tryStart);
       } else {
-        startTour(); // partial tour beats no tour — missing steps are filtered
+        startTour(); // partial tour beats no tour, missing steps are filtered
       }
     };
     raf = requestAnimationFrame(tryStart);
