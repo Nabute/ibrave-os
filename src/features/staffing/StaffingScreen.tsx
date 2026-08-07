@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useUrlTab } from "@/lib/useUrlTab";
 import { format } from "date-fns";
 import { CalendarOff, UserPlus, Users } from "lucide-react";
 import { useState } from "react";
@@ -43,6 +44,7 @@ import { formatMinor } from "@/lib/money";
 import { useApi, useSession } from "@/lib/session";
 
 export function StaffingScreen() {
+  const [tab, setTab] = useUrlTab("bench");
   return (
     <div className="space-y-4">
       <div>
@@ -51,7 +53,7 @@ export function StaffingScreen() {
           Who is available, who is billable, and who fits the next request.
         </p>
       </div>
-      <Tabs defaultValue="bench">
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="bench">Bench</TabsTrigger>
           <TabsTrigger value="requests">Requests</TabsTrigger>

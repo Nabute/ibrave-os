@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useUrlTab } from "@/lib/useUrlTab";
 import { ListSkeleton, TableSkeleton } from "@/components/Skeletons";
 import { CalendarCheck2, CheckCircle2, Plus, Star } from "lucide-react";
 import { useState } from "react";
@@ -38,6 +39,7 @@ import { toDisplayMessage, type Prospect } from "@/lib/api";
 import { useApi, useSession } from "@/lib/session";
 
 export function ProspectingScreen() {
+  const [tab, setTab] = useUrlTab("today");
   return (
     <div className="space-y-4">
       <div>
@@ -47,7 +49,7 @@ export function ProspectingScreen() {
           send.
         </p>
       </div>
-      <Tabs defaultValue="today">
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="today">Today</TabsTrigger>
           <TabsTrigger value="prospects">Prospects</TabsTrigger>

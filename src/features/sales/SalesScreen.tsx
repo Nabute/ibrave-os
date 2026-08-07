@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useUrlTab } from "@/lib/useUrlTab";
 import { Plus, TrendingUp } from "lucide-react";
 import { useState } from "react";
 
@@ -63,6 +64,7 @@ export const STAGE_BADGE: Record<LeadStage, "secondary" | "warning" | "success" 
 };
 
 export function SalesScreen() {
+  const [tab, setTab] = useUrlTab("pipeline");
   const api = useApi();
   const qc = useQueryClient();
   const [openLead, setOpenLead] = useState<Lead | null>(null);
@@ -210,7 +212,7 @@ export function SalesScreen() {
         </Dialog>
       </div>
 
-      <Tabs defaultValue="pipeline">
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
           <TabsTrigger value="closed">Won / Lost</TabsTrigger>

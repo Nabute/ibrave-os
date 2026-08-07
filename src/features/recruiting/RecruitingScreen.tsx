@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useUrlTab } from "@/lib/useUrlTab";
 import { Archive, Plus, UserRoundPlus } from "lucide-react";
 import { useState } from "react";
 
@@ -71,6 +72,7 @@ export const CANDIDATE_BADGE: Record<
 };
 
 export function RecruitingScreen() {
+  const [tab, setTab] = useUrlTab("pipeline");
   const api = useApi();
   const [openCandidate, setOpenCandidate] = useState<Candidate | null>(null);
 
@@ -89,7 +91,7 @@ export function RecruitingScreen() {
         </p>
       </div>
 
-      <Tabs defaultValue="pipeline">
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
           <TabsTrigger value="pool">Talent pool</TabsTrigger>

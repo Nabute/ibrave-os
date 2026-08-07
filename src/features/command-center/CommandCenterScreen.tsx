@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useUrlTab } from "@/lib/useUrlTab";
 import { KpiRowSkeleton, ListSkeleton } from "@/components/Skeletons";
 import { Link } from "@tanstack/react-router";
 import { Activity, Plus, Trash2 } from "lucide-react";
@@ -37,6 +38,7 @@ const HEALTH_DOT: Record<HealthLight, string> = {
 };
 
 export function CommandCenterScreen() {
+  const [tab, setTab] = useUrlTab("pulse");
   const api = useApi();
 
   return (
@@ -48,7 +50,7 @@ export function CommandCenterScreen() {
           produced it. No dead ends.
         </p>
       </div>
-      <Tabs defaultValue="pulse">
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="pulse">Pulse</TabsTrigger>
           <TabsTrigger value="feed">Activity feed</TabsTrigger>

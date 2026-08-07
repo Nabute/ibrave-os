@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useUrlTab } from "@/lib/useUrlTab";
 import { TableSkeleton } from "@/components/Skeletons";
 import { Copy, KeyRound, Pencil, UserRoundPlus } from "lucide-react";
 import { useState } from "react";
@@ -209,6 +210,7 @@ const ALL_ROLES: AppRole[] = [
 ];
 
 export function AdminScreen() {
+  const [tab, setTab] = useUrlTab("people");
   const api = useApi();
   const qc = useQueryClient();
   const { userId } = useSession();
@@ -273,7 +275,7 @@ export function AdminScreen() {
           {error}
         </p>
       )}
-      <Tabs defaultValue="people">
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="people">People & roles</TabsTrigger>
           <TabsTrigger value="identities">Email identities</TabsTrigger>

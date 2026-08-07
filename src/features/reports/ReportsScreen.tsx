@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useUrlTab } from "@/lib/useUrlTab";
 import { format } from "date-fns";
 import { BadgeCheck, Download } from "lucide-react";
 import { useState } from "react";
@@ -53,6 +54,7 @@ function downloadCsv(filename: string, rows: Record<string, unknown>[]) {
 }
 
 export function ReportsScreen() {
+  const [tab, setTab] = useUrlTab("unbilled");
   const api = useApi();
   const unbilled = useQuery({ queryKey: ["r-unbilled"], queryFn: () => api.reports.unbilled() });
   const aging = useQuery({ queryKey: ["r-aging"], queryFn: () => api.reports.aging() });
@@ -70,7 +72,7 @@ export function ReportsScreen() {
   return (
     <div className="space-y-4">
       <h1>Reports</h1>
-      <Tabs defaultValue="unbilled">
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="unbilled">Unbilled work</TabsTrigger>
           <TabsTrigger value="aging">Invoice aging</TabsTrigger>

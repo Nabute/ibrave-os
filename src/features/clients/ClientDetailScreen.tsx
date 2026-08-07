@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useUrlTab } from "@/lib/useUrlTab";
 import { DetailSkeleton } from "@/components/Skeletons";
 import { Link, useParams } from "@tanstack/react-router";
 import { AlertTriangle, MessageSquarePlus, Star } from "lucide-react";
@@ -50,6 +51,7 @@ export const HEALTH_BADGE: Record<HealthLight, "success" | "warning" | "destruct
 
 /** Account 360 (G-1): everything about the client, entered nowhere twice. */
 export function ClientDetailScreen() {
+  const [tab, setTab] = useUrlTab("timeline");
   const { clientId } = useParams({ strict: false }) as { clientId: string };
   const api = useApi();
 
@@ -150,7 +152,7 @@ export function ClientDetailScreen() {
         />
       </div>
 
-      <Tabs defaultValue="timeline">
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="timeline">Timeline</TabsTrigger>
           <TabsTrigger value="opportunities">Opportunities</TabsTrigger>
