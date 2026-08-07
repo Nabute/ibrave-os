@@ -35,7 +35,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { toDisplayMessage, type AppRole, type Profile } from "@/lib/api";
+import { Textarea } from "@/components/ui/textarea";
+import { toDisplayMessage, type AppRole, type PrivacyRequestStatus, type Profile } from "@/lib/api";
 import { useApi, useSession } from "@/lib/session";
 
 function EmailIdentitiesTab() {
@@ -211,6 +212,215 @@ const ALL_ROLES: AppRole[] = [
   "admin",
 ];
 
+const PRIVACY_STATUSES: PrivacyRequestStatus[] = [
+  "open",
+  "in_review",
+  "fulfilled",
+  "rejected",
+  "withdrawn",
+];
+
+function PrivacyRequestsTab() {
+  const api = useApi();
+  const qc = useQueryClient();
+  const [error, setError] = useState<string | null>(null);
+  const [notes, setNotes] = useState<Record<string, string>>({});
+
+  const { data: requests } = useQuery({
+    queryKey: ["admin-privacy-requests"],
+    queryFn: () => api.admin.privacyRequests(),
+  });
+  const { data: retentionDue } = useQuery({
+    queryKey: ["admin-privacy-retention-due"],
+    queryFn: () => api.admin.privacyRetentionDue(),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({
+      id,
+      status,
+      response_note,
+    }: {
+      id: string;
+      status?: PrivacyRequestStatus;
+      response_note?: string | null;
+    }) => api.admin.updatePrivacyRequest(id, { status, response_note }),
+    onSuccess: () => {
+      setError(null);
+      void qc.invalidateQueries({ queryKey: ["admin-privacy-requests"] });
+    },
+    onError: (e) => setError(toDisplayMessage(e)),
+  });
+
+  const retentionItems = retentionDue
+    ? Object.entries(retentionDue).filter(([k]) => k !== "generated_at" && k !== "error")
+    : [];
+
+  return (
+    <div className="space-y-4">
+      {error && (
+        <p className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          {error}
+        </p>
+      )}
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg">Retention review</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-3 md:grid-cols-4">
+            {retentionItems.map(([key, value]) => (
+              <div key={key} className="rounded-md border p-3">
+                <p className="text-xs font-medium uppercase text-muted-foreground">{key}</p>
+                <p className="num mt-1 text-2xl font-semibold">{String(value)}</p>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg">Privacy requests</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Requester</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Due</TableHead>
+                <TableHead>Details</TableHead>
+                <TableHead>Response note</TableHead>
+                <TableHead className="text-right">Action</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {(requests ?? []).map((r) => (
+                <TableRow key={r.id}>
+                  <TableCell className="font-medium">{r.requester_email}</TableCell>
+                  <TableCell>{r.request_type}</TableCell>
+                  <TableCell>
+                    <Select
+                      value={r.status}
+                      onValueChange={(status) =>
+                        updateMutation.mutate({
+                          id: r.id,
+                          status: status as PrivacyRequestStatus,
+                        })
+                      }
+                    >
+                      <SelectTrigger className="h-8 w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {PRIVACY_STATUSES.map((s) => (
+                          <SelectItem key={s} value={s}>
+                            {s}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                  <TableCell>{new Date(r.due_at).toLocaleDateString()}</TableCell>
+                  <TableCell className="max-w-xs text-muted-foreground">{r.details}</TableCell>
+                  <TableCell className="min-w-64">
+                    <Textarea
+                      value={notes[r.id] ?? r.response_note ?? ""}
+                      onChange={(e) => setNotes({ ...notes, [r.id]: e.target.value })}
+                    />
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={updateMutation.isPending}
+                      onClick={() =>
+                        updateMutation.mutate({
+                          id: r.id,
+                          response_note: notes[r.id] ?? r.response_note ?? null,
+                        })
+                      }
+                    >
+                      Save note
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function SecurityEventsTab() {
+  const api = useApi();
+  const { data: events } = useQuery({
+    queryKey: ["admin-security-events"],
+    queryFn: () => api.admin.securityEvents(),
+    refetchInterval: 60_000,
+  });
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg">Security events</CardTitle>
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          Recent access denials and security-relevant events for admin review.
+        </p>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Time</TableHead>
+              <TableHead>Severity</TableHead>
+              <TableHead>Source</TableHead>
+              <TableHead>Event</TableHead>
+              <TableHead>Actor</TableHead>
+              <TableHead>Detail</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {(events ?? []).map((e) => (
+              <TableRow key={e.id}>
+                <TableCell className="whitespace-nowrap text-muted-foreground">
+                  {new Date(e.created_at).toLocaleString()}
+                </TableCell>
+                <TableCell>
+                  <Badge
+                    variant={
+                      e.severity === "critical" || e.severity === "high"
+                        ? "destructive"
+                        : e.severity === "medium"
+                          ? "warning"
+                          : "secondary"
+                    }
+                  >
+                    {e.severity}
+                  </Badge>
+                </TableCell>
+                <TableCell>{e.source}</TableCell>
+                <TableCell className="font-medium">{e.event_type}</TableCell>
+                <TableCell className="font-mono text-xs text-muted-foreground">
+                  {e.actor_id ?? "-"}
+                </TableCell>
+                <TableCell className="max-w-md truncate font-mono text-xs text-muted-foreground">
+                  {JSON.stringify(e.detail)}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  );
+}
+
 export function AdminScreen() {
   const [tab, setTab] = useUrlTab("people");
   const api = useApi();
@@ -297,11 +507,21 @@ export function AdminScreen() {
         <TabsList>
           <TabsTrigger value="people">People & roles</TabsTrigger>
           <TabsTrigger value="identities">Email identities</TabsTrigger>
+          <TabsTrigger value="privacy">Privacy</TabsTrigger>
+          <TabsTrigger value="security">Security</TabsTrigger>
           <TabsTrigger value="settings">Company settings</TabsTrigger>
         </TabsList>
 
         <TabsContent value="identities">
           <EmailIdentitiesTab />
+        </TabsContent>
+
+        <TabsContent value="privacy">
+          <PrivacyRequestsTab />
+        </TabsContent>
+
+        <TabsContent value="security">
+          <SecurityEventsTab />
         </TabsContent>
 
         <TabsContent value="people">

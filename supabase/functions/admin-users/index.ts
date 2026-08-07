@@ -3,7 +3,7 @@
 // with the caller's JWT (gateway verifies it); the caller must hold the admin
 // or owner role, checked server-side, never trusted from the client.
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { adminClient, jsonResponse as json, serveJson } from "../_shared/admin.ts";
+import { adminClient, jsonResponse as json, logSecurityEvent, serveJson } from "../_shared/admin.ts";
 
 type Action =
   | {
@@ -25,6 +25,7 @@ function tempPassword(): string {
 }
 
 serveJson(async (req) => {
+  const db = adminClient();
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
 
   // Identify the caller from their JWT.
@@ -35,16 +36,29 @@ serveJson(async (req) => {
     { global: { headers: { Authorization: authHeader } }, auth: { persistSession: false } }
   );
   const { data: userData, error: userErr } = await userClient.auth.getUser();
-  if (userErr || !userData.user) return json({ error: "Not authenticated" }, 401);
+  if (userErr || !userData.user) {
+    await logSecurityEvent(db, req, {
+      eventType: "admin_users.unauthenticated",
+      severity: "medium",
+    });
+    return json({ error: "Not authenticated" }, 401);
+  }
   const caller = userData.user;
 
-  const db = adminClient();
   const { data: callerRoles } = await db
     .from("user_roles")
     .select("role")
     .eq("user_id", caller.id);
   const isAdmin = (callerRoles ?? []).some((r) => r.role === "admin" || r.role === "owner");
-  if (!isAdmin) return json({ error: "Admin role required" }, 403);
+  if (!isAdmin) {
+    await logSecurityEvent(db, req, {
+      actorId: caller.id,
+      eventType: "admin_users.role_denied",
+      severity: "high",
+      detail: { roles: (callerRoles ?? []).map((r) => r.role) },
+    });
+    return json({ error: "Admin role required" }, 403);
+  }
 
   const payload = (await req.json()) as Action;
 
@@ -128,4 +142,3 @@ serveJson(async (req) => {
     return json({ error: String(e) }, 500);
   }
 });
-

@@ -57,6 +57,62 @@ export interface CompanySettings {
   issuer_title: string | null;
 }
 
+export type PrivacyRequestType =
+  | "access"
+  | "portability"
+  | "rectification"
+  | "erasure"
+  | "restriction"
+  | "objection"
+  | "other";
+
+export type PrivacyRequestStatus =
+  | "open"
+  | "in_review"
+  | "fulfilled"
+  | "rejected"
+  | "withdrawn";
+
+export interface PrivacyRequest {
+  id: string;
+  requester_id: string | null;
+  requester_email: string;
+  request_type: PrivacyRequestType;
+  details: string;
+  status: PrivacyRequestStatus;
+  response_note: string | null;
+  due_at: string;
+  closed_at: string | null;
+  updated_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PrivacyRetentionPolicy {
+  data_area: string;
+  lawful_basis: string;
+  default_retention_months: number;
+  review_action: "retain" | "delete" | "anonymize" | "archive";
+  notes: string;
+  updated_at: string;
+}
+
+export type SecurityEventSeverity = "info" | "low" | "medium" | "high" | "critical";
+
+export interface SecurityEvent {
+  id: number;
+  actor_id: string | null;
+  event_type: string;
+  severity: SecurityEventSeverity;
+  source: "frontend" | "edge_function" | "database" | "admin";
+  entity_type: string | null;
+  entity_id: string | null;
+  ip: string | null;
+  user_agent: string | null;
+  detail: Record<string, unknown>;
+  created_at: string;
+}
+
 export type HealthLight = "green" | "yellow" | "red";
 
 export interface AccountHealth {

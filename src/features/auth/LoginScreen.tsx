@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -94,6 +95,11 @@ export function LoginScreen() {
               dev1@ibrave.co, password <code>password123</code>
             </p>
           )}
+          <p className="mt-5 text-center text-xs text-muted-foreground">
+            <Link to="/privacy-notice" className="underline underline-offset-4">
+              Privacy notice
+            </Link>
+          </p>
         </div>
       </div>
     </div>

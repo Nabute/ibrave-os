@@ -7,3 +7,5 @@ supabase/.temp
 supabase/.branches
 .DS_Store
 *.tsbuildinfo
+sbom.cdx.json
+zap-report.html

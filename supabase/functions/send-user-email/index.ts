@@ -4,7 +4,13 @@
 // When event_id is set, an ICS calendar invite is attached so external
 // attendees get a real invite without anyone leaving the app.
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { adminClient, jsonResponse as json, sendEmailRaw, serveJson } from "../_shared/admin.ts";
+import {
+  adminClient,
+  jsonResponse as json,
+  logSecurityEvent,
+  sendEmailRaw,
+  serveJson,
+} from "../_shared/admin.ts";
 import { renderEmail } from "../_shared/email.ts";
 import { buildInvoicePdf } from "../_shared/invoicePdf.ts";
 
@@ -40,13 +46,13 @@ serveJson(async (req) => {
   const { data: userData, error: userErr } = await userClient.auth.getUser();
   if (userErr || !userData.user) return json({ error: "Not authenticated" }, 401);
   const user = userData.user;
+  const db = adminClient();
 
   const payload = (await req.json()) as SendPayload;
   if (!payload.to?.length || !payload.subject || !payload.html) {
     return json({ error: "to, subject and html are required" }, 422);
   }
 
-  const db = adminClient();
   const { data: profile } = await db
     .from("profiles")
     .select("full_name, email")
@@ -73,9 +79,23 @@ serveJson(async (req) => {
     p_email: fromEmail,
   });
   if (identErr || !allowed) {
+    await logSecurityEvent(db, req, {
+      actorId: user.id,
+      eventType: "email.identity_denied",
+      severity: "medium",
+      entityType: "email_identity",
+      entityId: fromEmail,
+      detail: { roles: [...roles] },
+    });
     return json({ error: `You are not allowed to send as ${fromEmail}` }, 403);
   }
   if (/[`\r\n]/.test(fromEmail) || /[\r\n]/.test(payload.subject) || /[\r\n]/.test(payload.from_name ?? "")) {
+    await logSecurityEvent(db, req, {
+      actorId: user.id,
+      eventType: "email.invalid_headers",
+      severity: "high",
+      detail: { from_email: fromEmail },
+    });
     return json({ error: "Invalid email headers" }, 422);
   }
   let fromName = payload.from_name ?? profile?.full_name ?? "ibrave";
@@ -88,17 +108,26 @@ serveJson(async (req) => {
     fromName = ident?.display_name ?? fromName;
   }
 
-  const deny = (entity: string) =>
-    json({ error: `You are not allowed to send against this ${entity}` }, 403);
+  const deny = async (entity: string, entityId?: string) => {
+    await logSecurityEvent(db, req, {
+      actorId: user.id,
+      eventType: "email.entity_denied",
+      severity: "medium",
+      entityType: entity,
+      entityId,
+      detail: { roles: [...roles] },
+    });
+    return json({ error: `You are not allowed to send against this ${entity}` }, 403);
+  };
 
   if (payload.invoice_id) {
-    if (!hasAnyRole(["finance"])) return deny("invoice");
+    if (!hasAnyRole(["finance"])) return await deny("invoice", payload.invoice_id);
     const { error } = await userClient
       .from("invoices")
       .select("id")
       .eq("id", payload.invoice_id)
       .single();
-    if (error) return deny("invoice");
+    if (error) return await deny("invoice", payload.invoice_id);
   }
   if (payload.event_id) {
     const { data: event, error } = await db
@@ -106,46 +135,46 @@ serveJson(async (req) => {
       .select("id, organizer_id")
       .eq("id", payload.event_id)
       .single();
-    if (error || !event) return deny("calendar event");
+    if (error || !event) return await deny("calendar_event", payload.event_id);
     if (event.organizer_id !== user.id && !hasAnyRole(["admin"])) {
-      return deny("calendar event");
+      return await deny("calendar_event", payload.event_id);
     }
   }
   if (payload.client_id) {
-    if (!hasAnyRole(["account_owner", "sales", "finance", "pm"])) return deny("client");
+    if (!hasAnyRole(["account_owner", "sales", "finance", "pm"])) return await deny("client", payload.client_id);
     const { error } = await userClient
       .from("clients")
       .select("id")
       .eq("id", payload.client_id)
       .single();
-    if (error) return deny("client");
+    if (error) return await deny("client", payload.client_id);
   }
   if (payload.lead_id) {
-    if (!hasAnyRole(["sales", "finance", "pm"])) return deny("lead");
+    if (!hasAnyRole(["sales", "finance", "pm"])) return await deny("lead", payload.lead_id);
     const { error } = await userClient
       .from("leads")
       .select("id")
       .eq("id", payload.lead_id)
       .single();
-    if (error) return deny("lead");
+    if (error) return await deny("lead", payload.lead_id);
   }
   if (payload.prospect_id) {
-    if (!hasAnyRole(["sales", "finance"])) return deny("prospect");
+    if (!hasAnyRole(["sales", "finance"])) return await deny("prospect", payload.prospect_id);
     const { error } = await userClient
       .from("prospects")
       .select("id")
       .eq("id", payload.prospect_id)
       .single();
-    if (error) return deny("prospect");
+    if (error) return await deny("prospect", payload.prospect_id);
   }
   if (payload.candidate_id) {
-    if (!hasAnyRole(["recruiter"])) return deny("candidate");
+    if (!hasAnyRole(["recruiter"])) return await deny("candidate", payload.candidate_id);
     const { error } = await userClient
       .from("candidates")
       .select("id")
       .eq("id", payload.candidate_id)
       .single();
-    if (error) return deny("candidate");
+    if (error) return await deny("candidate", payload.candidate_id);
   }
 
   // Attachments: server-generated invoice PDF and/or calendar invite.

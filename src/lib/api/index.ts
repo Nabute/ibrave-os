@@ -13,10 +13,12 @@ import { CommandCenterRepository } from "./modules/commandCenter";
 import { CommsRepository } from "./modules/comms";
 import { InvoicesRepository } from "./modules/invoices";
 import { PayoutsRepository } from "./modules/payouts";
+import { PrivacyRepository } from "./modules/privacy";
 import { ProjectsRepository } from "./modules/projects";
 import { ProspectingRepository } from "./modules/prospecting";
 import { ReportsRepository } from "./modules/reports";
 import { SalesRepository } from "./modules/sales";
+import { SecurityRepository } from "./modules/security";
 import { StaffingRepository } from "./modules/staffing";
 import { TalentRepository } from "./modules/talent";
 import { TimesheetsRepository } from "./modules/timesheets";
@@ -30,9 +32,11 @@ export function createApi(config: ApiConfig) {
     clients: new ClientsRepository(config),
     invoices: new InvoicesRepository(config),
     payouts: new PayoutsRepository(config),
+    privacy: new PrivacyRepository(config),
     reports: new ReportsRepository(config),
     staffing: new StaffingRepository(config),
     sales: new SalesRepository(config),
+    security: new SecurityRepository(config),
     accounts: new AccountsRepository(config),
     prospecting: new ProspectingRepository(config),
     talent: new TalentRepository(config),

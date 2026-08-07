@@ -6,17 +6,26 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@": path.resolve(import.meta.dirname, "./src"),
     },
   },
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          react: ["react", "react-dom"],
-          tanstack: ["@tanstack/react-query", "@tanstack/react-router"],
-          supabase: ["@supabase/supabase-js"],
-          charts: ["recharts"],
+        manualChunks(id) {
+          if (id.includes("node_modules/react") || id.includes("node_modules/react-dom")) {
+            return "react";
+          }
+          if (id.includes("node_modules/@tanstack/")) {
+            return "tanstack";
+          }
+          if (id.includes("node_modules/@supabase/")) {
+            return "supabase";
+          }
+          if (id.includes("node_modules/recharts")) {
+            return "charts";
+          }
+          return undefined;
         },
       },
     },

@@ -20,6 +20,9 @@ node tests/validation/v9-center-comms.mjs   # command center, calendar, identiti
 node tests/validation/v10-mfa.mjs           # MFA end-to-end (needs dev server :5199 + playwright)
 node tests/validation/v11-notifications.mjs # notification/email digest idempotency
 node tests/validation/v12-security-hardening.mjs # owner-only + backend MFA enforcement
+node tests/validation/v13-compliance-readiness.mjs # static OWASP/GDPR readiness guardrails
+node tests/validation/v14-privacy-governance.mjs # hosted privacy request/export workflow
+node tests/validation/v15-security-events.mjs # hosted security event logging workflow
 ```
 
 Each prints PASS/FAIL per check and exits non-zero on failure.

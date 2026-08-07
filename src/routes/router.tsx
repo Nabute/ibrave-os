@@ -7,6 +7,7 @@ import {
   Link,
   useRouterState,
 } from "@tanstack/react-router";
+import { useEffect } from "react";
 
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
@@ -35,9 +36,17 @@ function AuthenticatedLayout() {
 }
 
 function AuthorizedShell() {
-  const { roles } = useSession();
+  const { api, roles } = useSession();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  if (!canAccessPath(pathname, roles)) return <NotAuthorized />;
+  const allowed = canAccessPath(pathname, roles);
+
+  useEffect(() => {
+    if (!allowed) {
+      void api.security.recordEvent("frontend.route_denied", { pathname, roles });
+    }
+  }, [api, allowed, pathname, roles]);
+
+  if (!allowed) return <NotAuthorized />;
   return <AppShell />;
 }
 
@@ -58,6 +67,15 @@ function NotAuthorized() {
 }
 
 const rootRoute = createRootRoute({ component: Root });
+
+const privacyNoticeRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/privacy-notice",
+  component: lazyRouteComponent(
+    () => import("@/features/privacy/PrivacyNoticeScreen"),
+    "PrivacyNoticeScreen"
+  ),
+});
 
 const appRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -230,9 +248,17 @@ const routes = [
       "PreferencesScreen"
     ),
   }),
+  createRoute({
+    getParentRoute: () => appRoute,
+    path: "/privacy",
+    component: lazyRouteComponent(
+      () => import("@/features/privacy/PrivacyCenterScreen"),
+      "PrivacyCenterScreen"
+    ),
+  }),
 ];
 
-const routeTree = rootRoute.addChildren([appRoute.addChildren(routes)]);
+const routeTree = rootRoute.addChildren([privacyNoticeRoute, appRoute.addChildren(routes)]);
 
 export const router = createRouter({
   routeTree,

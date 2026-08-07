@@ -22,6 +22,7 @@ import {
   LogOut,
   MailPlus,
   Settings,
+  ShieldCheck,
   SlidersHorizontal,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -105,6 +106,7 @@ const NAV: NavSection[] = [
     title: "System",
     items: [
       { to: "/settings", label: "Preferences", icon: SlidersHorizontal, tour: "preferences-link" },
+      { to: "/privacy", label: "Privacy Center", icon: ShieldCheck },
       {
         to: "/templates",
         label: "Email templates",

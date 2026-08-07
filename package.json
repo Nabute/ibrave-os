@@ -8,6 +8,12 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit",
+    "security:audit": "npm audit --audit-level=moderate",
+    "security:sbom": "npm sbom --sbom-format cyclonedx --sbom-type application > sbom.cdx.json",
+    "security:static": "node tests/validation/v13-compliance-readiness.mjs",
+    "security:hosted": "node tests/validation/v12-security-hardening.mjs && node tests/validation/v14-privacy-governance.mjs && node tests/validation/v15-security-events.mjs",
+    "security:dast": "node scripts/security/zap-baseline.mjs",
+    "security:check": "npm run build && npm run security:audit && npm run security:sbom && npm run security:static",
     "gen:types": "supabase gen types typescript --local > src/types/database.ts"
   },
   "dependencies": {
@@ -48,11 +54,11 @@
     "@types/node": "^26.1.2",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
-    "@vitejs/plugin-react": "^4.3.1",
+    "@vitejs/plugin-react": "^6.0.5",
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.39",
     "tailwindcss": "^3.4.6",
     "typescript": "^5.5.3",
-    "vite": "^5.3.4"
+    "vite": "^8.2.1"
   }
 }

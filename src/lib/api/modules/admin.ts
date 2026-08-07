@@ -1,6 +1,13 @@
 import { ApiError } from "../errors";
 import { BaseRepository } from "../base";
-import type { AppRole, CompanySettings, Profile } from "../types";
+import type {
+  AppRole,
+  CompanySettings,
+  PrivacyRequest,
+  PrivacyRequestStatus,
+  Profile,
+  SecurityEvent,
+} from "../types";
 
 export class AdminRepository extends BaseRepository {
   people(): Promise<(Profile & { user_roles: { role: AppRole }[] })[]> {
@@ -73,6 +80,35 @@ export class AdminRepository extends BaseRepository {
   updateSettings(patch: Partial<CompanySettings>): Promise<CompanySettings> {
     return this.query(
       this.db.from("company_settings").update(patch).eq("id", true).select().single()
+    );
+  }
+
+  privacyRequests(): Promise<PrivacyRequest[]> {
+    return this.query(
+      this.db.from("privacy_requests").select("*").order("due_at", { ascending: true })
+    );
+  }
+
+  updatePrivacyRequest(
+    id: string,
+    patch: { status?: PrivacyRequestStatus; response_note?: string | null }
+  ): Promise<PrivacyRequest> {
+    return this.query(
+      this.db.from("privacy_requests").update(patch).eq("id", id).select().single()
+    );
+  }
+
+  privacyRetentionDue(): Promise<Record<string, unknown>> {
+    return this.rpc("privacy_retention_due");
+  }
+
+  securityEvents(): Promise<SecurityEvent[]> {
+    return this.query(
+      this.db
+        .from("security_events")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(100)
     );
   }
 }

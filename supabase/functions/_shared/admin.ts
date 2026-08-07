@@ -43,6 +43,34 @@ export function adminClient() {
   );
 }
 
+export async function logSecurityEvent(
+  db: ReturnType<typeof createClient>,
+  req: Request,
+  event: {
+    actorId?: string | null;
+    eventType: string;
+    severity?: "info" | "low" | "medium" | "high" | "critical";
+    entityType?: string | null;
+    entityId?: string | null;
+    detail?: Record<string, unknown>;
+  }
+): Promise<void> {
+  const forwardedFor = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+  const userAgent = req.headers.get("user-agent");
+  const { error } = await db.from("security_events").insert({
+    actor_id: event.actorId ?? null,
+    event_type: event.eventType,
+    severity: event.severity ?? "medium",
+    source: "edge_function",
+    entity_type: event.entityType ?? null,
+    entity_id: event.entityId ?? null,
+    ip: forwardedFor || null,
+    user_agent: userAgent,
+    detail: event.detail ?? {},
+  });
+  if (error) console.error("security event log failed:", error.message);
+}
+
 export interface EmailMessage {
   to: string[];
   subject: string;
