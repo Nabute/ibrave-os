@@ -14,13 +14,15 @@ const KEY = env.match(/VITE_SUPABASE_ANON_KEY=(.*)/)[1].trim();
 const clients = new Map();
 export async function as(who) {
   if (clients.has(who)) return clients.get(who);
-  const c = createClient(URL, KEY, { auth: { persistSession: false } });
-  const { error } = await c.auth.signInWithPassword({
-    email: `${who}@ibrave.co`,
-    password: "password123",
-  });
-  if (error) throw new Error(`login ${who}: ${error.message}`);
+  const c = await asLogin(`${who}@ibrave.co`, "password123", who);
   clients.set(who, c);
+  return c;
+}
+
+export async function asLogin(email, password, label = email) {
+  const c = createClient(URL, KEY, { auth: { persistSession: false } });
+  const { error } = await c.auth.signInWithPassword({ email, password });
+  if (error) throw new Error(`login ${label}: ${error.message}`);
   return c;
 }
 

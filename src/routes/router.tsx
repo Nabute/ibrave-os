@@ -4,13 +4,17 @@ import {
   createRouter,
   lazyRouteComponent,
   Outlet,
+  Link,
+  useRouterState,
 } from "@tanstack/react-router";
 
 import { AppShell } from "@/components/AppShell";
+import { Button } from "@/components/ui/button";
 import { SplashScreen } from "@/components/SplashScreen";
 import { LoginScreen } from "@/features/auth/LoginScreen";
 import { MfaGate } from "@/features/auth/MfaGate";
 import { useSession } from "@/lib/session";
+import { canAccessPath } from "@/routes/access";
 
 function Root() {
   return <Outlet />;
@@ -25,8 +29,31 @@ function AuthenticatedLayout() {
   if (!userId) return <LoginScreen />;
   return (
     <MfaGate>
-      <AppShell />
+      <AuthorizedShell />
     </MfaGate>
+  );
+}
+
+function AuthorizedShell() {
+  const { roles } = useSession();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  if (!canAccessPath(pathname, roles)) return <NotAuthorized />;
+  return <AppShell />;
+}
+
+function NotAuthorized() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-background p-6">
+      <div className="w-full max-w-sm rounded-lg border bg-card p-6">
+        <h1 className="font-display text-2xl tracking-tight">Not authorized</h1>
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+          Your account does not have access to this workspace area.
+        </p>
+        <Button asChild className="mt-5">
+          <Link to="/">Go to My Day</Link>
+        </Button>
+      </div>
+    </div>
   );
 }
 

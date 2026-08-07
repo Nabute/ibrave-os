@@ -21,7 +21,12 @@ type GateState =
  *  - otherwise → straight through. Off by default for everyone else.
  */
 export function MfaGate({ children }: { children: ReactNode }) {
+  const { refreshProfile } = useSession();
   const [state, setState] = useState<GateState>({ kind: "checking" });
+  const openWorkspace = useCallback(async () => {
+    await refreshProfile();
+    setState({ kind: "open" });
+  }, [refreshProfile]);
 
   const evaluate = useCallback(async () => {
     const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
@@ -53,10 +58,10 @@ export function MfaGate({ children }: { children: ReactNode }) {
     return <SplashScreen label="Checking security…" />;
   }
   if (state.kind === "verify") {
-    return <VerifyStep factorId={state.factorId} onDone={() => setState({ kind: "open" })} />;
+    return <VerifyStep factorId={state.factorId} onDone={() => void openWorkspace()} />;
   }
   if (state.kind === "enroll") {
-    return <EnrollStep onDone={() => setState({ kind: "open" })} />;
+    return <EnrollStep onDone={() => void openWorkspace()} />;
   }
   return <>{children}</>;
 }

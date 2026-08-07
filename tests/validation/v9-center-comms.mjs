@@ -1,7 +1,7 @@
 // V9 — Command center (owner-only pulse + drill-down consistency), My Day,
 // in-app calendar (attendee notifications, cancel), email identity gating,
 // client digest, admin-users Edge Function gate.
-import { as, check, expectErr, expectOk, summary } from "./harness.mjs";
+import { as, asLogin, check, expectErr, expectOk, summary } from "./harness.mjs";
 import { readFileSync } from "fs";
 
 const dev1 = await as("dev1");
@@ -17,6 +17,9 @@ const pmId = mePm.user.id;
 {
   const denied = await dev1.rpc("command_center");
   expectErr("employee cannot open command center", denied.error);
+  const adminOnly = await asLogin("test.admin@ibrave.co", "Passw0rd!Test", "test.admin");
+  const adminDenied = await adminOnly.rpc("command_center");
+  expectErr("admin without owner cannot open command center", adminDenied.error);
 
   const cc = await owner.rpc("command_center");
   expectOk("owner opens command center", cc.error);
@@ -27,14 +30,13 @@ const pmId = mePm.user.id;
       .every((k) => k in d),
     Object.keys(d).join(",").slice(0, 200));
 
-  // drill-down guarantee: overdue AR tile equals the sum of overdue invoices
-  const { data: overdue } = await finance.from("invoices")
-    .select("total_minor, id").eq("status", "overdue").eq("kind", "invoice");
-  let sum = 0;
-  for (const inv of overdue ?? []) {
-    const { data: pays } = await finance.from("payments").select("amount_minor").eq("invoice_id", inv.id);
-    sum += Number(inv.total_minor) - (pays ?? []).reduce((s, p) => s + Number(p.amount_minor), 0);
-  }
+  // drill-down guarantee: overdue AR tile equals due-date-aged receivables,
+  // including partially paid invoices whose due date has passed.
+  const aging = await finance
+    .from("v_invoice_aging")
+    .select("outstanding_minor")
+    .neq("bucket", "current");
+  const sum = (aging.data ?? []).reduce((s, r) => s + Number(r.outstanding_minor), 0);
   check("overdue AR tile matches source invoices", Number(d.overdue_ar_minor) === sum,
     `tile=${d.overdue_ar_minor} source=${sum}`);
 
@@ -105,12 +107,11 @@ const pmId = mePm.user.id;
     (ownIds ?? []).some((i) => i.kind === "personal") && (ownIds ?? []).some((i) => i.email === "talent@ibrave.co"),
     JSON.stringify(ownIds?.map((i) => i.email)));
 
-  const c1 = await owner.rpc("can_use_email_identity", { p_user_id: dev1Id, p_email: "talent@ibrave.co" });
-  check("server denies dev1 sending as talent@", c1.data === false, `got=${c1.data}`);
-  const c2 = await owner.rpc("can_use_email_identity", { p_user_id: dev1Id, p_email: "dev1@ibrave.co" });
-  check("server allows dev1 sending as self", c2.data === true, `got=${c2.data}`);
-  const c3 = await owner.rpc("can_use_email_identity", { p_user_id: dev1Id, p_email: "noreply@evil.test" });
-  check("server denies arbitrary From", c3.data === false, `got=${c3.data}`);
+  const hidden = await dev1.rpc("can_use_email_identity", {
+    p_user_id: dev1Id,
+    p_email: "talent@ibrave.co",
+  });
+  expectErr("identity authorization helper is not public", hidden.error);
 }
 
 // --- client digest -----------------------------------------------------------

@@ -72,20 +72,22 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       roles,
       ready,
       api,
-      // owner/admin implicitly hold every role (matches SQL has_role()).
+      // owner/admin implicitly hold every non-owner role (matches SQL has_role()).
       hasRole: (role) =>
-        roles.includes(role) || roles.includes("owner") || roles.includes("admin"),
+        roles.includes(role) ||
+        roles.includes("owner") ||
+        (role !== "owner" && roles.includes("admin")),
       signOut: async () => {
         await supabase.auth.signOut();
       },
       refreshProfile: async () => {
         if (!userId) return;
-        const { data } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", userId)
-          .single();
-        if (data) setProfile(data as Profile);
+        const [{ data: prof }, { data: roleRows }] = await Promise.all([
+          supabase.from("profiles").select("*").eq("id", userId).single(),
+          supabase.from("user_roles").select("role").eq("user_id", userId),
+        ]);
+        if (prof) setProfile(prof as Profile);
+        if (roleRows) setRoles(roleRows.map((r) => r.role as AppRole));
       },
     }),
     [userId, profile, roles, ready, api]

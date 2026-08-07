@@ -52,6 +52,16 @@ serveJson(async (req) => {
     .select("full_name, email")
     .eq("id", user.id)
     .single();
+  const { data: roleRows } = await db
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", user.id);
+  const roles = new Set((roleRows ?? []).map((r) => String(r.role)));
+  const hasRole = (role: string) =>
+    roles.has(role) ||
+    roles.has("owner") ||
+    (role !== "owner" && roles.has("admin"));
+  const hasAnyRole = (allowed: string[]) => allowed.some(hasRole);
 
   // Resolve + authorize the From address: never noreply for user-initiated
   // mail. Own login email is always allowed; department identities are
@@ -65,6 +75,9 @@ serveJson(async (req) => {
   if (identErr || !allowed) {
     return json({ error: `You are not allowed to send as ${fromEmail}` }, 403);
   }
+  if (/[`\r\n]/.test(fromEmail) || /[\r\n]/.test(payload.subject) || /[\r\n]/.test(payload.from_name ?? "")) {
+    return json({ error: "Invalid email headers" }, 422);
+  }
   let fromName = payload.from_name ?? profile?.full_name ?? "ibrave";
   if (payload.from_email && payload.from_email !== profile?.email) {
     const { data: ident } = await db
@@ -73,6 +86,66 @@ serveJson(async (req) => {
       .eq("email", fromEmail)
       .single();
     fromName = ident?.display_name ?? fromName;
+  }
+
+  const deny = (entity: string) =>
+    json({ error: `You are not allowed to send against this ${entity}` }, 403);
+
+  if (payload.invoice_id) {
+    if (!hasAnyRole(["finance"])) return deny("invoice");
+    const { error } = await userClient
+      .from("invoices")
+      .select("id")
+      .eq("id", payload.invoice_id)
+      .single();
+    if (error) return deny("invoice");
+  }
+  if (payload.event_id) {
+    const { data: event, error } = await db
+      .from("calendar_events")
+      .select("id, organizer_id")
+      .eq("id", payload.event_id)
+      .single();
+    if (error || !event) return deny("calendar event");
+    if (event.organizer_id !== user.id && !hasAnyRole(["admin"])) {
+      return deny("calendar event");
+    }
+  }
+  if (payload.client_id) {
+    if (!hasAnyRole(["account_owner", "sales", "finance", "pm"])) return deny("client");
+    const { error } = await userClient
+      .from("clients")
+      .select("id")
+      .eq("id", payload.client_id)
+      .single();
+    if (error) return deny("client");
+  }
+  if (payload.lead_id) {
+    if (!hasAnyRole(["sales", "finance", "pm"])) return deny("lead");
+    const { error } = await userClient
+      .from("leads")
+      .select("id")
+      .eq("id", payload.lead_id)
+      .single();
+    if (error) return deny("lead");
+  }
+  if (payload.prospect_id) {
+    if (!hasAnyRole(["sales", "finance"])) return deny("prospect");
+    const { error } = await userClient
+      .from("prospects")
+      .select("id")
+      .eq("id", payload.prospect_id)
+      .single();
+    if (error) return deny("prospect");
+  }
+  if (payload.candidate_id) {
+    if (!hasAnyRole(["recruiter"])) return deny("candidate");
+    const { error } = await userClient
+      .from("candidates")
+      .select("id")
+      .eq("id", payload.candidate_id)
+      .single();
+    if (error) return deny("candidate");
   }
 
   // Attachments: server-generated invoice PDF and/or calendar invite.
@@ -115,9 +188,10 @@ serveJson(async (req) => {
 
   // Wrap the message in the branded template; the sender's signature block
   // replaces the old bare footer line.
+  const bodyHtml = sanitizeUserHtml(payload.html);
   const signedHtml = renderEmail({
     preheader: payload.subject,
-    bodyHtml: `${payload.html}
+    bodyHtml: `${bodyHtml}
       <p style="margin:24px 0 0;padding-top:16px;border-top:1px solid #e2ddd3;
                 color:#6f695f;font-size:13px;line-height:1.5;">
         ${profile?.full_name ?? "ibrave"}${fromEmail !== profile?.email ? ` · ${fromName}` : ""} · ibrave<br/>
@@ -144,7 +218,7 @@ serveJson(async (req) => {
       to_emails: payload.to,
       cc_emails: payload.cc ?? [],
       subject: payload.subject,
-      body_html: payload.html,
+      body_html: bodyHtml,
       status: result.ok ? "sent" : "failed",
       error: result.ok ? null : result.detail,
       client_id: payload.client_id ?? null,
@@ -232,3 +306,11 @@ function buildIcs(event: EventRow, organizerEmail: string): string {
     .join("\r\n");
 }
 
+function sanitizeUserHtml(html: string): string {
+  return html
+    .replace(/<\s*(script|style|iframe|object|embed|link|meta)\b[^>]*>[\s\S]*?<\s*\/\s*\1\s*>/gi, "")
+    .replace(/<\s*(script|style|iframe|object|embed|link|meta)\b[^>]*\/?>/gi, "")
+    .replace(/\s+on[a-z]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "")
+    .replace(/\s+(href|src)\s*=\s*(['"])\s*javascript:[\s\S]*?\2/gi, "")
+    .replace(/\s+(href|src)\s*=\s*javascript:[^\s>]*/gi, "");
+}

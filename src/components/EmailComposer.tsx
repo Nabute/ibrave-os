@@ -22,7 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toDisplayMessage, type SendEmailPayload } from "@/lib/api";
-import { fillTemplate } from "@/lib/emailTemplate";
+import { fillTemplate, textToHtml } from "@/lib/emailTemplate";
 import { useApi } from "@/lib/session";
 
 interface EmailComposerProps {
@@ -120,10 +120,7 @@ export function EmailComposer({
     mutationFn: () => {
       const toList = form.to.split(/[,;\s]+/).filter(Boolean);
       if (toList.length === 0) throw new Error("At least one recipient required");
-      const html = form.body
-        .split(/\n{2,}/)
-        .map((p) => `<p>${p.replace(/\n/g, "<br/>")}</p>`)
-        .join("");
+      const html = textToHtml(form.body);
       const identity = identities.find((i) => i.email === fromEmail);
       return api.comms.sendEmail({
         to: toList,
