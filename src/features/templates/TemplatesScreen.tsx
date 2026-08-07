@@ -3,6 +3,7 @@ import { Pencil } from "lucide-react";
 import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
+import { CardGridSkeleton } from "@/components/Skeletons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -57,6 +58,7 @@ export function TemplatesScreen() {
         </p>
       </div>
 
+      {templates === undefined && <CardGridSkeleton cards={2} className="md:grid-cols-1 xl:grid-cols-2" />}
       {DEPARTMENTS.map((dept) => {
         const rows = (templates ?? []).filter((t) => t.department === dept.key);
         if (rows.length === 0) return null;

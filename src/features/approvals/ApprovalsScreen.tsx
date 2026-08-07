@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, X } from "lucide-react";
+import { Check, CheckCheck, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { EmptyState } from "@/components/EmptyState";
+import { TableSkeleton } from "@/components/Skeletons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -104,10 +105,22 @@ export function ApprovalsScreen() {
         </p>
       )}
 
+      {isLoading && (
+        <Card>
+          <CardContent className="pt-4">
+            <TableSkeleton rows={4} cols={6} />
+          </CardContent>
+        </Card>
+      )}
+
       {!isLoading && groups.length === 0 && (
         <Card>
           <CardContent>
-            <EmptyState sentence="Queue is empty — nothing waiting on you." />
+            <EmptyState
+              icon={CheckCheck}
+              sentence="Queue is empty — nothing waiting on you"
+              description="Submitted timesheets from your projects land here. Approval is final; corrections afterwards are adjustment entries."
+            />
           </CardContent>
         </Card>
       )}

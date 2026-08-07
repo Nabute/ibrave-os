@@ -36,6 +36,7 @@ import { formatMinor } from "@/lib/money";
 import { useApi } from "@/lib/session";
 import { cn } from "@/lib/utils";
 import { LeadDetailDialog } from "./LeadDetailDialog";
+import { BoardSkeleton } from "@/components/Skeletons";
 
 const ACTIVE_STAGES: { key: LeadStage; label: string }[] = [
   { key: "lead", label: "Lead" },
@@ -222,6 +223,9 @@ export function SalesScreen() {
               {error}
             </p>
           )}
+          {leads === undefined ? (
+            <BoardSkeleton columns={4} />
+          ) : (
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             {ACTIVE_STAGES.map((stage) => {
               const stageLeads = (leads ?? []).filter((l) => l.stage === stage.key);
@@ -315,6 +319,7 @@ export function SalesScreen() {
               );
             })}
           </div>
+          )}
         </TabsContent>
 
         <TabsContent value="closed">

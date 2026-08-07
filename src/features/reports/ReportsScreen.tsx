@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { Download } from "lucide-react";
+import { BadgeCheck, Download } from "lucide-react";
 import { useState } from "react";
 
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { SortHead } from "@/components/SortHead";
+import { TableSkeleton } from "@/components/Skeletons";
 import { formatMinor } from "@/lib/money";
 import { useApi } from "@/lib/session";
 import { useSort } from "@/lib/useSort";
@@ -139,8 +140,13 @@ export function ReportsScreen() {
                   </TableFooter>
                 )}
               </Table>
-              {(unbilled.data ?? []).length === 0 && (
-                <EmptyState sentence="No revenue leakage — everything approved is invoiced." />
+              {unbilled.isLoading && <TableSkeleton rows={4} cols={5} />}
+              {!unbilled.isLoading && (unbilled.data ?? []).length === 0 && (
+                <EmptyState
+                  icon={BadgeCheck}
+                  sentence="No revenue leakage"
+                  description="Every approved, billable hour is on an invoice. This report only has rows when money is being left on the table."
+                />
               )}
             </CardContent>
           </Card>

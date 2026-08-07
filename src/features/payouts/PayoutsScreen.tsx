@@ -179,7 +179,9 @@ export function PayoutsScreen() {
           </Table>
           {(statements ?? []).length === 0 && (
             <EmptyState
-              sentence="No payout statements yet."
+              icon={HandCoins}
+              description="Statements are computed from approved hours × cost rates — the same records that back the invoices."
+              sentence="No payout statements yet"
               action="Draft statements for a period"
               onAction={() => setOpen(true)}
             />

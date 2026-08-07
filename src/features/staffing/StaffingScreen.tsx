@@ -1,10 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { CalendarOff, UserPlus } from "lucide-react";
+import { CalendarOff, UserPlus, Users } from "lucide-react";
 import { useState } from "react";
 
 import { EmptyState } from "@/components/EmptyState";
 import { SortHead } from "@/components/SortHead";
+import { TableSkeleton } from "@/components/Skeletons";
 import { useSort } from "@/lib/useSort";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -76,7 +77,7 @@ export function StaffingScreen() {
 
 function BenchTab() {
   const api = useApi();
-  const { data: bench } = useQuery({
+  const { data: bench, isLoading } = useQuery({
     queryKey: ["bench"],
     queryFn: () => api.staffing.bench(),
   });
@@ -86,6 +87,9 @@ function BenchTab() {
   return (
     <Card>
       <CardContent className="pt-4">
+        {isLoading ? (
+          <TableSkeleton rows={5} cols={6} />
+        ) : (
         <Table>
           <TableHeader>
             <TableRow>
@@ -149,6 +153,7 @@ function BenchTab() {
             ))}
           </TableBody>
         </Table>
+        )}
         <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
           Anyone under 80% allocated is flagged. Bench cost = free capacity × cost rate
           (visible to finance/owner only).
@@ -489,7 +494,11 @@ function RequestsTab() {
       {(requests ?? []).length === 0 && (
         <Card>
           <CardContent>
-            <EmptyState sentence="No staffing requests open." />
+            <EmptyState
+              icon={Users}
+              sentence="No staffing requests open"
+              description="Requests open here when a PM needs a person or sales wins a deal with roles attached — suggested candidates are ranked skills-first."
+            />
           </CardContent>
         </Card>
       )}

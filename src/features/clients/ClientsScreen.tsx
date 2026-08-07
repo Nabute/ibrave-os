@@ -1,9 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { Plus } from "lucide-react";
+import { Building2, Plus } from "lucide-react";
 import { useState } from "react";
 
+import { EmptyState } from "@/components/EmptyState";
 import { LocalClock } from "@/components/LocalClock";
+import { TableSkeleton } from "@/components/Skeletons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -36,7 +38,7 @@ export function ClientsScreen() {
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({ name: "", contact_email: "", currency: "USD" });
 
-  const { data: clients } = useQuery({
+  const { data: clients, isLoading } = useQuery({
     queryKey: ["clients"],
     queryFn: () => api.clients.list(),
   });
@@ -114,6 +116,17 @@ export function ClientsScreen() {
 
       <Card>
         <CardContent className="pt-4">
+          {isLoading ? (
+            <TableSkeleton rows={5} cols={7} />
+          ) : (clients ?? []).length === 0 ? (
+            <EmptyState
+              icon={Building2}
+              sentence="No clients yet"
+              description="Clients arrive automatically when sales wins a deal, or add one directly to start billing."
+              action="New client"
+              onAction={() => setOpen(true)}
+            />
+          ) : (
           <Table>
             <TableHeader>
               <TableRow>
@@ -169,6 +182,7 @@ export function ClientsScreen() {
               ))}
             </TableBody>
           </Table>
+          )}
         </CardContent>
       </Card>
     </div>

@@ -4,6 +4,7 @@ import { ArrowRight, BellOff } from "lucide-react";
 import { useEffect } from "react";
 
 import { Badge } from "@/components/ui/badge";
+import { CardGridSkeleton } from "@/components/Skeletons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatMinor } from "@/lib/money";
@@ -15,7 +16,7 @@ export function MyDayScreen() {
   const { profile } = useSession();
   const qc = useQueryClient();
 
-  const { data: day } = useQuery({ queryKey: ["my-day"], queryFn: () => api.workspace.myDay() });
+  const { data: day, isLoading } = useQuery({ queryKey: ["my-day"], queryFn: () => api.workspace.myDay() });
   const { data: notifications } = useQuery({
     queryKey: ["notifications"],
     queryFn: () => api.workspace.notifications(),
@@ -55,6 +56,7 @@ export function MyDayScreen() {
         </p>
       </div>
 
+      {isLoading && <CardGridSkeleton cards={3} />}
       <div data-tour="my-day-cards" className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {day?.timesheet && (
           <Card className="transition-shadow duration-fast ease-ledger">

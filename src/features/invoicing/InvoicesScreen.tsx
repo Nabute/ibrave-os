@@ -1,10 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { FilePlus2 } from "lucide-react";
+import { Banknote, FilePlus2 } from "lucide-react";
 import { format, startOfMonth, subMonths } from "date-fns";
 import { useMemo, useState } from "react";
 
 import { SortHead } from "@/components/SortHead";
+import { EmptyState } from "@/components/EmptyState";
+import { TableSkeleton } from "@/components/Skeletons";
 import { useSort } from "@/lib/useSort";
 
 import { Badge } from "@/components/ui/badge";
@@ -56,7 +58,7 @@ export function InvoicesScreen() {
     periodEnd: format(subMonths(startOfMonth(new Date()), 0), "yyyy-MM-dd"),
   });
 
-  const { data: invoices } = useQuery({
+  const { data: invoices, isLoading } = useQuery({
     queryKey: ["invoices"],
     queryFn: () => api.invoices.list(),
   });
@@ -165,6 +167,17 @@ export function InvoicesScreen() {
 
       <Card>
         <CardContent className="pt-4">
+          {isLoading ? (
+            <TableSkeleton rows={6} cols={7} />
+          ) : sort.rows.length === 0 ? (
+            <EmptyState
+              icon={Banknote}
+              sentence="No invoices yet"
+              description="Generate a draft from approved, un-invoiced work — the system prices every entry from the rate card effective on its work date."
+              action="Generate draft"
+              onAction={() => setOpen(true)}
+            />
+          ) : (
           <Table>
             <TableHeader>
               <TableRow>
@@ -217,6 +230,7 @@ export function InvoicesScreen() {
               ))}
             </TableBody>
           </Table>
+          )}
         </CardContent>
       </Card>
     </div>

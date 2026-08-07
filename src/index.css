@@ -281,3 +281,22 @@
 .driver-popover.ledger-tour .driver-popover-arrow-side-bottom {
   border-bottom-color: hsl(var(--card));
 }
+
+/* ---------------------------------------------------------------------------
+   Shimmer — the one loading treatment. A slow brass-warmed sweep over a
+   muted base; quiet enough for a ledger, alive enough to read as "working".
+--------------------------------------------------------------------------- */
+@keyframes shimmer-sweep {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+.shimmer {
+  background: linear-gradient(
+    100deg,
+    hsl(var(--muted)) 40%,
+    hsl(var(--brass) / 0.09) 50%,
+    hsl(var(--muted)) 60%
+  );
+  background-size: 200% 100%;
+  animation: shimmer-sweep 1.8s ease-in-out infinite;
+}

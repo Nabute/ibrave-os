@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, Plus, Star } from "lucide-react";
+import { CalendarCheck2, CheckCircle2, Plus, Star } from "lucide-react";
 import { useState } from "react";
 
 import { EmptyState } from "@/components/EmptyState";
@@ -110,7 +110,11 @@ function TodayTab() {
       <Card>
         <CardContent className="pt-4">
           {due.length === 0 && (
-            <EmptyState sentence="Nothing due — genuinely done for the day." />
+            <EmptyState
+              icon={CalendarCheck2}
+              sentence="Nothing due — genuinely done for the day"
+              description="Cadence touches and account check-ins appear here on their day. Start a cadence on a prospect to fill tomorrow."
+            />
           )}
           <ul className="divide-y">
             {due.map((t) => (

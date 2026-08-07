@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, UserRoundPlus } from "lucide-react";
+import { Archive, Plus, UserRoundPlus } from "lucide-react";
 import { useState } from "react";
 
 import { EmptyState } from "@/components/EmptyState";
+import { BoardSkeleton } from "@/components/Skeletons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -98,10 +99,11 @@ export function RecruitingScreen() {
         </TabsList>
 
         <TabsContent value="pipeline">
-          <PipelineTab
-            candidates={candidates ?? []}
-            onOpen={setOpenCandidate}
-          />
+          {candidates === undefined ? (
+            <BoardSkeleton columns={5} />
+          ) : (
+            <PipelineTab candidates={candidates} onOpen={setOpenCandidate} />
+          )}
         </TabsContent>
         <TabsContent value="pool">
           <PoolTab candidates={candidates ?? []} onOpen={setOpenCandidate} />
@@ -429,7 +431,11 @@ function PoolTab({
           </TableBody>
         </Table>
         {pool.length === 0 && (
-          <EmptyState sentence="The talent pool is empty — park strong candidates here." />
+          <EmptyState
+            icon={Archive}
+            sentence="The talent pool is empty"
+            description="Park strong-but-not-now candidates here instead of rejecting them — the pool is your cheapest sourcing channel."
+          />
         )}
       </CardContent>
     </Card>
