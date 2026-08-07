@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { TableSkeleton } from "@/components/Skeletons";
 import { ChevronLeft, ChevronRight, Copy, Send } from "lucide-react";
 import { useMemo, useState } from "react";
 
@@ -64,6 +65,7 @@ export function TimesheetScreen() {
   });
 
   const entries = entriesQuery.data ?? [];
+  const gridLoading = entriesQuery.isLoading || assignmentsQuery.isLoading;
   const tasksByProject = useMemo(() => {
     const map = new Map<string, Task[]>();
     for (const t of tasksQuery.data ?? []) {
@@ -227,6 +229,9 @@ export function TimesheetScreen() {
 
       <Card>
         <CardContent className="pt-4">
+          {gridLoading ? (
+            <TableSkeleton rows={4} cols={9} />
+          ) : (<>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -340,6 +345,7 @@ export function TimesheetScreen() {
             </div>
           </div>
 
+          </>)}
           <div className="mt-3 flex gap-2 text-xs text-muted-foreground">
             {(["draft", "submitted", "approved"] as const).map((s) => (
               <Badge key={s} variant={STATUS_BADGE[s]}>

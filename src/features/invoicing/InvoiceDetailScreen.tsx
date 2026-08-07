@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { DetailSkeleton } from "@/components/Skeletons";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { Mail, Plus, Printer, Trash2 } from "lucide-react";
 import { useState } from "react";
@@ -152,7 +153,7 @@ export function InvoiceDetailScreen() {
     onError: (e) => setError(toDisplayMessage(e)),
   });
 
-  if (!invoice) return null;
+  if (!invoice) return <DetailSkeleton />;
 
   const isDraft = invoice.status === "draft";
   const needsDialog = (a: WorkflowAction) =>

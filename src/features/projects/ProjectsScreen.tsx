@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { TableSkeleton } from "@/components/Skeletons";
 import { Link } from "@tanstack/react-router";
 
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +18,7 @@ const MODEL_LABEL = { tm: "T&M", retainer: "Retainer", fixed: "Fixed price" } as
 
 export function ProjectsScreen() {
   const api = useApi();
-  const { data: projects } = useQuery({
+  const { data: projects, isLoading } = useQuery({
     queryKey: ["projects"],
     queryFn: () => api.projects.list(),
   });
@@ -33,6 +34,9 @@ export function ProjectsScreen() {
       <h1>Projects</h1>
       <Card>
         <CardContent className="pt-4">
+          {isLoading ? (
+            <TableSkeleton rows={5} cols={6} />
+          ) : (
           <Table>
             <TableHeader>
               <TableRow>
@@ -93,6 +97,7 @@ export function ProjectsScreen() {
               })}
             </TableBody>
           </Table>
+          )}
         </CardContent>
       </Card>
     </div>

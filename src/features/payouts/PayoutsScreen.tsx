@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { TableSkeleton } from "@/components/Skeletons";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { format, endOfMonth, startOfMonth, subMonths } from "date-fns";
 import { HandCoins } from "lucide-react";
@@ -51,7 +52,7 @@ export function PayoutsScreen() {
     periodEnd: format(endOfMonth(lastMonth), "yyyy-MM-dd"),
   });
 
-  const { data: statements } = useQuery({
+  const { data: statements, isLoading } = useQuery({
     queryKey: ["payouts"],
     queryFn: () => api.payouts.list(),
   });
@@ -136,6 +137,9 @@ export function PayoutsScreen() {
 
       <Card>
         <CardContent className="pt-4">
+          {isLoading ? (
+            <TableSkeleton rows={5} cols={6} />
+          ) : (
           <Table>
             <TableHeader>
               <TableRow>
@@ -177,6 +181,7 @@ export function PayoutsScreen() {
               ))}
             </TableBody>
           </Table>
+          )}
           {(statements ?? []).length === 0 && (
             <EmptyState
               icon={HandCoins}

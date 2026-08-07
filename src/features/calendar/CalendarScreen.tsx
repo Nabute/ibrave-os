@@ -1,4 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { KpiRowSkeleton } from "@/components/Skeletons";
+import { Skeleton as SkeletonBlock } from "@/components/ui/skeleton";
 import {
   addDays,
   addMonths,
@@ -56,7 +58,7 @@ export function CalendarScreen() {
     };
   }, [mode, anchor]);
 
-  const { data: events } = useQuery({
+  const { data: events, isLoading: eventsLoading } = useQuery({
     queryKey: ["calendar", mode, iso(range.start)],
     queryFn: () =>
       api.comms.events(
@@ -166,6 +168,9 @@ export function CalendarScreen() {
       )}
 
       {/* summary for the visible period */}
+      {eventsLoading ? (
+        <KpiRowSkeleton tiles={4} />
+      ) : (
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <KpiTile label={`Events · ${mode}`} value={String(summary.total)} sub={range.label} />
         <KpiTile
@@ -186,8 +191,11 @@ export function CalendarScreen() {
           sub="client-facing in this period"
         />
       </div>
+      )}
 
-      {mode === "month" ? (
+      {eventsLoading ? (
+        <SkeletonBlock className="h-[420px] w-full rounded-lg" />
+      ) : mode === "month" ? (
         <MonthGrid
           anchor={anchor}
           todayIso={todayIso}

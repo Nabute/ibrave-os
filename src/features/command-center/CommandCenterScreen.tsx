@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { KpiRowSkeleton, ListSkeleton } from "@/components/Skeletons";
 import { Link } from "@tanstack/react-router";
 import { Activity, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -77,7 +78,7 @@ export function CommandCenterScreen() {
 
 function PulseTab() {
   const api = useApi();
-  const { data: pulse } = useQuery({
+  const { data: pulse, isLoading: pulseLoading } = useQuery({
     queryKey: ["command-pulse"],
     queryFn: () => api.commandCenter.pulse(),
     refetchInterval: 60_000,
@@ -154,6 +155,8 @@ function PulseTab() {
     },
   ];
 
+  if (pulseLoading) return <KpiRowSkeleton tiles={8} />;
+
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {tiles.map((t) => (
@@ -169,7 +172,7 @@ function FeedTab() {
   const [filter, setFilter] = useState("all");
   const [live, setLive] = useState<ActivityFeedRow[]>([]);
 
-  const { data: feed } = useQuery({
+  const { data: feed, isLoading: feedLoading } = useQuery({
     queryKey: ["activity-feed"],
     queryFn: () => api.commandCenter.activityFeed(),
   });
@@ -209,6 +212,7 @@ function FeedTab() {
           </Select>
         </div>
         <ul className="space-y-2.5 text-sm">
+          {feedLoading && <ListSkeleton rows={6} />}
           {visible.map((r) => (
             <li key={r.id} className="flex gap-3">
               <span className="w-28 shrink-0 text-xs tabular-nums text-muted-foreground">
@@ -483,3 +487,4 @@ function AlertRulesTab() {
     </Card>
   );
 }
+          

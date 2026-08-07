@@ -106,7 +106,11 @@ export function RecruitingScreen() {
           )}
         </TabsContent>
         <TabsContent value="pool">
-          <PoolTab candidates={candidates ?? []} onOpen={setOpenCandidate} />
+          {candidates === undefined ? (
+            <BoardSkeleton columns={2} />
+          ) : (
+            <PoolTab candidates={candidates} onOpen={setOpenCandidate} />
+          )}
         </TabsContent>
         <TabsContent value="requisitions">
           <RequisitionsTab />

@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { TableSkeleton } from "@/components/Skeletons";
 import { Link } from "@tanstack/react-router";
 
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +17,7 @@ import { useApi } from "@/lib/session";
 /** Who do we have — the entry point into every person's Talent 360. */
 export function PeopleScreen() {
   const api = useApi();
-  const { data: people } = useQuery({
+  const { data: people, isLoading } = useQuery({
     queryKey: ["people"],
     queryFn: () => api.talent.people(),
   });
@@ -44,6 +45,9 @@ export function PeopleScreen() {
       </div>
       <Card>
         <CardContent className="pt-4">
+          {isLoading ? (
+            <TableSkeleton rows={6} cols={5} />
+          ) : (
           <Table>
             <TableHeader>
               <TableRow>
@@ -80,6 +84,7 @@ export function PeopleScreen() {
               ))}
             </TableBody>
           </Table>
+          )}
         </CardContent>
       </Card>
     </div>

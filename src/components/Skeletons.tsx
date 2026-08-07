@@ -109,3 +109,38 @@ export function BoardSkeleton({ columns = 4 }: { columns?: number }) {
     </div>
   );
 }
+
+/** Detail-page skeleton: title block → KPI row → content table. */
+export function DetailSkeleton() {
+  return (
+    <div className="space-y-6" role="status" aria-label="Loading">
+      <div className="space-y-2.5">
+        <Skeleton className="h-8 w-72" />
+        <Skeleton className="h-3.5 w-96 max-w-full" />
+      </div>
+      <KpiRowSkeleton />
+      <Card>
+        <CardContent className="pt-4">
+          <TableSkeleton rows={5} cols={5} />
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+/** Stacked-list skeleton (feeds, task queues, timelines). */
+export function ListSkeleton({ rows = 5 }: { rows?: number }) {
+  return (
+    <div className="space-y-3" role="status">
+      {Array.from({ length: rows }, (_, i) => (
+        <div key={i} className="flex items-start gap-3 border-b pb-3 last:border-b-0">
+          <Skeleton className="h-8 w-8 rounded-full" />
+          <div className="flex-1 space-y-1.5">
+            <Skeleton className="h-3.5" style={{ maxWidth: `${220 + ((i * 67) % 120)}px` }} />
+            <Skeleton className="h-3 w-32" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}

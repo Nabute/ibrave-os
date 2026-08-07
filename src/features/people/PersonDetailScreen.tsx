@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { DetailSkeleton } from "@/components/Skeletons";
 import { useParams } from "@tanstack/react-router";
 import { Printer } from "lucide-react";
 
@@ -52,7 +53,7 @@ export function PersonDetailScreen() {
     queryFn: () => api.staffing.timeOff(),
   });
 
-  if (!person) return null;
+  if (!person) return <DetailSkeleton />;
 
   const mySkills = (skills ?? []).filter((s) => s.user_id === personId);
   const myRates = (costRates ?? []).filter((r) => r.user_id === personId);

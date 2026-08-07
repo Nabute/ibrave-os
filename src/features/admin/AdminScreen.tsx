@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { TableSkeleton } from "@/components/Skeletons";
 import { Copy, KeyRound, Pencil, UserRoundPlus } from "lucide-react";
 import { useState } from "react";
 
@@ -219,7 +220,7 @@ export function AdminScreen() {
     null
   );
 
-  const { data: people } = useQuery({
+  const { data: people, isLoading: peopleLoading } = useQuery({
     queryKey: ["admin-people"],
     queryFn: () => api.admin.people(),
   });
@@ -291,6 +292,9 @@ export function AdminScreen() {
                   <UserRoundPlus className="h-4 w-4" /> Add person
                 </Button>
               </div>
+              {peopleLoading ? (
+                <TableSkeleton rows={6} cols={7} />
+              ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -416,6 +420,7 @@ export function AdminScreen() {
                   ))}
                 </TableBody>
               </Table>
+              )}
             </CardContent>
           </Card>
 

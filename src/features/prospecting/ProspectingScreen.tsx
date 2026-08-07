@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ListSkeleton, TableSkeleton } from "@/components/Skeletons";
 import { CalendarCheck2, CheckCircle2, Plus, Star } from "lucide-react";
 import { useState } from "react";
 
@@ -78,7 +79,7 @@ function TodayTab() {
   const [completing, setCompleting] = useState<string | null>(null);
   const [note, setNote] = useState("");
 
-  const { data: tasks } = useQuery({
+  const { data: tasks, isLoading: tasksLoading } = useQuery({
     queryKey: ["sales-tasks"],
     queryFn: () => api.prospecting.myTasks(),
   });
@@ -197,7 +198,7 @@ function ProspectsTab() {
     fit_score: "3",
   });
 
-  const { data: prospects } = useQuery({
+  const { data: prospects, isLoading: prospectsLoading } = useQuery({
     queryKey: ["prospects"],
     queryFn: () => api.prospecting.prospects(),
   });
@@ -366,6 +367,9 @@ function ProspectsTab() {
 
       <Card>
         <CardContent className="pt-4">
+          {prospectsLoading ? (
+            <TableSkeleton rows={6} cols={6} />
+          ) : (
           <Table>
             <TableHeader>
               <TableRow>
@@ -442,6 +446,7 @@ function ProspectsTab() {
               })}
             </TableBody>
           </Table>
+          )}
         </CardContent>
       </Card>
 

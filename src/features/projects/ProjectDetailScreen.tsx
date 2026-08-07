@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { DetailSkeleton } from "@/components/Skeletons";
 import { useParams } from "@tanstack/react-router";
 
 import { Badge } from "@/components/ui/badge";
@@ -37,7 +38,7 @@ export function ProjectDetailScreen() {
     enabled: !!project && hasRole("finance"),
   });
 
-  if (!project) return null;
+  if (!project) return <DetailSkeleton />;
 
   return (
     <div className="space-y-4">

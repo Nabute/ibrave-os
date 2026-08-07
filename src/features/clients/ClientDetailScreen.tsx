@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { DetailSkeleton } from "@/components/Skeletons";
 import { Link, useParams } from "@tanstack/react-router";
 import { AlertTriangle, MessageSquarePlus, Star } from "lucide-react";
 import { useState } from "react";
@@ -73,7 +74,7 @@ export function ClientDetailScreen() {
     queryFn: () => api.clients.invoices(clientId),
   });
 
-  if (!client) return null;
+  if (!client) return <DetailSkeleton />;
 
   const health = acc?.health;
   const renewalDays = acc?.next_renewal

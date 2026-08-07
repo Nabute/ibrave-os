@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { DetailSkeleton } from "@/components/Skeletons";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { Printer, Trash2 } from "lucide-react";
 import { useState } from "react";
@@ -69,7 +70,7 @@ export function PayoutDetailScreen() {
     onError: (e) => setError(toDisplayMessage(e)),
   });
 
-  if (!statement) return null;
+  if (!statement) return <DetailSkeleton />;
 
   return (
     <div className="space-y-4">

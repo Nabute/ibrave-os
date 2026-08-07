@@ -36,7 +36,7 @@ import { formatMinor } from "@/lib/money";
 import { useApi } from "@/lib/session";
 import { cn } from "@/lib/utils";
 import { LeadDetailDialog } from "./LeadDetailDialog";
-import { BoardSkeleton } from "@/components/Skeletons";
+import { BoardSkeleton, TableSkeleton } from "@/components/Skeletons";
 
 const ACTIVE_STAGES: { key: LeadStage; label: string }[] = [
   { key: "lead", label: "Lead" },
@@ -325,6 +325,9 @@ export function SalesScreen() {
         <TabsContent value="closed">
           <Card>
             <CardContent className="pt-4">
+              {leads === undefined ? (
+                <TableSkeleton rows={4} cols={4} />
+              ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -359,6 +362,7 @@ export function SalesScreen() {
                     ))}
                 </TableBody>
               </Table>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -377,7 +381,7 @@ export function SalesScreen() {
 
 function ContractsTab() {
   const api = useApi();
-  const { data: contracts } = useQuery({
+  const { data: contracts, isLoading: contractsLoading } = useQuery({
     queryKey: ["contracts"],
     queryFn: () => api.sales.contracts(),
   });
@@ -390,6 +394,9 @@ function ContractsTab() {
   return (
     <Card>
       <CardContent className="pt-4">
+        {contractsLoading ? (
+          <TableSkeleton rows={4} cols={6} />
+        ) : (
         <Table>
           <TableHeader>
             <TableRow>
@@ -441,6 +448,7 @@ function ContractsTab() {
             })}
           </TableBody>
         </Table>
+        )}
         <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
           The renewal watchdog notifies sales and the owner 60 and 30 days before an
           active contract ends.
