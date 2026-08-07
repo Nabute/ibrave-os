@@ -192,6 +192,14 @@ const routes = [
   }),
   createRoute({
     getParentRoute: () => appRoute,
+    path: "/templates",
+    component: lazyRouteComponent(
+      () => import("@/features/templates/TemplatesScreen"),
+      "TemplatesScreen"
+    ),
+  }),
+  createRoute({
+    getParentRoute: () => appRoute,
     path: "/settings",
     component: lazyRouteComponent(
       () => import("@/features/settings/PreferencesScreen"),

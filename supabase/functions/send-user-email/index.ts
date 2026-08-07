@@ -5,6 +5,7 @@
 // attendees get a real invite without anyone leaving the app.
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { adminClient, jsonResponse as json, sendEmailRaw, serveJson } from "../_shared/admin.ts";
+import { renderEmail } from "../_shared/email.ts";
 import { buildInvoicePdf } from "../_shared/invoicePdf.ts";
 
 interface SendPayload {
@@ -112,9 +113,18 @@ serveJson(async (req) => {
     }
   }
 
-  const signedHtml = `${payload.html}
-    <p style="color:#6b7280;font-size:13px;margin-top:24px">
-      ${profile?.full_name ?? "ibrave"} · ibrave</p>`;
+  // Wrap the message in the branded template; the sender's signature block
+  // replaces the old bare footer line.
+  const signedHtml = renderEmail({
+    preheader: payload.subject,
+    bodyHtml: `${payload.html}
+      <p style="margin:24px 0 0;padding-top:16px;border-top:1px solid #e2ddd3;
+                color:#6f695f;font-size:13px;line-height:1.5;">
+        ${profile?.full_name ?? "ibrave"}${fromEmail !== profile?.email ? ` · ${fromName}` : ""} · ibrave<br/>
+        <a href="mailto:${profile?.email ?? fromEmail}" style="color:#b0762a;">${profile?.email ?? fromEmail}</a>
+      </p>`,
+    companyLine: "ibrave — Software Engineering & Outsourcing Services",
+  });
 
   const result = await sendEmailRaw({
     from: `${fromName} <${fromEmail}>`,

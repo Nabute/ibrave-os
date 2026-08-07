@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toDisplayMessage, type SendEmailPayload } from "@/lib/api";
+import { fillTemplate } from "@/lib/emailTemplate";
 import { useApi } from "@/lib/session";
 
 interface EmailComposerProps {
@@ -31,6 +32,8 @@ interface EmailComposerProps {
   to?: string[];
   subject?: string;
   body?: string;
+  /** Values for {{placeholders}} when the sender applies a saved template. */
+  templateVars?: Record<string, string | undefined>;
   /** Entity links — the send is logged into these timelines automatically. */
   related?: Pick<
     SendEmailPayload,
@@ -57,6 +60,7 @@ export function EmailComposer({
   to,
   subject,
   body,
+  templateVars,
   related,
   onSent,
 }: EmailComposerProps) {
@@ -65,11 +69,32 @@ export function EmailComposer({
   const [fromEmail, setFromEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  const { data: identities } = useQuery({
+  const { data: identitiesRaw } = useQuery({
     queryKey: ["email-identities"],
     queryFn: () => api.comms.myIdentities(),
     enabled: open,
   });
+  // Personal + department identities can share an address (e.g. a lead whose
+  // login IS the department mailbox) — offer each address once.
+  const identities = (identitiesRaw ?? []).filter(
+    (i, idx, arr) => arr.findIndex((x) => x.email === i.email) === idx
+  );
+  const { data: templates } = useQuery({
+    queryKey: ["email-templates"],
+    queryFn: () => api.comms.templates(),
+    enabled: open,
+  });
+
+  const applyTemplate = (id: string) => {
+    const t = (templates ?? []).find((x) => x.id === id);
+    if (!t) return;
+    const vars = templateVars ?? {};
+    setForm((f) => ({
+      ...f,
+      subject: fillTemplate(t.subject, vars),
+      body: fillTemplate(t.body, vars),
+    }));
+  };
 
   useEffect(() => {
     if (open) {
@@ -85,7 +110,7 @@ export function EmailComposer({
   }, [open]);
 
   useEffect(() => {
-    if (open && identities?.length && !fromEmail) {
+    if (open && identities.length && !fromEmail) {
       setFromEmail(identities[0].email); // personal identity comes first
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -99,7 +124,7 @@ export function EmailComposer({
         .split(/\n{2,}/)
         .map((p) => `<p>${p.replace(/\n/g, "<br/>")}</p>`)
         .join("");
-      const identity = (identities ?? []).find((i) => i.email === fromEmail);
+      const identity = identities.find((i) => i.email === fromEmail);
       return api.comms.sendEmail({
         to: toList,
         cc: form.cc.split(/[,;\s]+/).filter(Boolean),
@@ -136,10 +161,25 @@ export function EmailComposer({
                 <SelectValue placeholder="Choose sender…" />
               </SelectTrigger>
               <SelectContent>
-                {(identities ?? []).map((i) => (
+                {identities.map((i) => (
                   <SelectItem key={i.email} value={i.email}>
                     {i.display_name} &lt;{i.email}&gt;
                     {i.kind === "department" ? " · department" : ""}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1">
+            <Label>Template (optional)</Label>
+            <Select onValueChange={applyTemplate}>
+              <SelectTrigger>
+                <SelectValue placeholder="Start from a saved template…" />
+              </SelectTrigger>
+              <SelectContent>
+                {(templates ?? []).map((t) => (
+                  <SelectItem key={t.id} value={t.id}>
+                    {t.name}
                   </SelectItem>
                 ))}
               </SelectContent>

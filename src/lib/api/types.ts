@@ -537,6 +537,18 @@ export interface EmailIdentity {
   kind: "personal" | "department" | "system";
 }
 
+export interface EmailTemplate {
+  id: string;
+  key: string;
+  name: string;
+  department: "finance" | "sales" | "talent" | "general";
+  subject: string;
+  body: string;
+  variables: string[];
+  updated_by: string | null;
+  updated_at: string;
+}
+
 export interface EmailIdentityRow {
   id: string;
   email: string;

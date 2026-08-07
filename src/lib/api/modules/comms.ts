@@ -1,6 +1,7 @@
 import { ApiError } from "../errors";
 import { BaseRepository } from "../base";
 import type {
+  EmailTemplate,
   CalendarEvent,
   EmailIdentity,
   EmailIdentityRow,
@@ -28,6 +29,22 @@ export class CommsRepository extends BaseRepository {
   /** The From addresses this user may send as (own email + department ones). */
   myIdentities(): Promise<EmailIdentity[]> {
     return this.rpc("my_email_identities");
+  }
+
+  /** Editable email templates (read: everyone; write: department-scoped). */
+  templates(): Promise<EmailTemplate[]> {
+    return this.query(
+      this.db.from("email_templates").select("*").order("department").order("name")
+    );
+  }
+
+  updateTemplate(
+    id: string,
+    patch: Partial<Pick<EmailTemplate, "name" | "subject" | "body">>
+  ): Promise<EmailTemplate> {
+    return this.query(
+      this.db.from("email_templates").update(patch).eq("id", id).select().single()
+    );
   }
 
   identities(): Promise<EmailIdentityRow[]> {

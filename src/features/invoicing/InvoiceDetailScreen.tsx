@@ -356,6 +356,13 @@ export function InvoiceDetailScreen() {
         open={emailing}
         onClose={() => setEmailing(false)}
         to={invoice.clients?.contact_email ? [invoice.clients.contact_email] : []}
+        templateVars={{
+          client_name: invoice.clients?.name,
+          invoice_number: invoice.number ?? undefined,
+          amount: (invoice.total_minor / 100).toFixed(2),
+          currency: invoice.currency,
+          due_date: invoice.due_date ?? undefined,
+        }}
         subject={`Invoice ${invoice.number} — ${formatMinor(invoice.total_minor, invoice.currency)}`}
         body={`Dear ${invoice.clients?.name},\n\nPlease find invoice ${invoice.number} for ${formatMinor(invoice.total_minor, invoice.currency)}, due ${invoice.due_date}.\n\n${(invoice.invoice_lines ?? [])
           .map((l) => `• ${l.description}: ${formatMinor(l.amount_minor, invoice.currency)}`)

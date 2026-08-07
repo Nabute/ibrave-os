@@ -352,6 +352,11 @@ function BillingDetailsCard({ clientId }: { clientId: string }) {
 
 function TimelineTab({ clientId }: { clientId: string }) {
   const api = useApi();
+  const { data: clientRow } = useQuery({
+    queryKey: ["client", clientId],
+    queryFn: () => api.clients.get(clientId),
+  });
+  const clientName = clientRow?.name ?? "";
   const qc = useQueryClient();
   const { userId } = useSession();
   const [note, setNote] = useState("");
@@ -436,6 +441,12 @@ function TimelineTab({ clientId }: { clientId: string }) {
           to={(contacts ?? [])
             .filter((c) => c.email && !c.opted_out)
             .map((c) => c.email!)}
+          templateVars={{
+            client_name: clientName,
+            contact_name:
+              (contacts ?? []).find((c) => c.email && !c.opted_out)?.name ?? clientName,
+            company: clientName,
+          }}
           related={{ client_id: clientId }}
           onSent={() => {
             void qc.invalidateQueries({ queryKey: ["account-activities", clientId] });

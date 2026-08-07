@@ -254,6 +254,10 @@ export function CandidateDialog({
           open={emailing}
           onClose={() => setEmailing(false)}
           to={candidate.email ? [candidate.email] : []}
+          templateVars={{
+            candidate_name: candidate.full_name,
+            role_title: candidate.requisitions?.role_title ?? "an engineering role",
+          }}
           subject={`ibrave — next steps`}
           related={{ candidate_id: candidate.id }}
           onSent={invalidate}

@@ -20,6 +20,7 @@ import {
   LayoutDashboard,
   LineChart,
   LogOut,
+  MailPlus,
   Settings,
   SlidersHorizontal,
 } from "lucide-react";
@@ -102,6 +103,12 @@ const NAV: NavSection[] = [
     title: "System",
     items: [
       { to: "/settings", label: "Preferences", icon: SlidersHorizontal },
+      {
+        to: "/templates",
+        label: "Email templates",
+        icon: MailPlus,
+        roles: ["finance", "sales", "recruiter", "admin"],
+      },
       { to: "/admin", label: "Admin", icon: Settings, roles: ["admin"] },
     ],
   },
