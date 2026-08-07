@@ -9,3 +9,5 @@ supabase/.branches
 *.tsbuildinfo
 sbom.cdx.json
 zap-report.html
+zap-auth-*.html
+zap-auth-*.json
