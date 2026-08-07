@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>ibrave OS — Test Accounts &amp; Scenarios</title>
+<style>
+  :root {
+    --paper: #ffffff;
+    --ink: #211d18;
+    --muted: #6f695f;
+    --hairline: #e2ddd3;
+    --hairline-soft: #efebe2;
+    --brass: #b0762a;
+    --charcoal: #241f1b;
+    --tint: #faf8f4;
+  }
+  @page {
+    size: A4;
+    margin: 18mm 16mm 20mm;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 9.5pt;
+    line-height: 1.55;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  h1, h2, h3, .display {
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+
+  /* ---------- cover ---------- */
+  .cover {
+    page-break-after: always;
+    display: flex;
+    flex-direction: column;
+    height: 245mm;
+  }
+  .masthead {
+    background: var(--charcoal);
+    border-radius: 6px 6px 0 0;
+    padding: 22px 26px;
+    color: #f5f1e8;
+  }
+  .masthead .word {
+    font-family: Georgia, serif;
+    font-size: 20pt;
+    letter-spacing: -0.01em;
+  }
+  .masthead .word b { color: var(--brass); font-weight: 400; }
+  .brass-rule { height: 3px; background: var(--brass); }
+  .cover-body {
+    border: 1px solid var(--hairline);
+    border-top: 0;
+    border-radius: 0 0 6px 6px;
+    padding: 34px 26px 28px;
+    flex: 1;
+  }
+  .cover h1 { font-size: 27pt; line-height: 1.15; margin-bottom: 10px; }
+  .cover .lede {
+    font-size: 11pt;
+    color: var(--muted);
+    max-width: 118mm;
+    line-height: 1.6;
+  }
+  .meta {
+    margin-top: 30px;
+    border-top: 1px solid var(--hairline);
+    padding-top: 16px;
+    display: flex;
+    gap: 34px;
+    flex-wrap: wrap;
+  }
+  .meta div { min-width: 40mm; }
+  .label {
+    font-size: 7pt;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+  }
+  .meta .value { font-size: 10pt; font-weight: 600; margin-top: 3px; }
+
+  .contents { margin-top: 34px; }
+  .contents ol {
+    margin: 12px 0 0;
+    padding: 0;
+    list-style: none;
+    columns: 2;
+    column-gap: 28px;
+  }
+  .contents li {
+    padding: 5px 0;
+    border-bottom: 1px solid var(--hairline-soft);
+    font-size: 9.5pt;
+    break-inside: avoid;
+  }
+  .contents li span { color: var(--brass); font-family: "SF Mono", Menlo, monospace; font-size: 8pt; margin-right: 8px; }
+
+  .callout {
+    margin-top: auto;
+    background: var(--tint);
+    border-left: 3px solid var(--brass);
+    padding: 13px 16px;
+    font-size: 9pt;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .callout b { color: var(--ink); }
+
+  /* ---------- sections ---------- */
+  section { page-break-inside: auto; margin-bottom: 26px; }
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 6px;
+    margin-bottom: 14px;
+    page-break-after: avoid;
+  }
+  .section-head .num {
+    font-family: "SF Mono", Menlo, monospace;
+    font-size: 8.5pt;
+    color: var(--brass);
+  }
+  .section-head h2 { font-size: 15pt; }
+  h3 {
+    font-size: 11pt;
+    margin: 18px 0 7px;
+    page-break-after: avoid;
+  }
+  p { margin: 0 0 9px; }
+  .muted { color: var(--muted); }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0 14px;
+    font-size: 8.6pt;
+  }
+  thead th {
+    text-align: left;
+    font-family: "SF Mono", Menlo, monospace;
+    font-size: 7pt;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 500;
+    padding: 7px 9px 7px 0;
+    border-bottom: 1px solid var(--ink);
+  }
+  tbody td {
+    padding: 7px 9px 7px 0;
+    border-bottom: 1px solid var(--hairline-soft);
+    vertical-align: top;
+  }
+  tbody tr { page-break-inside: avoid; }
+  td.mono, .mono {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 8pt;
+  }
+  td strong { font-weight: 600; }
+  .pill {
+    display: inline-block;
+    border: 1px solid var(--hairline);
+    background: var(--tint);
+    border-radius: 20px;
+    padding: 1px 7px;
+    font-size: 7.5pt;
+    font-family: "SF Mono", Menlo, monospace;
+    white-space: nowrap;
+  }
+  .pill.brass { border-color: var(--brass); color: var(--brass); }
+
+  ul.tight { margin: 4px 0 10px; padding-left: 16px; }
+  ul.tight li { margin-bottom: 3px; }
+
+  ol.steps { margin: 6px 0 0; padding-left: 0; list-style: none; counter-reset: s; }
+  ol.steps li {
+    counter-increment: s;
+    position: relative;
+    padding-left: 26px;
+    margin-bottom: 9px;
+    page-break-inside: avoid;
+  }
+  ol.steps li::before {
+    content: counter(s);
+    position: absolute;
+    left: 0; top: 1px;
+    width: 17px; height: 17px;
+    border: 1px solid var(--brass);
+    color: var(--brass);
+    border-radius: 50%;
+    font-family: "SF Mono", Menlo, monospace;
+    font-size: 7.5pt;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 26px; }
+  .note {
+    background: var(--tint);
+    border: 1px solid var(--hairline);
+    border-radius: 5px;
+    padding: 11px 14px;
+    font-size: 8.6pt;
+    color: var(--muted);
+    margin: 10px 0 14px;
+  }
+  .note b { color: var(--ink); }
+</style>
+</head>
+<body>
+
+<!-- =================== COVER =================== -->
+<div class="cover">
+  <div class="masthead"><div class="word">ibrave&nbsp;<b>OS</b></div></div>
+  <div class="brass-rule"></div>
+  <div class="cover-body">
+    <h1>Test Accounts<br />&amp; Scenarios</h1>
+    <p class="lede">
+      Every login and every prepared record for validating ibrave OS. Each account
+      carries a single role so permissions can be proven in isolation, and the
+      data covers at least one record in every state of every workflow.
+    </p>
+
+    <div class="meta">
+      <div><div class="label">Environment</div><div class="value">os.ibrave.co</div></div>
+      <div><div class="label">Prepared</div><div class="value">7 August 2026</div></div>
+      <div><div class="label">Source</div><div class="value mono">migration 36</div></div>
+      <div><div class="label">Reproducible</div><div class="value">supabase db push</div></div>
+    </div>
+
+    <div class="contents">
+      <div class="label">Contents</div>
+      <ol>
+        <li><span>01</span>Standard accounts</li>
+        <li><span>02</span>Role test accounts</li>
+        <li><span>03</span>Clients and projects</li>
+        <li><span>04</span>Time entries</li>
+        <li><span>05</span>Invoices and collections</li>
+        <li><span>06</span>Sales pipeline</li>
+        <li><span>07</span>Prospecting</li>
+        <li><span>08</span>Accounts and health</li>
+        <li><span>09</span>Staffing</li>
+        <li><span>10</span>Talent pipeline</li>
+        <li><span>11</span>Calendar</li>
+        <li><span>12</span>Suggested test pass</li>
+      </ol>
+    </div>
+
+    <div class="callout">
+      <b>Handle as credentials.</b> These passwords open real accounts on the
+      hosted environment. Share this document only with the testing team, and
+      rotate the passwords from Admin, People before the platform carries real
+      client data.
+    </div>
+  </div>
+</div>
+
+<!-- =================== 01 =================== -->
+<section>
+  <div class="section-head"><span class="num">01</span><h2>Standard accounts</h2></div>
+  <p class="muted">
+    The realistic company set, several roles each, with history behind them.
+    Use these to see the product as a working team would.
+    Password for all five: <span class="pill">password123</span>
+  </p>
+  <table>
+    <thead><tr><th style="width:32%">Email</th><th style="width:26%">Roles</th><th>What it is for</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">owner@ibrave.co</td><td>owner, admin</td><td>Sees everything, including the Command Center and alert rules</td></tr>
+      <tr><td class="mono">pm@ibrave.co</td><td>pm, employee, resourcing</td><td>Approvals and staffing, a realistic delivery lead</td></tr>
+      <tr><td class="mono">finance@ibrave.co</td><td>finance</td><td>The full money loop, rates through payouts</td></tr>
+      <tr><td class="mono">dev1@ibrave.co</td><td>employee</td><td>An ordinary employee with logged history</td></tr>
+      <tr><td class="mono">dev2@ibrave.co</td><td>employee (contractor)</td><td>Contractor variant of the same</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- =================== 02 =================== -->
+<section>
+  <div class="section-head"><span class="num">02</span><h2>Role test accounts</h2></div>
+  <p class="muted">
+    One role each, so what a role can and cannot do is provable without
+    interference. Password for all twelve: <span class="pill brass">Passw0rd!Test</span>
+  </p>
+  <table>
+    <thead><tr><th style="width:33%">Email</th><th style="width:22%">Role</th><th>What it proves</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">test.admin@ibrave.co</td><td>admin</td><td>Admin <strong>without</strong> owner: user lifecycle, roles, settings, templates. Must <strong>not</strong> reach the Command Center</td></tr>
+      <tr><td class="mono">test.pm@ibrave.co</td><td>pm</td><td>Approves only on their own projects. Must <strong>not</strong> see money screens</td></tr>
+      <tr><td class="mono">test.finance@ibrave.co</td><td>finance</td><td>Invoices, payouts, rates, exports. Must <strong>not</strong> approve time</td></tr>
+      <tr><td class="mono">test.sales@ibrave.co</td><td>sales</td><td>Prospects, pipeline, quotes, win handoff. Must <strong>not</strong> see cost rates</td></tr>
+      <tr><td class="mono">test.recruiter@ibrave.co</td><td>recruiter</td><td>The whole talent pipeline. Must <strong>not</strong> see invoices</td></tr>
+      <tr><td class="mono">test.resourcing@ibrave.co</td><td>resourcing</td><td>Bench, staffing requests, skills. Bench cost must stay hidden</td></tr>
+      <tr><td class="mono">test.account@ibrave.co</td><td>account_owner</td><td>Account 360, opportunities, escalations</td></tr>
+      <tr><td class="mono">test.employee@ibrave.co</td><td>employee</td><td>The baseline: own timesheet and own payouts, nothing more. Has assignments and skills</td></tr>
+      <tr><td class="mono">test.multi@ibrave.co</td><td>pm + finance + sales</td><td>The union of three roles in one session</td></tr>
+      <tr><td class="mono">test.mfa@ibrave.co</td><td>employee</td><td><strong>Two-factor is mandated</strong>: forced enrollment at login, the factor cannot be removed</td></tr>
+      <tr><td class="mono">test.inactive@ibrave.co</td><td>employee</td><td><strong>Deactivated: sign-in must be refused</strong> ("User is banned")</td></tr>
+      <tr><td class="mono">test.nocost@ibrave.co</td><td>employee (contractor)</td><td>Has hours but <strong>no cost rate</strong>: margin gap and reconciliation flag</td></tr>
+    </tbody>
+  </table>
+  <div class="note">
+    <b>One more account.</b> <span class="mono">test.contractor@ibrave.co</span>
+    exists from earlier administration testing and carries an enrolled
+    authenticator factor. Its password was rotated during that testing, so reset
+    it from Admin, People if you need it.
+  </div>
+</section>
+
+<!-- =================== 03 =================== -->
+<section>
+  <div class="section-head"><span class="num">03</span><h2>Clients and projects</h2></div>
+  <table>
+    <thead><tr><th style="width:34%">Record</th><th>State to exercise</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Northwind Trading</strong> <span class="pill">NWND</span></td><td>Tier A, USD, Net 30, Europe/Dublin local clock, has an account owner</td></tr>
+      <tr><td><strong>Umbra Systems</strong> <span class="pill">UMBR</span></td><td>EUR, Net 14, overdue invoices and an open escalation, red health score</td></tr>
+      <tr><td><strong>Solstice Retail</strong> <span class="pill">SOLS</span></td><td>Net 45, retainer project, deliberately has no account owner</td></tr>
+      <tr><td>Northwind Platform, Umbra Migration</td><td>Active time and materials, effective-dated rate cards (the rate rose 30 days ago, so old work must still bill at the old rate)</td></tr>
+      <tr><td>Solstice Support</td><td>Retainer billing, 40 included hours, overage rate above that</td></tr>
+      <tr><td>Northwind Archive</td><td>Closed project, must not accept new time</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- =================== 04 =================== -->
+<section>
+  <div class="section-head"><span class="num">04</span><h2>Time entries</h2></div>
+  <p>Prepared on the test employee, covering every status a timesheet cell can hold.</p>
+  <div class="grid2">
+    <ul class="tight">
+      <li>Draft, freely editable</li>
+      <li>Submitted, locked awaiting approval</li>
+      <li>Approved and billable</li>
+      <li>Approved but internal, never invoiced</li>
+    </ul>
+    <ul class="tight">
+      <li>Rejected back to draft, carrying the reason</li>
+      <li>Hours against a second client</li>
+      <li>Contractor hours, different cost rate</li>
+      <li>Retainer hours, plus a booked vacation</li>
+    </ul>
+  </div>
+</section>
+
+<!-- =================== 05 =================== -->
+<section>
+  <div class="section-head"><span class="num">05</span><h2>Invoices and collections</h2></div>
+  <p class="muted">One invoice per state. Search the tag in the invoice list to find each.</p>
+  <table>
+    <thead><tr><th style="width:26%">Tag</th><th>State</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">TEST-DRAFT</td><td>Draft: lines editable, can be deleted, releases its entries</td></tr>
+      <tr><td class="mono">TEST-COURTESY</td><td>Issued, due in three days, the courtesy reminder stage</td></tr>
+      <tr><td class="mono">TEST-OVERDUE7 / 14 / 30</td><td>Overdue at exactly 7, 14 and 30 days, one per escalation stage</td></tr>
+      <tr><td class="mono">TEST-PARTIAL</td><td>Partially paid, one third recorded</td></tr>
+      <tr><td class="mono">TEST-PAID</td><td>Fully settled</td></tr>
+      <tr><td class="mono">TEST-VOID</td><td>Voided with a stated reason</td></tr>
+      <tr><td class="mono">TEST-CREDIT</td><td>Credit note against the paid invoice, negative total</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Guards worth attacking:</strong> overpaying an invoice, paying a voided
+  invoice, editing an issued invoice, and deleting anything that is not a draft.
+  All four must be refused with a readable message. Then try pausing dunning and
+  the bank statement matcher.</p>
+</section>
+
+<!-- =================== 06 =================== -->
+<section>
+  <div class="section-head"><span class="num">06</span><h2>Sales pipeline</h2></div>
+  <p>A lead sits at <strong>every stage</strong>: lead, qualified, proposal sent,
+  negotiation, won, and lost with a stated reason.</p>
+  <p><strong>Quotes:</strong> one sent, one superseded, and the accepted second
+  version that replaced it.</p>
+  <p><strong>Contracts:</strong> one renewing in 30 days, one in 60 days, one
+  already expired, and one open-ended with no renewal date.</p>
+</section>
+
+<!-- =================== 07 =================== -->
+<section>
+  <div class="section-head"><span class="num">07</span><h2>Prospecting</h2></div>
+  <p>Prospects in every status: active, do-not-contact, disqualified and
+  converted. The do-not-contact record must refuse cadences and conversion
+  outright.</p>
+  <p>Sales tasks are waiting both <strong>overdue</strong> and <strong>due
+  today</strong>, and a three-touch cadence is defined and ready to start on the
+  active prospect.</p>
+</section>
+
+<!-- =================== 08 =================== -->
+<section>
+  <div class="section-head"><span class="num">08</span><h2>Accounts and health</h2></div>
+  <p>Opportunities in all four stages: idea, proposed, won and lost.</p>
+  <p>Escalations: one <strong>open</strong> on Umbra Systems, which must pause the
+  overdue reminder tone while still allowing the courtesy reminder, and one
+  already <strong>resolved</strong>.</p>
+</section>
+
+<!-- =================== 09 =================== -->
+<section>
+  <div class="section-head"><span class="num">09</span><h2>Staffing</h2></div>
+  <p>Requests in <strong>open</strong> and <strong>cancelled</strong> states. Fill
+  the open one and confirm the suggested candidates rank by skill match first,
+  with availability only breaking ties.</p>
+  <p>The bench shows an under-allocated person, a fully committed person, and
+  upcoming time off.</p>
+</section>
+
+<!-- =================== 10 =================== -->
+<section>
+  <div class="section-head"><span class="num">10</span><h2>Talent pipeline</h2></div>
+  <p>A candidate waits at <strong>every stage</strong>: sourced, screening,
+  interview, assessment, offer, hired, rejected with a reason, and parked in the
+  talent pool.</p>
+  <div class="note">
+    <b>The hiring gate.</b> The offer-stage candidate has a submitted scorecard,
+    so hiring succeeds. The interview-stage candidate has an unsubmitted round,
+    so hiring must stay blocked until someone completes it.
+  </div>
+  <p>Requisitions: one open with two seats, one already filled. The hired
+  candidate carries a full onboarding checklist.</p>
+</section>
+
+<!-- =================== 11 =================== -->
+<section>
+  <div class="section-head"><span class="num">11</span><h2>Calendar</h2></div>
+  <p>One event in the past, one today, and one next week with an external guest,
+  so the past, present and future colour coding and all four summary counts have
+  something to show in both month and week views.</p>
+</section>
+
+<!-- =================== 12 =================== -->
+<section>
+  <div class="section-head"><span class="num">12</span><h2>Suggested test pass</h2></div>
+  <ol class="steps">
+    <li>Sign in as each role account and confirm the sidebar matches the role
+        matrix exactly, no more and no less.</li>
+    <li>Confirm the deactivated account is refused, and that the two-factor
+        account is forced into enrollment before it can reach the workspace.</li>
+    <li>As the employee account: log time, submit the week, then confirm the
+        entries lock and can no longer be edited.</li>
+    <li>As the project manager: approve part of that week, reject one entry with
+        a comment, then confirm the employee's copy returns to draft carrying the
+        reason.</li>
+    <li>As finance: generate a draft from approved work, issue it and check the
+        numbering format, try to edit it (must fail), record a partial payment,
+        then raise a credit note.</li>
+    <li>As sales: drag a lead one stage forward on the board, then run the win
+        handoff and confirm a client, contract, project and staffing request all
+        appear.</li>
+    <li>As the recruiter: try to hire the interview-stage candidate (blocked for
+        want of a scorecard), then hire the offer-stage one and confirm the
+        onboarding checklist appears.</li>
+    <li>Across every list: use the search box, the filter dropdowns and the bulk
+        selection bar, and confirm a filtered-out row can never be caught by a
+        bulk action.</li>
+  </ol>
+</section>
+
+</body>
+</html>
