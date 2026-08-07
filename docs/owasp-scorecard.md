@@ -5,7 +5,7 @@ Framework: OWASP Top 10:2025.
 | Category | Grade | Evidence | Remaining Work |
 | --- | --- | --- | --- |
 | A01 Broken Access Control | B+ | RLS, role-scoped routes, owner/admin boundary tests, RPC revocations. | Add object-level negative tests for every entity detail screen and mutation. |
-| A02 Security Misconfiguration | B | Security headers, noindex, static config validation. | Verify deployed headers, CORS origins, Supabase Auth/rate-limit/storage settings. |
+| A02 Security Misconfiguration | A- | Security headers, noindex, static config validation, exact Supabase CSP origin, non-wildcard app CORS, and COEP. | Verify deployed headers after each production deployment and Supabase Auth/rate-limit/storage settings. |
 | A03 Software Supply Chain Failures | B- | `npm audit`, SBOM script, CI security workflow. | Add Dependabot/Renovate and signed/provenance-aware releases. |
 | A04 Cryptographic Failures | B- | Secrets kept out of frontend; provider TLS expected. | Document provider encryption, backup encryption, key rotation, and data residency. |
 | A05 Injection | B | Supabase query builder, sanitized email HTML, no broad `dangerouslySetInnerHTML`. | Review every PL/pgSQL RPC and Edge Function payload path. |
@@ -17,8 +17,8 @@ Framework: OWASP Top 10:2025.
 
 ## Current Overall Grade
 
-**B / B+ engineering baseline, B- production assurance.**
+**A- engineering baseline, B+ production assurance.**
 
-The app has real security architecture now. The gap is mostly assurance:
-production configuration evidence, monitoring/alerting integration, broader
-negative tests, and independent testing.
+The app has real security architecture and automated evidence. The remaining
+gap is mostly assurance: production configuration review outside repo-controlled
+headers, alert routing, broader authenticated DAST, and independent testing.

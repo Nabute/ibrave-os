@@ -18,8 +18,9 @@ lawyer, DPA review, or external penetration test.
 - Audit logs are append-only for app users.
 - Security events record route denials and denied Edge Function actions for
   admin review.
-- Vercel security headers include HSTS, CSP, frame denial, no-sniff, referrer
-  policy, and a restrictive permissions policy.
+- Vercel security headers include HSTS, exact-origin CSP, frame denial,
+  no-sniff, referrer policy, COOP/COEP/CORP, non-wildcard app CORS, and a
+  restrictive permissions policy.
 - A Privacy Center lets signed-in users export their own data and submit
   privacy rights requests.
 - Admins have a privacy request queue and non-destructive retention review

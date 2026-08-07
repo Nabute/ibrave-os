@@ -32,6 +32,20 @@ check("security headers: no sniff", headerMap.get("x-content-type-options") === 
 check("security headers: frame deny", headerMap.get("x-frame-options") === "DENY");
 check("security headers: referrer policy", headerMap.has("referrer-policy"));
 check("security headers: permissions policy", headerMap.has("permissions-policy"));
+check("security headers: coep", headerMap.get("cross-origin-embedder-policy") === "require-corp");
+check(
+  "security headers: cors not wildcard",
+  headerMap.get("access-control-allow-origin") === "https://os.ibrave.co"
+);
+check(
+  "security headers: csp exact supabase origin",
+  headerMap.get("content-security-policy")?.includes("https://zdhkcfjvywthesafbaov.supabase.co") &&
+    !headerMap.get("content-security-policy")?.includes("*.supabase.co")
+);
+check(
+  "security headers: csp no broad https image source",
+  !headerMap.get("content-security-policy")?.includes("img-src 'self' data: blob: https:")
+);
 check("supply chain: audit script", pkg.scripts["security:audit"]?.includes("npm audit"));
 check("supply chain: sbom script", pkg.scripts["security:sbom"]?.includes("npm sbom"));
 check("supply chain: aggregate check", pkg.scripts["security:check"]?.includes("security:static"));
@@ -49,10 +63,13 @@ check("privacy migration: retention due rpc", migration.includes("public.privacy
 check("privacy migration: no destructive retention automation", !/delete\s+from\s+public\./i.test(migration));
 
 const securityEvents = read("supabase/migrations/20260806000040_security_events.sql");
+const edgeShared = read("supabase/functions/_shared/admin.ts");
 check("security events: table", securityEvents.includes("create table public.security_events"));
 check("security events: rls enabled", securityEvents.includes("alter table public.security_events enable row level security"));
 check("security events: record rpc", securityEvents.includes("public.record_security_event"));
 check("security events: admin read policy", securityEvents.includes("security_events_admin_read"));
+check("edge functions: cors is not wildcard", !edgeShared.includes('"Access-Control-Allow-Origin": "*"'));
+check("edge functions: origin allowlist", edgeShared.includes("ALLOWED_ORIGINS"));
 
 const router = read("src/routes/router.tsx");
 check("privacy route: public notice", router.includes('path: "/privacy-notice"'));

@@ -16,12 +16,19 @@ const args = [
   "run",
   "--rm",
   "-t",
+  "-v",
+  `${process.cwd()}:/zap/wrk:rw`,
   "ghcr.io/zaproxy/zaproxy:stable",
   "zap-baseline.py",
   "-t",
   target,
+  "-m",
+  process.env.ZAP_SPIDER_MINS ?? "1",
+  "-T",
+  process.env.ZAP_MAX_MINS ?? "5",
   "-r",
   "zap-report.html",
+  "--autooff",
 ];
 
 const result = spawnSync("docker", args, { stdio: "inherit" });

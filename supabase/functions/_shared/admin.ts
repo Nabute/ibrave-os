@@ -2,12 +2,13 @@
 // (function secrets), never in the frontend.
 import { createClient } from "npm:@supabase/supabase-js@2";
 
-/** CORS headers for browser-called functions. Auth is the JWT (validated by
- *  the gateway and again in-function), so a permissive origin is safe. */
+/** CORS headers for browser-called functions. Production should set
+ *  ALLOWED_ORIGINS to a comma-separated list, e.g. https://os.ibrave.co. */
 export const CORS = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": "https://os.ibrave.co",
   "Access-Control-Allow-Headers": "authorization, content-type, apikey, x-client-info",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Vary": "Origin",
 } as const;
 
 export function jsonResponse(body: unknown, status = 200): Response {
@@ -15,6 +16,25 @@ export function jsonResponse(body: unknown, status = 200): Response {
     status,
     headers: { "Content-Type": "application/json", ...CORS },
   });
+}
+
+function allowedOrigin(req: Request): string {
+  const origin = req.headers.get("Origin");
+  const configured = (Deno.env.get("ALLOWED_ORIGINS") ?? "https://os.ibrave.co,http://localhost:5173,http://localhost:5199")
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean);
+  if (origin && configured.includes(origin)) return origin;
+  return configured[0] ?? "https://os.ibrave.co";
+}
+
+function withCors(req: Request, res: Response): Response {
+  const headers = new Headers(res.headers);
+  headers.set("Access-Control-Allow-Origin", allowedOrigin(req));
+  headers.set("Access-Control-Allow-Headers", CORS["Access-Control-Allow-Headers"]);
+  headers.set("Access-Control-Allow-Methods", CORS["Access-Control-Allow-Methods"]);
+  headers.set("Vary", "Origin");
+  return new Response(res.body, { status: res.status, statusText: res.statusText, headers });
 }
 
 /**
@@ -25,12 +45,17 @@ export function jsonResponse(body: unknown, status = 200): Response {
  */
 export function serveJson(handler: (req: Request) => Promise<Response> | Response): void {
   Deno.serve(async (req) => {
-    if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
+    if (req.method === "OPTIONS") {
+      return new Response(null, {
+        status: 204,
+        headers: { ...CORS, "Access-Control-Allow-Origin": allowedOrigin(req) },
+      });
+    }
     try {
-      return await handler(req);
+      return withCors(req, await handler(req));
     } catch (e) {
       console.error("unhandled function error:", e);
-      return jsonResponse({ error: e instanceof Error ? e.message : String(e) }, 500);
+      return withCors(req, jsonResponse({ error: e instanceof Error ? e.message : String(e) }, 500));
     }
   });
 }
