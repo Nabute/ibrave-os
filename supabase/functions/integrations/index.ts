@@ -257,7 +257,7 @@ async function probe(connection: Connection, requestedObjectType?: string): Prom
           (env("JIRA_PROJECT_KEY") ? `project = ${env("JIRA_PROJECT_KEY")} order by updated DESC` : "order by updated DESC")
       );
       return requestJson(
-        `${base}/rest/api/3/search?jql=${encodeURIComponent(jql)}&maxResults=25&fields=summary,status,assignee,priority,duedate,updated,project`,
+        `${base}/rest/api/3/search/jql?jql=${encodeURIComponent(jql)}&maxResults=25&fields=summary,status,assignee,priority,duedate,updated,project`,
         { headers: { Authorization: `Basic ${auth}`, Accept: "application/json" } },
         requestedObjectType ?? "issues"
       );
@@ -292,12 +292,26 @@ async function probe(connection: Connection, requestedObjectType?: string): Prom
       if (!connectionToken(connection, "GITHUB_TOKEN")) {
         return missing(connection.provider, requestedObjectType ?? "issues");
       }
-      if (!env("GITHUB_OWNER") || !env("GITHUB_REPO")) return missing(connection.provider, requestedObjectType ?? "issues");
-      return requestJson(
-        `https://api.github.com/repos/${env("GITHUB_OWNER")}/${env("GITHUB_REPO")}/issues?state=all&per_page=25&sort=updated&direction=desc`,
-        { headers: { ...bearer(connectionToken(connection, "GITHUB_TOKEN")), "X-GitHub-Api-Version": "2022-11-28" } },
-        requestedObjectType ?? "issues"
-      );
+      {
+        const owner = text(connection.config?.github_owner) ?? env("GITHUB_OWNER");
+        const repo = text(connection.config?.github_repo) ?? env("GITHUB_REPO");
+        if (!owner || !repo) return missing(connection.provider, requestedObjectType ?? "issues");
+        const result = await requestJson(
+          `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/issues?state=all&per_page=25&sort=updated&direction=desc`,
+          {
+            headers: {
+              ...bearer(connectionToken(connection, "GITHUB_TOKEN")),
+              "X-GitHub-Api-Version": "2022-11-28",
+              "User-Agent": "ibrave-os-integrations",
+            },
+          },
+          requestedObjectType ?? "issues"
+        );
+        if (result.status === 404) {
+          result.error = `GitHub repository ${owner}/${repo} was not found or the token cannot access it. Check GITHUB_OWNER/GITHUB_REPO, fine-grained token repository selection, Issues/Pull requests read permissions, org SSO approval, and token expiry.`;
+        }
+        return result;
+      }
     case "google_calendar":
       if (!connectionToken(connection, "GOOGLE_ACCESS_TOKEN")) {
         return missing(connection.provider, requestedObjectType ?? "events");

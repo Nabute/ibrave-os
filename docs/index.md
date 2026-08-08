@@ -9,6 +9,10 @@ payouts and margin → account management → the owner command center.
 
 - New to the platform? [Getting started](user-guide/getting-started.md) —
   login, MFA, preferences, notifications, calendar and email.
+- Need to know who can access what? [Access model](access-model.md) explains
+  internal workspace users, client portal contacts and provider integrations.
+- Need a complete operating example? [Feature workflows and examples](feature-workflows.md)
+  walks through every major feature end to end.
 - Then read **your role's guide** from the User Guide section.
 - "Who can do what?" is always answered by the [Role & Permission
   Matrix](role-matrix.md) — it is generated from the enforced database rules,
@@ -25,6 +29,7 @@ payouts and margin → account management → the owner command center.
 | Resourcing / recruiter | [Resourcing & Recruiting](user-guide/resourcing-recruiting.md) |
 | Sales / account owner | [Sales & Accounts](user-guide/sales-accounts.md) |
 | Owner / admin | [Owner & Admin](user-guide/owner-admin.md) |
+| Client-facing account team | [Client Portal guide](user-guide/client-portal.md) |
 | Operator / engineer | [Operations Runbook](operations-runbook.md) |
 
 ## Principles worth knowing (they explain most "why can't I…" questions)
@@ -37,6 +42,9 @@ payouts and margin → account management → the owner command center.
    steps) why. Comments are mandatory where they matter.
 4. **Communication lives in-app** so client history is complete: email sends
    from real identities, calendar invites carry real `.ics` files.
+5. **Clients are external contacts, not internal users.** Use the client portal
+   administration flow for client-side contacts; do not grant clients internal
+   workspace roles.
 
 ## Engineering references
 

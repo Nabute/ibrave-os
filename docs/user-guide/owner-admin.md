@@ -35,6 +35,16 @@ All user management happens here, never in the Supabase dashboard.
 
 Everything writes `audit_log`.
 
+## Admin — Setup and onboarding
+
+Use **Admin -> Setup** as the workspace readiness checklist. It tracks import
+and setup steps such as people, clients, projects, rates, opening balances,
+invoice history and assignments.
+
+Register import batches with their file names before loading data. This gives
+the team one place to see what was imported, what is still pending and which
+setup steps were intentionally skipped.
+
 ## Admin — Security (MFA policy)
 
 MFA (authenticator apps) is **off by default**. Mandate it:
@@ -60,6 +70,33 @@ Fills the invoice template (legal name, address, TIN, registration, bank
 details, VAT note, issuer) and sets numbering prefixes (`INV`/`CN`) and the
 base currency. Changes apply to future invoices only — issued ones are
 frozen with the values they were born with.
+
+## Admin — Integrations
+
+Use **Admin -> Integrations** for provider-backed productivity and business
+integrations. Provider secrets live in Supabase Edge Function secrets, not in
+the browser.
+
+For productivity delivery syncs:
+
+1. Set provider secrets in Supabase.
+2. Add a connection for GitHub, Jira, Linear, Google Calendar, Microsoft
+   Calendar, Slack or Teams.
+3. Map the connection to an internal project.
+4. Click **Test sync**.
+5. Confirm synced items under **Projects -> <project> -> Productivity
+   integrations**.
+
+If GitHub returns 404, check the owner/repo values, token repository access,
+fine-grained read permissions, SSO approval and token expiry. If Jira rejects
+search, make sure the deployed function uses `/rest/api/3/search/jql`.
+
+## Admin — Trust artifacts
+
+Use **Admin -> Trust** to register commercial trust material such as DPA,
+subprocessors, SLA, backup/DR, incident response and security policy
+documents. Only publish documents that are approved for client or prospect
+sharing.
 
 ## Owner habits that keep the system honest
 

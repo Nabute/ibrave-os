@@ -49,7 +49,7 @@ check(
 check(
   "productivity: provider endpoints",
   [
-    "/rest/api/3/search",
+    "/rest/api/3/search/jql",
     "api.linear.app/graphql",
     "api.github.com/repos",
     "googleapis.com/calendar/v3/calendars",
@@ -61,6 +61,14 @@ check(
 check("productivity: server normalizes and upserts", integrationsFunction.includes("normalizeProductivityItems") && integrationsFunction.includes("upsertProductivityItems") && integrationsFunction.includes('from("productivity_external_items")'));
 check("productivity: raw payload not returned to browser", integrationsFunction.includes("safeResult") && integrationsFunction.includes("const { data: _data"));
 check("productivity: upsert count in sync run", integrationsFunction.includes("upserted") && integrationsFunction.includes("integration_sync_runs"));
+check(
+  "productivity: github repo diagnostics",
+  integrationsFunction.includes("github_owner") &&
+    integrationsFunction.includes("github_repo") &&
+    integrationsFunction.includes("GitHub repository") &&
+    integrationsFunction.includes("fine-grained token repository selection") &&
+    integrationsFunction.includes("User-Agent")
+);
 check("productivity: project mapping in admin", adminScreen.includes("Project mapping") && adminScreen.includes("project_id"));
 check("productivity: project view wired", projectScreen.includes("Productivity integrations") && projectRepo.includes("productivityItems"));
 check("productivity: typed item model", apiTypes.includes("ProductivityExternalItem"));

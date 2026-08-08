@@ -37,6 +37,14 @@ only path.
 5. **Send** from the invoice screen — the email composer attaches the
    official PDF; it's logged on the client timeline.
 
+If the client requires sign-off before invoicing, coordinate it from
+**Clients -> <client> -> Client portal**:
+
+1. Register the billing contact or approver as a portal user.
+2. Add the timesheet appendix, statement of work or invoice support document.
+3. Create an approval request linked to the project or invoice.
+4. Issue/send the invoice after the approval decision is recorded.
+
 **Corrections after issue** (the only ways):
 
 | Problem | Action |
@@ -80,3 +88,10 @@ only path.
   never something to adjust manually.
 - Monthly **client digest** (hours appendix per client) supports invoices on
   request.
+
+## Accounting integrations
+
+The app remains the source of truth for delivery, timesheets, approvals and
+invoices. Accounting integrations such as QuickBooks can be added later, but
+the recommended default is to use **Reports -> Accounting** exports unless a
+customer or accountant explicitly requires direct sync.

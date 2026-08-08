@@ -10,7 +10,7 @@
     "typecheck": "tsc -b --noEmit",
     "security:audit": "npm audit --audit-level=moderate",
     "security:sbom": "npm sbom --sbom-format cyclonedx --sbom-type application > sbom.cdx.json",
-    "security:static": "node tests/validation/v13-compliance-readiness.mjs && node tests/validation/v16-saas-tenancy.mjs && node tests/validation/v17-productization-foundation.mjs && node tests/validation/v18-productivity-integrations.mjs",
+    "security:static": "node tests/validation/v13-compliance-readiness.mjs && node tests/validation/v16-saas-tenancy.mjs && node tests/validation/v17-productization-foundation.mjs && node tests/validation/v18-productivity-integrations.mjs && node tests/validation/v19-documentation-access-workflows.mjs",
     "security:hosted": "node tests/validation/v12-security-hardening.mjs && node tests/validation/v14-privacy-governance.mjs && node tests/validation/v15-security-events.mjs",
     "security:dast": "node scripts/security/zap-baseline.mjs",
     "security:dast:auth": "node scripts/security/zap-authenticated.mjs",

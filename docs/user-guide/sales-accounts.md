@@ -66,3 +66,21 @@ score.
   (courtesy reminders still go). Resolving it resumes collections. Finance
   and owner are notified on open.
 - **Check-ins**: recurring per-account touch tasks land in your Today view.
+
+## Client portal administration
+
+Use **Clients -> <client> -> Client portal** for external client contacts,
+shared documents and client approval requests. Client contacts are not
+internal users and must not be invited through **Admin -> People**.
+
+Common account-owner examples:
+
+| Need | Do |
+|---|---|
+| Client sponsor should receive approval requests | Add them as a portal user |
+| Client needs SOW/status pack/invoice support | Add a client-visible document record |
+| Client must approve monthly timesheets | Create an approval request linked to the project |
+| Client asks for delivery context | Use account timeline, project productivity items and approved timesheet summaries |
+
+See the [Client portal guide](client-portal.md) for the full workflow and
+current access boundary.

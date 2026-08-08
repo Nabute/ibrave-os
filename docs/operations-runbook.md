@@ -64,6 +64,7 @@ Browser (React SPA, anon key + user JWT)
   └─►  Edge Functions (Deno, service_role inside only)
         ├─ send-user-email   user-initiated mail; From validated server-side
         ├─ admin-users       invite / deactivate / reset password (admin-gated)
+        ├─ integrations      provider sync; secrets stay server-side
         ├─ reminders         SQL jobs + per-user notification email digest
         └─ dunning           invoice reminder ladder (reads dunning_queue())
 ```
@@ -157,6 +158,7 @@ Rules that keep the chain healthy:
 |---|---|---|
 | `send-user-email` | user JWT (gateway-verified) | All user-initiated email. Validates the From against `can_use_email_identity()`, logs to `email_log`, mirrors to entity timelines, attaches ICS invites / invoice PDFs |
 | `admin-users` | user JWT + admin/owner re-check | Create auth users (one-time temp password), deactivate (auth ban + profile flag), reset passwords. Writes `audit_log` |
+| `integrations` | user JWT + role re-check | Provider readiness checks and sync for GitHub, Jira, Linear, Google/Microsoft Calendar, Slack and Teams. Writes `integration_sync_runs`, `productivity_external_items`, and security events |
 | `reminders` | `CRON_SECRET` bearer | Runs `job_timesheet_reminders` + `job_approval_nudges`, then emails **one digest per user** of unread notifications — each notification exactly once (`emailed_at`), honoring the user's email preference |
 | `dunning` | `CRON_SECRET` bearer | Emails the invoice reminder ladder from `dunning_queue()` |
 
@@ -165,6 +167,7 @@ Deploy after changing code:
 ```bash
 supabase functions deploy send-user-email
 supabase functions deploy admin-users
+supabase functions deploy integrations
 supabase functions deploy reminders --no-verify-jwt   # cron secret is the gate
 supabase functions deploy dunning   --no-verify-jwt
 ```
@@ -217,6 +220,12 @@ design, not a failure.
 | `EMAIL_FROM` | Edge Function secrets | system mail fallback (`ibrave OS <noreply@ibrave.co>`) | edit any time |
 | `CRON_SECRET` | Edge Function secrets **and** Postgres Vault (used by `invoke_edge_function()`) | cron→function auth | rotate in **both** places in one sitting |
 | `APP_URL` | Edge Function secrets | links inside emails (`https://os.ibrave.co`) | edit on domain change |
+| `GITHUB_TOKEN`, `GITHUB_OWNER`, `GITHUB_REPO` | Edge Function secrets | GitHub productivity sync | rotate token in GitHub, update secrets, redeploy only if code changed |
+| `JIRA_BASE_URL`, `JIRA_EMAIL`, `JIRA_API_TOKEN`, `JIRA_PROJECT_KEY` or `JIRA_JQL` | Edge Function secrets | Jira productivity sync | rotate token in Atlassian, update secrets |
+| `LINEAR_API_KEY`, `LINEAR_TEAM_ID` | Edge Function secrets | Linear productivity sync | rotate in Linear, update secrets |
+| `GOOGLE_ACCESS_TOKEN`, `GOOGLE_CALENDAR_ID` | Edge Function secrets | Google Calendar productivity sync | rotate OAuth token, update secrets |
+| `MICROSOFT_GRAPH_TOKEN`, `MICROSOFT_CALENDAR_ID`, `TEAMS_TEAM_ID` | Edge Function secrets | Microsoft Calendar and Teams productivity sync | rotate Graph token, update secrets |
+| `SLACK_BOT_TOKEN`, `SLACK_CHANNEL_ID` | Edge Function secrets | Slack productivity sync | rotate bot token, update secrets |
 | `service_role` key | Supabase-managed, auto-injected into functions | admin operations | Supabase dashboard rotation |
 | anon key | Vercel env + `.env.local` | frontend | rotate in dashboard, update both, redeploy |
 | DB password | password manager | direct psql (rarely needed) | **rotate now** — the original passed through an insecure channel during setup |
@@ -247,6 +256,54 @@ and audit trail would be missing).
 
 MFA is TOTP-only (authenticator apps). Enforcement is at the app gate (AAL2
 step-up); database-level AAL2 policies are a hardening option, not yet applied.
+
+Client contacts are not internal auth users. Register them from **Clients ->
+Client portal**. Do not create client-side stakeholders in **Admin -> People**
+unless they are also internal contractors with a real workspace role.
+
+## 9.1 Productivity integration operations
+
+Deploy order:
+
+```bash
+cd apps/outsourcing-platform
+supabase db push
+supabase functions deploy integrations --project-ref <project-ref>
+```
+
+GitHub minimum setup:
+
+```bash
+supabase secrets set GITHUB_TOKEN=...
+supabase secrets set GITHUB_OWNER=your-org
+supabase secrets set GITHUB_REPO=your-repo
+```
+
+Jira minimum setup:
+
+```bash
+supabase secrets set JIRA_BASE_URL=https://company.atlassian.net
+supabase secrets set JIRA_EMAIL=service-account@company.example
+supabase secrets set JIRA_API_TOKEN=...
+supabase secrets set JIRA_PROJECT_KEY=ACME
+```
+
+Then:
+
+1. Open **Admin -> Integrations**.
+2. Add the provider connection.
+3. Map it to a project.
+4. Click **Test sync**.
+5. Open **Projects -> <project> -> Productivity integrations**.
+
+Troubleshooting:
+
+| Symptom | Check |
+|---|---|
+| `integration_connections` table missing | Run `supabase db push`, then `notify pgrst, 'reload schema';` |
+| Jira says `/rest/api/3/search` removed | Redeploy `integrations`; current code uses `/rest/api/3/search/jql` |
+| GitHub 404 | Check owner/repo spelling, token repo selection, read permissions, org SSO approval and token expiry |
+| Sync succeeds but no project items | Confirm the connection has project mapping and provider returned items |
 
 ## 10. Email delivery
 

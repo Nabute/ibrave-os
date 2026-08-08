@@ -5,6 +5,10 @@ into approvals, invoices, payouts and margin — every number traceable to the
 record that produced it. This page covers what every user needs regardless of
 role; your role's guide covers the rest.
 
+For a full map of who can access what, read the [Access model](../access-model.md).
+For complete worked examples across every module, read [Feature workflows and
+examples](../feature-workflows.md).
+
 ## Signing in
 
 Open **https://os.ibrave.co**. Accounts are created by an admin — there is no
@@ -15,6 +19,10 @@ If your role requires two-factor authentication you'll be walked through
 enrollment right after your first login: scan the QR code with any
 authenticator app (Google Authenticator, 1Password, Authy…), enter the
 6-digit code, done. From then on, logins ask for a current code.
+
+External client contacts do not sign in through this internal workspace flow.
+They are registered from a client record by the account team; see the
+[Client portal guide](client-portal.md).
 
 ## Finding your way
 
@@ -57,6 +65,18 @@ client-facing touch is recorded on the client/lead/candidate timeline.
   address — your own email, or a department identity like `talent@ibrave.co`
   if your role is entitled to it. There is no "noreply" for user-sent mail;
   replies go to you. Invoice emails can attach the official PDF.
+
+## Client-facing access
+
+Client contacts are managed separately from internal users:
+
+```text
+Clients -> <client> -> Client portal
+```
+
+Use that surface for client contacts, shared documents and approval requests.
+Never ask an admin to create a client as an internal employee just so they can
+see a document.
 
 ## The golden rules
 

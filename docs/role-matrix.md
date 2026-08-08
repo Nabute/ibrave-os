@@ -6,7 +6,8 @@ is aspirational — every line is backed by a database rule the client cannot by
 
 ## Roles
 
-A user can hold **several roles** (`user_roles` table). Two rules frame everything:
+A user can hold **several workspace roles** (`workspace_memberships`, with
+legacy `user_roles` compatibility during migration). Two rules frame everything:
 
 1. **`owner` and `admin` implicitly pass every `has_role()` check** — they can do
    anything any other role can do, plus their exclusive areas below.
@@ -25,6 +26,10 @@ A user can hold **several roles** (`user_roles` table). Two rules frame everythi
 | `account_owner` | Client relationship surfaces (Account 360, check-ins) |
 | `owner` | Command center + everything above (implicit) |
 | `admin` | People lifecycle, roles, settings, email identities + everything above (implicit) |
+
+External client contacts are not workspace members and do not receive these
+roles. They are registered from **Clients -> Client portal** and are governed
+by the client portal access model, not the internal role matrix.
 
 ## Permission matrix
 
@@ -69,10 +74,13 @@ A user can hold **several roles** (`user_roles` table). Two rules frame everythi
 | Send email as self | ◐ | ◐ | ◐ | ◐ | ◐ | ◐ | ◐ |
 | Send email as department identity | — | per `allowed_roles` on each identity (server-validated) | | | | | |
 | Calendar events (organizer cancels) | ◐ | ◐ | ◐ | ◐ | ◐ | ◐ | ◐ |
+| Productivity integration items on projects | 👁 assigned | 👁 projects | 👁 | — | — | — | 👁 client accounts |
+| Client portal records | — | ✅ project-linked | ✅ billing-linked | — | — | 👁 | ✅ |
 | **Owner/Admin exclusive** |
 | Command center, alert rules, two-sided pipeline | owner/admin only |
 | People lifecycle: invite, deactivate (auth ban), reset password | admin/owner only (service-role Edge Function, server-checked) |
 | Grant/revoke roles, email identities, company settings | admin (owner via expansion) |
+| Setup checklist, integrations, trust artifacts | admin/owner only |
 | Audit log | owner/admin only |
 | MFA policy (required roles / per-user mandate) | admin (owner via expansion) |
 
@@ -117,6 +125,9 @@ Server-enforced by `fsm_transition()`; the UI only shows what `*_actions()` retu
   `workflow_history`.
 - `service_role` exists only inside Edge Functions; user-facing admin actions
   re-verify the caller's admin/owner role server-side.
+- Client contacts are never granted internal roles. Register them under
+  **Clients -> Client portal** and use client-facing documents/approval
+  requests for external collaboration.
 
 ## MFA
 

@@ -43,6 +43,32 @@ another reason approvals shouldn't lag.
 - **Assignments** control who can log time and when (start/end dates,
   allocation %). End-date people who roll off; don't delete history.
 
+## Productivity integrations on projects
+
+When an admin maps GitHub, Jira, Linear, Google Calendar, Microsoft Calendar,
+Slack or Teams to one of your projects, synced items appear under:
+
+```text
+Projects -> <project> -> Productivity integrations
+```
+
+Use this as delivery context, not as the billing source of truth. Tickets,
+pull requests, events and chat messages explain what happened; approved
+timesheets still drive invoices, payouts and margin.
+
+Example: if Jira shows `ACME-142 Backend API pending review`, check that the
+work is reflected in the team's timesheet notes before approving related time.
+
+## Client-facing approvals
+
+For client sign-off on timesheets, scope or documents:
+
+1. Open **Clients -> <client> -> Client portal**.
+2. Create an approval request with a clear title and details.
+3. Link the project or invoice where relevant.
+4. Coordinate the actual client communication with the account owner until a
+   public client portal route is deployed.
+
 ## Staffing (with your resourcing hat)
 
 Most PMs also hold the resourcing role:
