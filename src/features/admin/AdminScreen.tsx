@@ -3,12 +3,12 @@ import { BulkActionBar, RowCheckbox, TableToolbar } from "@/components/TableTool
 import { useTableControls } from "@/lib/useTableControls";
 import { useUrlTab } from "@/lib/useUrlTab";
 import { TableSkeleton } from "@/components/Skeletons";
-import { Copy, KeyRound, Pencil, UserRoundPlus } from "lucide-react";
+import { Check, Copy, KeyRound, Pencil, Plug, RefreshCw, ShieldCheck, Upload, UserRoundPlus } from "lucide-react";
 import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -36,7 +36,14 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { toDisplayMessage, type AppRole, type PrivacyRequestStatus, type Profile } from "@/lib/api";
+import {
+  toDisplayMessage,
+  type AppRole,
+  type IntegrationProvider,
+  type PrivacyRequestStatus,
+  type Profile,
+  type TrustArtifact,
+} from "@/lib/api";
 import { useApi, useSession } from "@/lib/session";
 
 function EmailIdentitiesTab() {
@@ -210,6 +217,44 @@ const ALL_ROLES: AppRole[] = [
   "account_owner",
   "owner",
   "admin",
+];
+
+const IMPORT_TYPES = [
+  "people",
+  "clients",
+  "projects",
+  "assignments",
+  "rate_cards",
+  "opening_balances",
+  "invoices",
+  "time_entries",
+];
+
+const INTEGRATION_PROVIDERS: IntegrationProvider[] = [
+  "quickbooks",
+  "xero",
+  "netsuite",
+  "stripe",
+  "wise",
+  "bank_csv",
+  "jira",
+  "linear",
+  "github",
+  "google_calendar",
+  "microsoft_calendar",
+  "slack",
+  "teams",
+];
+
+const TRUST_ARTIFACT_TYPES: TrustArtifact["artifact_type"][] = [
+  "dpa",
+  "subprocessors",
+  "sla",
+  "backup_dr",
+  "incident_response",
+  "soc2_evidence",
+  "security_policy",
+  "audit_export",
 ];
 
 const PRIVACY_STATUSES: PrivacyRequestStatus[] = [
@@ -421,6 +466,502 @@ function SecurityEventsTab() {
   );
 }
 
+function ProductizationSetupTab() {
+  const api = useApi();
+  const qc = useQueryClient();
+  const [error, setError] = useState<string | null>(null);
+  const [importForm, setImportForm] = useState({ import_type: "people", filename: "" });
+
+  const { data: steps, isLoading: stepsLoading } = useQuery({
+    queryKey: ["productization-setup-steps"],
+    queryFn: () => api.productization.setupSteps(),
+  });
+  const { data: batches } = useQuery({
+    queryKey: ["productization-import-batches"],
+    queryFn: () => api.productization.importBatches(),
+  });
+
+  const done = (steps ?? []).filter((s) => s.status === "done").length;
+  const total = steps?.length ?? 0;
+  const progress = total ? Math.round((done / total) * 100) : 0;
+
+  const updateStepMutation = useMutation({
+    mutationFn: ({ key, status }: { key: string; status: "done" | "skipped" }) =>
+      api.productization.updateSetupStep(key, { status }),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ["productization-setup-steps"] }),
+    onError: (e) => setError(toDisplayMessage(e)),
+  });
+  const importMutation = useMutation({
+    mutationFn: () =>
+      api.productization.createImportBatch({
+        import_type: importForm.import_type,
+        filename: importForm.filename.trim() || undefined,
+      }),
+    onSuccess: () => {
+      setImportForm({ import_type: "people", filename: "" });
+      void qc.invalidateQueries({ queryKey: ["productization-import-batches"] });
+    },
+    onError: (e) => setError(toDisplayMessage(e)),
+  });
+
+  return (
+    <div className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)]">
+      {error && (
+        <p className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive xl:col-span-2">
+          {error}
+        </p>
+      )}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardDescription>Workspace readiness</CardDescription>
+          <CardTitle className="text-lg">Setup checklist</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="mb-4">
+            <div className="mb-1 flex items-center justify-between text-sm">
+              <span className="font-medium">{done} of {total} complete</span>
+              <span className="num text-muted-foreground">{progress}%</span>
+            </div>
+            <progress
+              value={done}
+              max={total || 1}
+              className="h-2 w-full overflow-hidden rounded-full [&::-moz-progress-bar]:bg-success [&::-webkit-progress-bar]:bg-muted [&::-webkit-progress-value]:bg-success"
+              aria-label="Setup progress"
+            />
+          </div>
+          {stepsLoading ? (
+            <TableSkeleton rows={6} cols={4} />
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Step</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Updated</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {(steps ?? []).map((step) => (
+                  <TableRow key={step.key}>
+                    <TableCell className="font-medium">{step.label}</TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={
+                          step.status === "done"
+                            ? "success"
+                            : step.status === "skipped"
+                              ? "outline"
+                              : "secondary"
+                        }
+                      >
+                        {step.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {new Date(step.updated_at).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          disabled={updateStepMutation.isPending || step.status === "done"}
+                          onClick={() => updateStepMutation.mutate({ key: step.key, status: "done" })}
+                        >
+                          <Check className="h-4 w-4" /> Done
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          disabled={updateStepMutation.isPending || step.status === "skipped"}
+                          onClick={() => updateStepMutation.mutate({ key: step.key, status: "skipped" })}
+                        >
+                          Skip
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardDescription>Guided onboarding</CardDescription>
+          <CardTitle className="text-lg">Import batches</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
+            <div className="space-y-1">
+              <Label>Type</Label>
+              <Select
+                value={importForm.import_type}
+                onValueChange={(v) => setImportForm({ ...importForm, import_type: v })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {IMPORT_TYPES.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label>Filename</Label>
+              <Input
+                value={importForm.filename}
+                onChange={(e) => setImportForm({ ...importForm, filename: e.target.value })}
+                placeholder="people.csv"
+              />
+            </div>
+            <Button className="self-end" disabled={importMutation.isPending} onClick={() => importMutation.mutate()}>
+              <Upload className="h-4 w-4" /> Register
+            </Button>
+          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Type</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>File</TableHead>
+                <TableHead>Created</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {(batches ?? []).slice(0, 8).map((batch) => (
+                <TableRow key={batch.id}>
+                  <TableCell className="font-medium">{batch.import_type}</TableCell>
+                  <TableCell><Badge variant="secondary">{batch.status}</Badge></TableCell>
+                  <TableCell className="text-muted-foreground">{batch.filename ?? "-"}</TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {new Date(batch.created_at).toLocaleDateString()}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function IntegrationsTab() {
+  const api = useApi();
+  const qc = useQueryClient();
+  const [error, setError] = useState<string | null>(null);
+  const [lastSync, setLastSync] = useState<string | null>(null);
+  const [form, setForm] = useState({
+    provider: "quickbooks" as IntegrationProvider,
+    display_name: "",
+    token_secret_name: "",
+    project_id: "none",
+  });
+  const { data: integrations } = useQuery({
+    queryKey: ["productization-integrations"],
+    queryFn: () => api.productization.integrations(),
+  });
+  const { data: projects } = useQuery({
+    queryKey: ["projects"],
+    queryFn: () => api.projects.list(),
+  });
+  const { data: providerStatus } = useQuery({
+    queryKey: ["productization-integration-provider-status"],
+    queryFn: () => api.productization.integrationProviderStatus(),
+  });
+  const mutation = useMutation({
+    mutationFn: () =>
+      api.productization.upsertIntegration({
+        provider: form.provider,
+        display_name: form.display_name.trim() || form.provider,
+        token_secret_name: form.token_secret_name.trim() || undefined,
+        config: form.project_id === "none" ? {} : { project_id: form.project_id },
+      }),
+    onSuccess: () => {
+      setForm({ provider: "quickbooks", display_name: "", token_secret_name: "", project_id: "none" });
+      void qc.invalidateQueries({ queryKey: ["productization-integrations"] });
+    },
+    onError: (e) => setError(toDisplayMessage(e)),
+  });
+  const syncMutation = useMutation({
+    mutationFn: (connectionId: string) => api.productization.syncIntegration(connectionId),
+    onSuccess: (result) => {
+      setError(null);
+      setLastSync(`Run ${result.run_id.slice(0, 8)} succeeded (${result.result.status})`);
+    },
+    onError: (e) => setError(toDisplayMessage(e)),
+    onSettled: () => void qc.invalidateQueries({ queryKey: ["productization-integrations"] }),
+  });
+
+  return (
+    <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+      <Card>
+        <CardHeader className="pb-2">
+          <CardDescription>External systems</CardDescription>
+          <CardTitle className="text-lg">Integration registry</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          {lastSync && <p className="text-sm text-success">{lastSync}</p>}
+          <div className="grid gap-3 md:grid-cols-[180px_1fr_1fr_1fr_auto]">
+            <div className="space-y-1">
+              <Label>Provider</Label>
+              <Select
+                value={form.provider}
+                onValueChange={(v) => setForm({ ...form, provider: v as IntegrationProvider })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {INTEGRATION_PROVIDERS.map((provider) => (
+                    <SelectItem key={provider} value={provider}>
+                      {provider}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label>Display name</Label>
+              <Input
+                value={form.display_name}
+                onChange={(e) => setForm({ ...form, display_name: e.target.value })}
+                placeholder="QuickBooks production"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label>Token env override</Label>
+              <Input
+                value={form.token_secret_name}
+                onChange={(e) => setForm({ ...form, token_secret_name: e.target.value })}
+                placeholder="QBO_WORKSPACE_TOKEN"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label>Project mapping</Label>
+              <Select
+                value={form.project_id}
+                onValueChange={(v) => setForm({ ...form, project_id: v })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No project</SelectItem>
+                  {(projects ?? []).map((project) => (
+                    <SelectItem key={project.id} value={project.id}>
+                      {project.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Button className="self-end" disabled={mutation.isPending} onClick={() => mutation.mutate()}>
+              <Plug className="h-4 w-4" /> Add
+            </Button>
+          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Provider</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Last sync</TableHead>
+                <TableHead>Token env</TableHead>
+                <TableHead>Project</TableHead>
+                <TableHead className="text-right">Action</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {(integrations ?? []).map((integration) => (
+                <TableRow key={integration.id}>
+                  <TableCell className="font-medium">{integration.provider}</TableCell>
+                  <TableCell>{integration.display_name}</TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={
+                        integration.status === "connected"
+                          ? "success"
+                          : integration.status === "error"
+                            ? "destructive"
+                            : "secondary"
+                      }
+                    >
+                      {integration.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {integration.last_sync_at ? new Date(integration.last_sync_at).toLocaleString() : "-"}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">{integration.token_secret_name ?? "provider default"}</TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {String(integration.config?.project_id ?? "-").slice(0, 8)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={syncMutation.isPending}
+                      onClick={() => syncMutation.mutate(integration.id)}
+                    >
+                      <RefreshCw className="h-4 w-4" /> Test sync
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardDescription>Server environment</CardDescription>
+          <CardTitle className="text-lg">Provider readiness</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ul className="space-y-2 text-sm">
+            {(providerStatus ?? []).map((p) => (
+              <li key={p.provider} className="flex items-start justify-between gap-3">
+                <span>
+                  <span className="font-medium">{p.provider}</span>
+                  {p.missing_env.length > 0 && (
+                    <span className="block text-xs text-muted-foreground">
+                      Missing {p.missing_env.join(", ")}
+                    </span>
+                  )}
+                </span>
+                <Badge variant={p.configured ? "success" : "outline"}>
+                  {p.configured ? "ready" : "env"}
+                </Badge>
+              </li>
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function TrustCenterTab() {
+  const api = useApi();
+  const qc = useQueryClient();
+  const [error, setError] = useState<string | null>(null);
+  const [form, setForm] = useState({
+    artifact_type: "dpa" as TrustArtifact["artifact_type"],
+    title: "",
+    public_url: "",
+  });
+  const { data: artifacts } = useQuery({
+    queryKey: ["productization-trust-artifacts"],
+    queryFn: () => api.productization.trustArtifacts(),
+  });
+  const mutation = useMutation({
+    mutationFn: () =>
+      api.productization.createTrustArtifact({
+        artifact_type: form.artifact_type,
+        title: form.title.trim(),
+        public_url: form.public_url.trim() || undefined,
+        status: "draft",
+      }),
+    onSuccess: () => {
+      setForm({ artifact_type: "dpa", title: "", public_url: "" });
+      void qc.invalidateQueries({ queryKey: ["productization-trust-artifacts"] });
+    },
+    onError: (e) => setError(toDisplayMessage(e)),
+  });
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardDescription>Commercial readiness</CardDescription>
+        <CardTitle className="text-lg">Trust artifacts</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {error && <p className="text-sm text-destructive">{error}</p>}
+        <div className="grid gap-3 md:grid-cols-[220px_1fr_1fr_auto]">
+          <div className="space-y-1">
+            <Label>Type</Label>
+            <Select
+              value={form.artifact_type}
+              onValueChange={(v) => setForm({ ...form, artifact_type: v as TrustArtifact["artifact_type"] })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {TRUST_ARTIFACT_TYPES.map((type) => (
+                  <SelectItem key={type} value={type}>
+                    {type}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1">
+            <Label>Title</Label>
+            <Input
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              placeholder="Data Processing Addendum"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label>Public URL</Label>
+            <Input
+              value={form.public_url}
+              onChange={(e) => setForm({ ...form, public_url: e.target.value })}
+              placeholder="https://..."
+            />
+          </div>
+          <Button
+            className="self-end"
+            disabled={mutation.isPending || !form.title.trim()}
+            onClick={() => mutation.mutate()}
+          >
+            <ShieldCheck className="h-4 w-4" /> Add
+          </Button>
+        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Type</TableHead>
+              <TableHead>Title</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>URL</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {(artifacts ?? []).map((artifact) => (
+              <TableRow key={artifact.id}>
+                <TableCell className="font-medium">{artifact.artifact_type}</TableCell>
+                <TableCell>{artifact.title}</TableCell>
+                <TableCell>
+                  <Badge variant={artifact.status === "published" ? "success" : "secondary"}>
+                    {artifact.status}
+                  </Badge>
+                </TableCell>
+                <TableCell className="max-w-md truncate text-muted-foreground">
+                  {artifact.public_url ?? artifact.storage_path ?? "-"}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  );
+}
+
 export function AdminScreen() {
   const [tab, setTab] = useUrlTab("people");
   const api = useApi();
@@ -504,13 +1045,24 @@ export function AdminScreen() {
         </p>
       )}
       <Tabs value={tab} onValueChange={setTab}>
-        <TabsList>
+        <TabsList className="flex h-auto flex-wrap justify-start gap-1">
           <TabsTrigger value="people">People & roles</TabsTrigger>
+          <TabsTrigger value="setup">Setup</TabsTrigger>
+          <TabsTrigger value="integrations">Integrations</TabsTrigger>
           <TabsTrigger value="identities">Email identities</TabsTrigger>
           <TabsTrigger value="privacy">Privacy</TabsTrigger>
           <TabsTrigger value="security">Security</TabsTrigger>
+          <TabsTrigger value="trust">Trust</TabsTrigger>
           <TabsTrigger value="settings">Company settings</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="setup">
+          <ProductizationSetupTab />
+        </TabsContent>
+
+        <TabsContent value="integrations">
+          <IntegrationsTab />
+        </TabsContent>
 
         <TabsContent value="identities">
           <EmailIdentitiesTab />
@@ -522,6 +1074,10 @@ export function AdminScreen() {
 
         <TabsContent value="security">
           <SecurityEventsTab />
+        </TabsContent>
+
+        <TabsContent value="trust">
+          <TrustCenterTab />
         </TabsContent>
 
         <TabsContent value="people">

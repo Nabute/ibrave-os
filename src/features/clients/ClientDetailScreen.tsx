@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useUrlTab } from "@/lib/useUrlTab";
 import { DetailSkeleton } from "@/components/Skeletons";
 import { Link, useParams } from "@tanstack/react-router";
-import { AlertTriangle, MessageSquarePlus, Star } from "lucide-react";
+import { AlertTriangle, ClipboardCheck, FileText, MessageSquarePlus, Star, UserRoundPlus } from "lucide-react";
 import { useState } from "react";
 
 import { EmailComposer } from "@/components/EmailComposer";
@@ -165,6 +165,7 @@ export function ClientDetailScreen() {
             )}
           </TabsTrigger>
           <TabsTrigger value="feedback">Feedback</TabsTrigger>
+          <TabsTrigger value="portal">Client portal</TabsTrigger>
           <TabsTrigger value="records">Contacts & records</TabsTrigger>
         </TabsList>
 
@@ -179,6 +180,9 @@ export function ClientDetailScreen() {
         </TabsContent>
         <TabsContent value="feedback">
           <FeedbackTab clientId={clientId} projects={projects ?? []} />
+        </TabsContent>
+        <TabsContent value="portal">
+          <PortalTab clientId={clientId} projects={projects ?? []} invoices={invoices ?? []} />
         </TabsContent>
 
         <TabsContent value="records">
@@ -275,6 +279,351 @@ export function ClientDetailScreen() {
           </div>
         </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+function PortalTab({
+  clientId,
+  projects,
+  invoices,
+}: {
+  clientId: string;
+  projects: { id: string; name: string }[];
+  invoices: { id: string; number: string | null; total_minor: number; currency: string }[];
+}) {
+  const api = useApi();
+  const qc = useQueryClient();
+  const { userId } = useSession();
+  const [error, setError] = useState<string | null>(null);
+  const [portalUser, setPortalUser] = useState({ email: "", full_name: "" });
+  const [documentForm, setDocumentForm] = useState({
+    title: "",
+    storage_path: "",
+    project_id: "none",
+    visibility: "client" as "internal" | "client",
+  });
+  const [approvalForm, setApprovalForm] = useState({
+    title: "",
+    body: "",
+    project_id: "none",
+    invoice_id: "none",
+  });
+
+  const invalidate = () => {
+    void qc.invalidateQueries({ queryKey: ["client-portal-users", clientId] });
+    void qc.invalidateQueries({ queryKey: ["client-documents", clientId] });
+    void qc.invalidateQueries({ queryKey: ["client-approval-requests", clientId] });
+  };
+
+  const { data: portalUsers } = useQuery({
+    queryKey: ["client-portal-users", clientId],
+    queryFn: () => api.productization.clientPortalUsers(clientId),
+  });
+  const { data: documents } = useQuery({
+    queryKey: ["client-documents", clientId],
+    queryFn: () => api.productization.clientDocuments(clientId),
+  });
+  const { data: approvals } = useQuery({
+    queryKey: ["client-approval-requests", clientId],
+    queryFn: () => api.productization.clientApprovalRequests(clientId),
+  });
+
+  const portalUserMutation = useMutation({
+    mutationFn: () =>
+      api.productization.createClientPortalUser({
+        client_id: clientId,
+        email: portalUser.email.trim(),
+        full_name: portalUser.full_name.trim() || null,
+        status: "invited",
+        invited_by: userId,
+      }),
+    onSuccess: () => {
+      setPortalUser({ email: "", full_name: "" });
+      setError(null);
+      invalidate();
+    },
+    onError: (e) => setError(toDisplayMessage(e)),
+  });
+
+  const documentMutation = useMutation({
+    mutationFn: () =>
+      api.productization.createClientDocument({
+        client_id: clientId,
+        title: documentForm.title.trim(),
+        storage_path: documentForm.storage_path.trim(),
+        project_id: documentForm.project_id === "none" ? null : documentForm.project_id,
+        visibility: documentForm.visibility,
+        uploaded_by: userId,
+      }),
+    onSuccess: () => {
+      setDocumentForm({ title: "", storage_path: "", project_id: "none", visibility: "client" });
+      setError(null);
+      invalidate();
+    },
+    onError: (e) => setError(toDisplayMessage(e)),
+  });
+
+  const approvalMutation = useMutation({
+    mutationFn: () =>
+      api.productization.createClientApprovalRequest({
+        client_id: clientId,
+        title: approvalForm.title.trim(),
+        body: approvalForm.body.trim() || null,
+        project_id: approvalForm.project_id === "none" ? null : approvalForm.project_id,
+        invoice_id: approvalForm.invoice_id === "none" ? null : approvalForm.invoice_id,
+        requested_by: userId,
+      }),
+    onSuccess: () => {
+      setApprovalForm({ title: "", body: "", project_id: "none", invoice_id: "none" });
+      setError(null);
+      invalidate();
+    },
+    onError: (e) => setError(toDisplayMessage(e)),
+  });
+
+  return (
+    <div className="space-y-4">
+      {error && (
+        <p className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          {error}
+        </p>
+      )}
+      <div className="grid gap-4 xl:grid-cols-3">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardDescription>External access</CardDescription>
+            <CardTitle className="text-lg">Portal users</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1">
+                <Label>Email</Label>
+                <Input
+                  value={portalUser.email}
+                  onChange={(e) => setPortalUser({ ...portalUser, email: e.target.value })}
+                  placeholder="client@example.com"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label>Name</Label>
+                <Input
+                  value={portalUser.full_name}
+                  onChange={(e) => setPortalUser({ ...portalUser, full_name: e.target.value })}
+                  placeholder="Avery Client"
+                />
+              </div>
+            </div>
+            <Button
+              size="sm"
+              disabled={portalUserMutation.isPending || !portalUser.email.trim()}
+              onClick={() => portalUserMutation.mutate()}
+            >
+              <UserRoundPlus className="h-4 w-4" /> Invite
+            </Button>
+            <ul className="space-y-2 text-sm">
+              {(portalUsers ?? []).map((u) => (
+                <li key={u.id} className="flex items-center justify-between gap-3">
+                  <span>
+                    {u.full_name ?? u.email}
+                    {u.full_name && <span className="ml-2 text-muted-foreground">{u.email}</span>}
+                  </span>
+                  <Badge variant={u.status === "active" ? "success" : "secondary"}>{u.status}</Badge>
+                </li>
+              ))}
+              {(portalUsers ?? []).length === 0 && (
+                <p className="text-muted-foreground">No portal users registered.</p>
+              )}
+            </ul>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardDescription>Shared files</CardDescription>
+            <CardTitle className="text-lg">Documents</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-3">
+              <div className="space-y-1">
+                <Label>Title</Label>
+                <Input
+                  value={documentForm.title}
+                  onChange={(e) => setDocumentForm({ ...documentForm, title: e.target.value })}
+                  placeholder="Statement of work"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label>Path or URL</Label>
+                <Input
+                  value={documentForm.storage_path}
+                  onChange={(e) =>
+                    setDocumentForm({ ...documentForm, storage_path: e.target.value })
+                  }
+                  placeholder="clients/acme/sow.pdf"
+                />
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <Label>Project</Label>
+                  <Select
+                    value={documentForm.project_id}
+                    onValueChange={(v) => setDocumentForm({ ...documentForm, project_id: v })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">No project</SelectItem>
+                      {projects.map((p) => (
+                        <SelectItem key={p.id} value={p.id}>
+                          {p.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label>Visibility</Label>
+                  <Select
+                    value={documentForm.visibility}
+                    onValueChange={(v) =>
+                      setDocumentForm({ ...documentForm, visibility: v as "internal" | "client" })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="client">client</SelectItem>
+                      <SelectItem value="internal">internal</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+            <Button
+              size="sm"
+              disabled={
+                documentMutation.isPending ||
+                !documentForm.title.trim() ||
+                !documentForm.storage_path.trim()
+              }
+              onClick={() => documentMutation.mutate()}
+            >
+              <FileText className="h-4 w-4" /> Add document
+            </Button>
+            <ul className="space-y-2 text-sm">
+              {(documents ?? []).slice(0, 8).map((doc) => (
+                <li key={doc.id} className="flex items-center justify-between gap-3">
+                  <span className="min-w-0 truncate">{doc.title}</span>
+                  <Badge variant={doc.visibility === "client" ? "success" : "outline"}>
+                    {doc.visibility}
+                  </Badge>
+                </li>
+              ))}
+              {(documents ?? []).length === 0 && (
+                <p className="text-muted-foreground">No documents registered.</p>
+              )}
+            </ul>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardDescription>Client decisions</CardDescription>
+            <CardTitle className="text-lg">Approval requests</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-3">
+              <div className="space-y-1">
+                <Label>Title</Label>
+                <Input
+                  value={approvalForm.title}
+                  onChange={(e) => setApprovalForm({ ...approvalForm, title: e.target.value })}
+                  placeholder="Approve July timesheets"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label>Details</Label>
+                <Textarea
+                  value={approvalForm.body}
+                  onChange={(e) => setApprovalForm({ ...approvalForm, body: e.target.value })}
+                  placeholder="Summary, deadline, or special instructions"
+                />
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <Label>Project</Label>
+                  <Select
+                    value={approvalForm.project_id}
+                    onValueChange={(v) => setApprovalForm({ ...approvalForm, project_id: v })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">No project</SelectItem>
+                      {projects.map((p) => (
+                        <SelectItem key={p.id} value={p.id}>
+                          {p.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label>Invoice</Label>
+                  <Select
+                    value={approvalForm.invoice_id}
+                    onValueChange={(v) => setApprovalForm({ ...approvalForm, invoice_id: v })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">No invoice</SelectItem>
+                      {invoices.map((inv) => (
+                        <SelectItem key={inv.id} value={inv.id}>
+                          {inv.number ?? "draft invoice"}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+            <Button
+              size="sm"
+              disabled={approvalMutation.isPending || !approvalForm.title.trim()}
+              onClick={() => approvalMutation.mutate()}
+            >
+              <ClipboardCheck className="h-4 w-4" /> Request
+            </Button>
+            <ul className="space-y-2 text-sm">
+              {(approvals ?? []).slice(0, 8).map((approval) => (
+                <li key={approval.id} className="flex items-center justify-between gap-3">
+                  <span className="min-w-0 truncate">{approval.title}</span>
+                  <Badge
+                    variant={
+                      approval.status === "approved"
+                        ? "success"
+                        : approval.status === "rejected"
+                          ? "destructive"
+                          : "secondary"
+                    }
+                  >
+                    {approval.status}
+                  </Badge>
+                </li>
+              ))}
+              {(approvals ?? []).length === 0 && (
+                <p className="text-muted-foreground">No approval requests created.</p>
+              )}
+            </ul>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

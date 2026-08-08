@@ -12,6 +12,7 @@ import { supabase } from "@/lib/supabase";
 
 interface SessionState {
   userId: string | null;
+  workspaceId: string | null;
   profile: Profile | null;
   roles: AppRole[];
   ready: boolean;
@@ -27,6 +28,7 @@ const SessionContext = createContext<SessionState | null>(null);
 export function SessionProvider({ children }: { children: ReactNode }) {
   const api = useMemo(() => createApi({ client: supabase }), []);
   const [userId, setUserId] = useState<string | null>(null);
+  const [workspaceId, setWorkspaceId] = useState<string | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [ready, setReady] = useState(false);
@@ -39,6 +41,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       setUserId(session?.user.id ?? null);
       if (!session) {
+        setWorkspaceId(null);
         setProfile(null);
         setRoles([]);
         setReady(true);
@@ -51,13 +54,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     if (!userId) return;
     let cancelled = false;
     (async () => {
-      const [{ data: prof }, { data: roleRows }] = await Promise.all([
-        supabase.from("profiles").select("*").eq("id", userId).single(),
-        supabase.from("user_roles").select("role").eq("user_id", userId),
-      ]);
+      const { profile: prof, roles: scopedRoles, workspaceId: scopedWorkspaceId } =
+        await loadWorkspaceSession(userId);
       if (cancelled) return;
       setProfile(prof as Profile);
-      setRoles((roleRows ?? []).map((r) => r.role as AppRole));
+      setWorkspaceId(scopedWorkspaceId);
+      setRoles(scopedRoles);
       setReady(true);
     })();
     return () => {
@@ -68,6 +70,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const value = useMemo<SessionState>(
     () => ({
       userId,
+      workspaceId,
       profile,
       roles,
       ready,
@@ -82,15 +85,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       },
       refreshProfile: async () => {
         if (!userId) return;
-        const [{ data: prof }, { data: roleRows }] = await Promise.all([
-          supabase.from("profiles").select("*").eq("id", userId).single(),
-          supabase.from("user_roles").select("role").eq("user_id", userId),
-        ]);
+        const { profile: prof, roles: scopedRoles, workspaceId: scopedWorkspaceId } =
+          await loadWorkspaceSession(userId);
         if (prof) setProfile(prof as Profile);
-        if (roleRows) setRoles(roleRows.map((r) => r.role as AppRole));
+        setWorkspaceId(scopedWorkspaceId);
+        setRoles(scopedRoles);
       },
     }),
-    [userId, profile, roles, ready, api]
+    [userId, workspaceId, profile, roles, ready, api]
   );
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
@@ -105,4 +107,29 @@ export function useSession(): SessionState {
 /** Repository access hook, the factory-made Api object. */
 export function useApi(): Api {
   return useSession().api;
+}
+
+async function loadWorkspaceSession(userId: string): Promise<{
+  profile: Profile | null;
+  workspaceId: string | null;
+  roles: AppRole[];
+}> {
+  const [{ data: prof }, workspace, legacyRoles] = await Promise.all([
+    supabase.from("profiles").select("*").eq("id", userId).single(),
+    supabase
+      .from("workspace_memberships")
+      .select("workspace_id, role")
+      .eq("user_id", userId)
+      .eq("status", "active")
+      .limit(50),
+    supabase.from("user_roles").select("role").eq("user_id", userId),
+  ]);
+
+  const workspaceRows = workspace.error ? [] : workspace.data ?? [];
+  const roleRows = workspaceRows.length ? workspaceRows : legacyRoles.data ?? [];
+  return {
+    profile: (prof as Profile | null) ?? null,
+    workspaceId: workspaceRows[0]?.workspace_id ?? null,
+    roles: roleRows.map((r) => r.role as AppRole),
+  };
 }

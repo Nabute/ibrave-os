@@ -27,6 +27,8 @@ const FALLBACK: Record<string, { subject: string; body: string }> = {
   },
 };
 
+const DEFAULT_WORKSPACE_ID = "00000000-0000-4000-8000-000000000001";
+
 interface QueueRow {
   invoice_id: string;
   invoice_number: string;
@@ -52,8 +54,9 @@ serveJson(async (req) => {
   if (error) return json({ error: error.message }, 500);
 
   const { data: company } = await db
-    .from("company_settings")
+    .from("workspace_settings")
     .select("company_name, legal_name, payment_instructions, bank_details")
+    .eq("workspace_id", DEFAULT_WORKSPACE_ID)
     .single();
   const { data: templates } = await db
     .from("email_templates")

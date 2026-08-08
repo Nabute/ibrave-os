@@ -1,5 +1,5 @@
 import { BaseRepository } from "../base";
-import type { Assignment, BurnRow, Project, RateCard, Task } from "../types";
+import type { Assignment, BurnRow, ProductivityExternalItem, Project, RateCard, Task } from "../types";
 
 export class ProjectsRepository extends BaseRepository {
   list(): Promise<Project[]> {
@@ -34,6 +34,17 @@ export class ProjectsRepository extends BaseRepository {
   tasks(projectId: string): Promise<Task[]> {
     return this.query(
       this.db.from("tasks").select("*").eq("project_id", projectId).order("name")
+    );
+  }
+
+  productivityItems(projectId: string): Promise<ProductivityExternalItem[]> {
+    return this.query(
+      this.db
+        .from("productivity_external_items")
+        .select("*")
+        .eq("project_id", projectId)
+        .order("last_seen_at", { ascending: false })
+        .limit(50)
     );
   }
 

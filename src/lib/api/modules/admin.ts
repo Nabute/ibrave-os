@@ -10,21 +10,46 @@ import type {
 } from "../types";
 
 export class AdminRepository extends BaseRepository {
-  people(): Promise<(Profile & { user_roles: { role: AppRole }[] })[]> {
+  async people(): Promise<(Profile & { user_roles: { role: AppRole }[] })[]> {
+    const workspaceId = await this.currentWorkspaceId();
+    const [{ data: people, error: peopleError }, scopedRoles, legacyRoles] = await Promise.all([
+      this.db.from("profiles").select("*").order("full_name"),
+      this.db
+        .from("workspace_memberships")
+        .select("user_id, role")
+        .eq("workspace_id", workspaceId)
+        .eq("status", "active"),
+      this.db.from("user_roles").select("user_id, role"),
+    ]);
+    if (peopleError) throw this.translateAny(peopleError);
+    const roleRows = scopedRoles.error ? legacyRoles.data ?? [] : scopedRoles.data ?? [];
+    return ((people ?? []) as Profile[]).map((person) => ({
+      ...person,
+      user_roles: roleRows
+        .filter((row) => row.user_id === person.id)
+        .map((row) => ({ role: row.role as AppRole })),
+    }));
+  }
+
+  async grantRole(userId: string, role: AppRole): Promise<unknown> {
+    const workspaceId = await this.currentWorkspaceId();
     return this.query(
-      this.db.from("profiles").select("*, user_roles ( role )").order("full_name")
+      this.db
+        .from("workspace_memberships")
+        .insert({ workspace_id: workspaceId, user_id: userId, role })
+        .select()
     );
   }
 
-  grantRole(userId: string, role: AppRole): Promise<unknown> {
+  async revokeRole(userId: string, role: AppRole): Promise<null> {
+    const workspaceId = await this.currentWorkspaceId();
     return this.query(
-      this.db.from("user_roles").insert({ user_id: userId, role }).select()
-    );
-  }
-
-  revokeRole(userId: string, role: AppRole): Promise<null> {
-    return this.query(
-      this.db.from("user_roles").delete().eq("user_id", userId).eq("role", role)
+      this.db
+        .from("workspace_memberships")
+        .delete()
+        .eq("workspace_id", workspaceId)
+        .eq("user_id", userId)
+        .eq("role", role)
     );
   }
 
@@ -73,14 +98,27 @@ export class AdminRepository extends BaseRepository {
     return data as T;
   }
 
-  settings(): Promise<CompanySettings> {
+  async settings(): Promise<CompanySettings> {
+    const workspaceId = await this.currentWorkspaceId();
+    const scoped = await this.db
+      .from("workspace_settings")
+      .select("*")
+      .eq("workspace_id", workspaceId)
+      .single();
+    if (!scoped.error) return scoped.data as CompanySettings;
     return this.query(this.db.from("company_settings").select("*").single());
   }
 
-  updateSettings(patch: Partial<CompanySettings>): Promise<CompanySettings> {
-    return this.query(
-      this.db.from("company_settings").update(patch).eq("id", true).select().single()
-    );
+  async updateSettings(patch: Partial<CompanySettings>): Promise<CompanySettings> {
+    const workspaceId = await this.currentWorkspaceId();
+    const scoped = await this.db
+      .from("workspace_settings")
+      .update(patch)
+      .eq("workspace_id", workspaceId)
+      .select()
+      .single();
+    if (!scoped.error) return scoped.data as CompanySettings;
+    return this.query(this.db.from("company_settings").update(patch).eq("id", true).select().single());
   }
 
   privacyRequests(): Promise<PrivacyRequest[]> {
@@ -110,5 +148,15 @@ export class AdminRepository extends BaseRepository {
         .order("created_at", { ascending: false })
         .limit(100)
     );
+  }
+
+  private async currentWorkspaceId(): Promise<string> {
+    const { data, error } = await this.db.rpc("current_workspace_id");
+    if (!error && typeof data === "string") return data;
+    return "00000000-0000-4000-8000-000000000001";
+  }
+
+  private translateAny(error: unknown): Error {
+    return error instanceof Error ? error : new ApiError(undefined, String(error));
   }
 }

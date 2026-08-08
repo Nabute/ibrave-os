@@ -33,6 +33,8 @@ interface SendPayload {
   event_id?: string;
 }
 
+const DEFAULT_WORKSPACE_ID = "00000000-0000-4000-8000-000000000001";
+
 serveJson(async (req) => {
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
 
@@ -58,11 +60,16 @@ serveJson(async (req) => {
     .select("full_name, email")
     .eq("id", user.id)
     .single();
-  const { data: roleRows } = await db
-    .from("user_roles")
+  const { data: workspaceRoleRows, error: workspaceRoleErr } = await db
+    .from("workspace_memberships")
     .select("role")
-    .eq("user_id", user.id);
-  const roles = new Set((roleRows ?? []).map((r) => String(r.role)));
+    .eq("user_id", user.id)
+    .eq("workspace_id", DEFAULT_WORKSPACE_ID)
+    .eq("status", "active");
+  const { data: legacyRoleRows } = workspaceRoleErr
+    ? await db.from("user_roles").select("role").eq("user_id", user.id)
+    : { data: [] };
+  const roles = new Set(((workspaceRoleErr ? legacyRoleRows : workspaceRoleRows) ?? []).map((r) => String(r.role)));
   const hasRole = (role: string) =>
     roles.has(role) ||
     roles.has("owner") ||
@@ -188,10 +195,11 @@ serveJson(async (req) => {
       .eq("id", payload.invoice_id)
       .single();
     const { data: company } = await db
-      .from("company_settings")
+      .from("workspace_settings")
       .select(
         "company_name, legal_name, tagline, address, tin, registration_no, bank_details, invoice_intro, payment_instructions, vat_note, contact_note, issuer_name, issuer_title"
       )
+      .eq("workspace_id", DEFAULT_WORKSPACE_ID)
       .single();
     if (inv?.number && company) {
       const pdf = await buildInvoicePdf(inv as never, company);

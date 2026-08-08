@@ -11,6 +11,7 @@ type Action =
       email: string;
       full_name: string;
       roles?: string[];
+      workspace_id?: string;
       title?: string;
       employment_type?: "employee" | "contractor";
     }
@@ -23,6 +24,8 @@ function tempPassword(): string {
   const bytes = crypto.getRandomValues(new Uint8Array(16));
   return [...bytes].map((b) => alphabet[b % alphabet.length]).join("");
 }
+
+const DEFAULT_WORKSPACE_ID = "00000000-0000-4000-8000-000000000001";
 
 serveJson(async (req) => {
   const db = adminClient();
@@ -45,10 +48,16 @@ serveJson(async (req) => {
   }
   const caller = userData.user;
 
-  const { data: callerRoles } = await db
-    .from("user_roles")
+  const { data: callerWorkspaceRoles, error: workspaceRoleErr } = await db
+    .from("workspace_memberships")
     .select("role")
-    .eq("user_id", caller.id);
+    .eq("user_id", caller.id)
+    .eq("workspace_id", DEFAULT_WORKSPACE_ID)
+    .eq("status", "active");
+  const { data: callerLegacyRoles } = workspaceRoleErr
+    ? await db.from("user_roles").select("role").eq("user_id", caller.id)
+    : { data: [] };
+  const callerRoles = workspaceRoleErr ? callerLegacyRoles : callerWorkspaceRoles;
   const isAdmin = (callerRoles ?? []).some((r) => r.role === "admin" || r.role === "owner");
   if (!isAdmin) {
     await logSecurityEvent(db, req, {
@@ -98,12 +107,17 @@ serveJson(async (req) => {
           .eq("id", userId);
 
         const roles = (payload.roles ?? []).length ? payload.roles! : ["employee"];
+        const workspaceId = payload.workspace_id ?? DEFAULT_WORKSPACE_ID;
+        await db
+          .from("workspace_memberships")
+          .insert(roles.map((role) => ({ workspace_id: workspaceId, user_id: userId, role })));
         await db
           .from("user_roles")
-          .insert(roles.map((role) => ({ user_id: userId, role })));
+          .upsert(roles.map((role) => ({ user_id: userId, role })), { onConflict: "user_id,role" });
 
         await audit("admin.invite_user", userId, {
           email: payload.email,
+          workspace_id: workspaceId,
           roles,
         });
         // The temp password is returned to the admin ONCE, not emailed, not stored.

@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { DetailSkeleton } from "@/components/Skeletons";
 import { useParams } from "@tanstack/react-router";
+import { ExternalLink } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,6 +28,10 @@ export function ProjectDetailScreen() {
   const { data: tasks } = useQuery({
     queryKey: ["project-tasks", projectId],
     queryFn: () => api.projects.tasks(projectId),
+  });
+  const { data: productivityItems } = useQuery({
+    queryKey: ["project-productivity-items", projectId],
+    queryFn: () => api.projects.productivityItems(projectId),
   });
   const { data: members } = useQuery({
     queryKey: ["project-members", projectId],
@@ -148,6 +153,63 @@ export function ProjectDetailScreen() {
             </CardContent>
           </Card>
         )}
+
+        <Card className="lg:col-span-2">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg">Productivity integrations</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Source</TableHead>
+                  <TableHead>Item</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Assignee</TableHead>
+                  <TableHead>Seen</TableHead>
+                  <TableHead className="text-right">Link</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {(productivityItems ?? []).map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell>
+                      <Badge variant="secondary">{item.provider}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <span className="font-medium">{item.external_key ?? item.external_type}</span>
+                      <span className="ml-2 text-muted-foreground">{item.title}</span>
+                    </TableCell>
+                    <TableCell>{item.status ?? "-"}</TableCell>
+                    <TableCell className="text-muted-foreground">{item.assignee ?? "-"}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {new Date(item.last_seen_at).toLocaleString()}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {item.external_url ? (
+                        <a
+                          href={item.external_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center justify-end text-primary hover:underline"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                        </a>
+                      ) : (
+                        "-"
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            {(productivityItems ?? []).length === 0 && (
+              <p className="py-4 text-center text-sm text-muted-foreground">
+                No synced GitHub, Jira, Linear, calendar, Slack or Teams items for this project yet.
+              </p>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

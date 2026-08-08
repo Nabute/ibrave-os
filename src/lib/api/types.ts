@@ -113,6 +113,207 @@ export interface SecurityEvent {
   created_at: string;
 }
 
+export type SetupStepStatus = "pending" | "in_progress" | "done" | "skipped";
+
+export interface WorkspaceSetupStep {
+  workspace_id: string;
+  key: string;
+  label: string;
+  status: SetupStepStatus;
+  completed_by: string | null;
+  completed_at: string | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
+export type IntegrationProvider =
+  | "quickbooks"
+  | "xero"
+  | "netsuite"
+  | "stripe"
+  | "wise"
+  | "bank_csv"
+  | "jira"
+  | "linear"
+  | "github"
+  | "google_calendar"
+  | "microsoft_calendar"
+  | "slack"
+  | "teams";
+
+export type IntegrationStatus = "connected" | "paused" | "error" | "disconnected";
+
+export interface IntegrationConnection {
+  id: string;
+  workspace_id: string;
+  provider: IntegrationProvider;
+  status: IntegrationStatus;
+  display_name: string;
+  external_tenant_id: string | null;
+  token_secret_name: string | null;
+  config: Record<string, unknown>;
+  connected_by: string | null;
+  last_sync_at: string | null;
+  error_message: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface IntegrationSyncRun {
+  id: string;
+  workspace_id: string;
+  connection_id: string;
+  direction: "pull" | "push" | "bidirectional";
+  object_type: string;
+  status: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+  started_at: string | null;
+  finished_at: string | null;
+  counts: Record<string, unknown>;
+  error_message: string | null;
+  created_at: string;
+}
+
+export interface IntegrationProviderStatus {
+  provider: IntegrationProvider;
+  required_env: string[];
+  configured: boolean;
+  missing_env: string[];
+}
+
+export interface IntegrationSyncResult {
+  ok: boolean;
+  run_id: string;
+  result: {
+    ok: boolean;
+    status: number;
+    object_type: string;
+    counts: Record<string, unknown>;
+    error?: string;
+  };
+}
+
+export interface ProductivityExternalItem {
+  id: string;
+  workspace_id: string;
+  connection_id: string;
+  provider: IntegrationProvider;
+  project_id: string | null;
+  client_id: string | null;
+  external_type: "issue" | "pull_request" | "event" | "message" | "channel" | "team";
+  external_id: string;
+  external_key: string | null;
+  title: string;
+  status: string | null;
+  priority: string | null;
+  assignee: string | null;
+  external_url: string | null;
+  occurred_at: string | null;
+  due_at: string | null;
+  last_seen_at: string;
+  metadata: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
+export type ImportStatus = "draft" | "validating" | "ready" | "committed" | "failed" | "cancelled";
+
+export interface OnboardingImportBatch {
+  id: string;
+  workspace_id: string;
+  import_type: string;
+  filename: string | null;
+  status: ImportStatus;
+  column_map: Record<string, unknown>;
+  summary: Record<string, unknown>;
+  created_by: string | null;
+  committed_by: string | null;
+  committed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UserSavedView {
+  id: string;
+  workspace_id: string;
+  user_id: string;
+  surface: string;
+  name: string;
+  config: Record<string, unknown>;
+  is_default: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export type ClientPortalStatus = "invited" | "active" | "suspended";
+
+export interface ClientPortalUser {
+  id: string;
+  workspace_id: string;
+  client_id: string;
+  email: string;
+  full_name: string | null;
+  status: ClientPortalStatus;
+  invited_by: string | null;
+  last_seen_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type ClientApprovalStatus = "requested" | "approved" | "rejected" | "cancelled";
+
+export interface ClientApprovalRequest {
+  id: string;
+  workspace_id: string;
+  client_id: string;
+  project_id: string | null;
+  invoice_id: string | null;
+  title: string;
+  body: string | null;
+  status: ClientApprovalStatus;
+  requested_by: string | null;
+  decided_by_email: string | null;
+  decided_at: string | null;
+  decision_note: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ClientDocument {
+  id: string;
+  workspace_id: string;
+  client_id: string;
+  project_id: string | null;
+  uploaded_by: string | null;
+  title: string;
+  storage_path: string;
+  content_type: string | null;
+  visibility: "internal" | "client";
+  created_at: string;
+}
+
+export interface TrustArtifact {
+  id: string;
+  workspace_id: string | null;
+  artifact_type:
+    | "dpa"
+    | "subprocessors"
+    | "sla"
+    | "backup_dr"
+    | "incident_response"
+    | "soc2_evidence"
+    | "security_policy"
+    | "audit_export";
+  title: string;
+  storage_path: string | null;
+  public_url: string | null;
+  status: "draft" | "published" | "retired";
+  metadata: Record<string, unknown>;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export type HealthLight = "green" | "yellow" | "red";
 
 export interface AccountHealth {

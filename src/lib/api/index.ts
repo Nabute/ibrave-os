@@ -14,6 +14,7 @@ import { CommsRepository } from "./modules/comms";
 import { InvoicesRepository } from "./modules/invoices";
 import { PayoutsRepository } from "./modules/payouts";
 import { PrivacyRepository } from "./modules/privacy";
+import { ProductizationRepository } from "./modules/productization";
 import { ProjectsRepository } from "./modules/projects";
 import { ProspectingRepository } from "./modules/prospecting";
 import { ReportsRepository } from "./modules/reports";
@@ -33,6 +34,7 @@ export function createApi(config: ApiConfig) {
     invoices: new InvoicesRepository(config),
     payouts: new PayoutsRepository(config),
     privacy: new PrivacyRepository(config),
+    productization: new ProductizationRepository(config),
     reports: new ReportsRepository(config),
     staffing: new StaffingRepository(config),
     sales: new SalesRepository(config),

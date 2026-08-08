@@ -423,3 +423,6 @@ verify_jwt = false
 
 [functions.dunning]
 verify_jwt = false
+
+[functions.integrations]
+verify_jwt = true
